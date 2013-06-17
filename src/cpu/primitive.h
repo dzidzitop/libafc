@@ -63,33 +63,26 @@ template <typename T, typename D, afc::endianness o> inline void afc::Int32Base<
 {
 	if (interpretation == o) {
 		data = i;
-		return;
+	} else {
+		// making 1234 -> 4321 transformation.
+		uint32_t mask = 0xff;
+		data = (i&mask)<<24;
+		mask <<= 8;
+		data += (i&mask)<<8;
+		mask <<= 8;
+		data += (i&mask)>>8;
+		mask <<= 8;
+		data += (i&mask)>>24;
 	}
-	// making 1234 -> 4321 transformation.
-	uint32_t mask = 0xff;
-	data = (i&mask)<<24;
-	mask <<= 8;
-	data += (i&mask)<<8;
-	mask <<= 8;
-	data += (i&mask)>>8;
-	mask <<= 8;
-	data += (i&mask)>>24;
 }
 
-// TODO optimise if the size of char is 1 byte
 template <typename T, typename D, afc::endianness src> template <afc::endianness dest>
 	inline void afc::Int32Base<T, D, src>::toBytes(unsigned char out[]) const
 {
 	uint32_t t = data;
-	if (dest == src) {
-		out[0] = t&0xff;
-		t >>= 8;
-		out[1] = t&0xff;
-		t >>= 8;
-		out[2] = t&0xff;
-		t >>= 8;
-		out[3] = t;
-	} else {
+	if (dest == src) { // no conversion is needed
+		*reinterpret_cast<T *>(out) = data;
+	} else { // reverse the byte order
 		out[3] = t&0xff;
 		t >>= 8;
 		out[2] = t&0xff;
