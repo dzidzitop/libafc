@@ -79,10 +79,10 @@ template <typename T, typename D, afc::endianness o> inline void afc::Int32Base<
 template <typename T, typename D, afc::endianness src> template <afc::endianness dest>
 	inline void afc::Int32Base<T, D, src>::toBytes(unsigned char out[]) const
 {
-	uint32_t t = data;
 	if (dest == src) { // no conversion is needed
 		*reinterpret_cast<T *>(out) = data;
 	} else { // reverse the byte order
+		uint32_t t = data;
 		out[3] = t&0xff;
 		t >>= 8;
 		out[2] = t&0xff;
