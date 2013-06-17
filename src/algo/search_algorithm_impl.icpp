@@ -1,0 +1,106 @@
+#include <cstdlib>
+
+namespace
+{
+	template<typename T, typename F> inline void randomAssignment(std::vector<T> &result, const afc::SearchSpace<T, F> &space)
+	{
+		result.clear();
+		for (int i = 0, n = space.dimensionCount(); i < n; ++i) {
+			result.push_back(rand() % (space.upperBound(i) - space.lowerBound(i) + 1) - space.lowerBound(i));
+		}
+	}
+}
+
+namespace afc
+{
+	namespace __internal
+	{
+		template<typename T, typename F> class Candidate
+		{
+		friend class afc::RandomStartHillClimbing<T, F>;
+			Candidate(const unsigned dimension,	const T newState) : dimension(dimension), newState(newState) {}
+		
+			unsigned dimension;
+			T newState;
+		};
+	}
+}
+
+template<typename T, typename F> void afc::RandomStartHillClimbing<T, F>::solve(const SearchSpace<T, F> &space, std::vector<T> &result)
+{
+	F currBestValue;
+	for (unsigned i = 0; i < m_attemptCount; ++i) {
+		std::vector<T> state;
+		randomAssignment(state, space);
+		
+		F newValue = space.value(state);
+		for (unsigned step = 0; step < m_maxSteps; ++step) {
+			std::vector< __internal::Candidate<T, F> > candidates;
+			
+			for (unsigned j = 0, n = space.dimensionCount(); j < n; ++j) {
+				const T backup = state[j];
+				for (T k = space.lowerBound(j), m = space.upperBound(j); k <= m; ++k) {
+					state[j] = k;
+					const F currValue = space.value(state);
+					
+					if (currValue == newValue) { // If the best move has same value it worth to try it. Nothing is lost at least.
+						candidates.push_back(__internal::Candidate<T, F>(j, k));
+					} else if (currValue > newValue) {
+						candidates.clear();
+						candidates.push_back(__internal::Candidate<T, F>(j, k));
+						newValue = currValue;
+					}
+				}
+				state[j] = backup;
+			}
+			
+			// selecting a solution at random among equal ones
+			size_t p = candidates.size() == 1 ? 0 : rand() % candidates.size();
+			state[candidates[p].dimension] = candidates[p].newState;
+		}
+		
+		if (i == 0 || newValue > currBestValue) {
+			currBestValue = newValue;
+			result = state;
+		}
+	}
+}
+
+template<typename T, typename F> void afc::ExhaustiveSearch<T, F>::solve(const SearchSpace<T, F> &space, std::vector<T> &result)
+{
+	std::vector<T> state;
+	const unsigned dimensionCount = space.dimensionCount();
+	
+	for (unsigned i = 0; i < dimensionCount; ++i) {
+		state.push_back(space.lowerBound(i));
+	}
+	result = state;
+	
+	F bestValue = space.value(state);
+	const T lb = space.lowerBound(0);
+	const T ub = space.upperBound(0);
+
+	for (;;) {
+		for (T i = lb; i <= ub; ++i) {
+			state[0] = i;
+			
+			const F currValue = space.value(state);
+			if (currValue > bestValue) {
+				bestValue = currValue;
+				result = state;
+			}
+		}
+		for (unsigned i = 1, n = dimensionCount - 1; i <= n; ++i) {
+			if (state[i] == space.upperBound(i)) {
+				if (i == n) {
+					// all possible states are processed
+					return;
+				}
+				state[i] = space.lowerBound(i);
+			} else {
+				++state[i];
+				break;
+			}
+		}
+	}
+}
