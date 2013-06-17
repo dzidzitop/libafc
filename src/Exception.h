@@ -121,9 +121,10 @@ namespace afc
 			: Exception(what, cause) {}
 	};
 
-	template<typename Ex> void throwException();
-	template<typename Ex, typename Arg> void throwException(const Arg &arg);
-	template<typename Ex, typename Arg1, typename Arg2> void throwExceptionConcat(const Arg1 &arg1, const Arg2 &arg2);
+	// TODO find a way to make instances of these templates non-inlineable since they are created mostly to prevent code bloating
+	template<typename Ex> void throwException() {throw Ex();}
+	template<typename Ex, typename Arg> void throwException(const Arg &arg) {throw Ex(arg);}
+	template<typename Ex, typename Arg1, typename Arg2> void throwExceptionConcat(const Arg1 &arg1, const Arg2 &arg2) {throw Ex(arg1 + arg2);}
 }
 
 #endif /*AFC_EXCEPTION_H_*/

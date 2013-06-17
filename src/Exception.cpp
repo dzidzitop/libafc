@@ -45,8 +45,4 @@ namespace afc
 			out << "caused by " << *m_cause;
 		}*/
 	}
-
-	extern template<typename Ex> void throwException() {throw Ex();}
-	extern template<typename Ex, typename Arg> void throwException(const Arg &arg) {throw Ex(arg);}
-	extern template<typename Ex, typename Arg1, typename Arg2> void throwExceptionConcat(const Arg1 &arg1, const Arg2 &arg2) {throw Ex(arg1 + arg2);}
 }
