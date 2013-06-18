@@ -18,58 +18,37 @@ namespace afc
 #endif
 
 	// TODO remove this class and move everything to templates.
-	template<typename T, typename D, endianness o> class Int32Base
+	template<typename T, endianness o> class Int32Base
 	{
 	public:
+		Int32Base(const T i, const endianness byteOrder = PLATFORM_BYTE_ORDER);
+		Int32Base(const unsigned char in[], const endianness byteOrder = PLATFORM_BYTE_ORDER);
+		template<endianness bo> Int32Base(const Int32Base<T, bo> &i) : Int32Base(i.data.dword, bo) {}
+
 		/**
 		 * Preserves the order of bytes.
 		 */
 		operator T() const {return static_cast<T>(m_data.dword);}
 
 		template<endianness dest> inline void toBytes(unsigned char out[]) const;
-		template<endianness src> inline static D fromBytes(const unsigned char in[]) {return D(in, src);}
-	protected:
-		Int32Base(const T i, const endianness byteOrder) {set(i, byteOrder);}
-		Int32Base(const unsigned char in[], const endianness byteOrder = PLATFORM_BYTE_ORDER);
-		template<endianness bo> Int32Base(const Int32Base<T, D, bo> &i) {set(i.data.dword, bo);}
-
+		template<endianness src> inline static Int32Base fromBytes(const unsigned char in[]) {return Int32Base(in, src);}
+	private:
 		static_assert(sizeof(T) == 4, "T is not a dword");
 		union data
 		{
 			T dword;
 			char bytes[4];
 		};
-	private:
+
 		data m_data;
-
-		inline void set(const T i, const endianness byteOrder);
 	};
 
-	template<endianness o = PLATFORM_BYTE_ORDER> struct Int32 : public Int32Base<int32_t, Int32<o>, o>
-	{
-		Int32(const int32_t i, const endianness byteOrder = PLATFORM_BYTE_ORDER)
-				: Int32Base<int32_t, Int32<o>, o>(i, byteOrder) {}
-		Int32(const unsigned char in[], const endianness byteOrder = PLATFORM_BYTE_ORDER)
-				: Int32Base<int32_t, Int32<o>, o>(in, byteOrder) {}
-		template<endianness bo> Int32(const Int32<bo> &i) : Int32Base<int32_t, Int32<o>, o>(i) {}
-
-		template<endianness dest> operator Int32<dest>() const;
-	};
-
-	template<endianness o = PLATFORM_BYTE_ORDER> struct UInt32 : public Int32Base<uint32_t, UInt32<o>, o>
-	{
-		UInt32(const uint32_t i, const endianness byteOrder = PLATFORM_BYTE_ORDER)
-				: Int32Base<uint32_t, UInt32<o>, o>(i, byteOrder) {}
-		UInt32(const unsigned char in[], const endianness byteOrder = PLATFORM_BYTE_ORDER)
-				: Int32Base<int32_t, Int32<o>, o>(in, byteOrder) {}
-		template<endianness bo> UInt32(const UInt32<bo> &i) : Int32Base<uint32_t, UInt32<o>, o>(i) {}
-
-		template<endianness dest> operator UInt32<dest>() const;
-	};
+	template<endianness o = PLATFORM_BYTE_ORDER> using Int32 = Int32Base<int32_t, o>;
+	template<endianness o = PLATFORM_BYTE_ORDER> using UInt32 = Int32Base<uint32_t, o>;
 }
 
-template <typename T, typename D, afc::endianness o>
-inline afc::Int32Base<T, D, o>::Int32Base(const unsigned char in[], const afc::endianness byteOrder)
+template <typename T, afc::endianness o>
+inline afc::Int32Base<T, o>::Int32Base(const unsigned char in[], const afc::endianness byteOrder)
 {
 	if (byteOrder == o) {
 		m_data.bytes[0] = in[0];
@@ -84,8 +63,8 @@ inline afc::Int32Base<T, D, o>::Int32Base(const unsigned char in[], const afc::e
 	}
 }
 
-template <typename T, typename D, afc::endianness o>
-inline void afc::Int32Base<T, D, o>::set(const T i, const afc::endianness byteOrder)
+template <typename T, afc::endianness o>
+inline afc::Int32Base<T, o>::Int32Base(const T i, const endianness byteOrder)
 {
 	if (byteOrder == o) {
 		m_data.dword = i;
@@ -98,8 +77,8 @@ inline void afc::Int32Base<T, D, o>::set(const T i, const afc::endianness byteOr
 	}
 }
 
-template <typename T, typename D, afc::endianness src> template <afc::endianness dest>
-inline void afc::Int32Base<T, D, src>::toBytes(unsigned char out[]) const
+template <typename T, afc::endianness src> template <afc::endianness dest>
+inline void afc::Int32Base<T, src>::toBytes(unsigned char out[]) const
 {
 	if (dest == src) {
 		out[0] = m_data.bytes[0];
