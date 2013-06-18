@@ -2,7 +2,7 @@
 #define AFC_CPU_PRIMITIVE_H_
 
 #include "../platform.h"
-#include <stdint.h>
+#include <cstdint>
 
 namespace afc
 {
@@ -43,8 +43,8 @@ namespace afc
 		data m_data;
 	};
 
-	template<endianness o = PLATFORM_BYTE_ORDER> using Int32 = Int32Base<int32_t, o>;
-	template<endianness o = PLATFORM_BYTE_ORDER> using UInt32 = Int32Base<uint32_t, o>;
+	template<endianness o = PLATFORM_BYTE_ORDER> using Int32 = Int32Base<std::int32_t, o>;
+	template<endianness o = PLATFORM_BYTE_ORDER> using UInt32 = Int32Base<std::uint32_t, o>;
 }
 
 template <typename T, afc::endianness o>
