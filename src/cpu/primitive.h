@@ -24,17 +24,24 @@ namespace afc
 		/**
 		 * Preserves the order of bytes.
 		 */
-		operator T() const {return static_cast<T>(data);}
+		operator T() const {return static_cast<T>(m_data.dword);}
 
 		template<endianness dest> inline void toBytes(unsigned char out[]) const;
 		template<endianness src> inline static D fromBytes(const unsigned char in[]);
 	protected:
 		Int32Base(const T i, const endianness interpretation) {set(i, interpretation);}
-		template<endianness bo> Int32Base(const Int32Base<T, D, bo> &i) {set(i.data, bo);}
-	private:
-		uint32_t data;
+		template<endianness bo> Int32Base(const Int32Base<T, D, bo> &i) {set(i.data.dword, bo);}
 
-		inline void set(const uint32_t i, const endianness interpretation);
+		static_assert(sizeof(T) == 4, "T is not a dword");
+		union data
+		{
+			T dword;
+			char bytes[4];
+		};
+	private:
+		data m_data;
+
+		inline void set(const T i, const endianness interpretation);
 		template<endianness dest> inline void setBytes(unsigned char out[]) const;
 	};
 
@@ -57,52 +64,38 @@ namespace afc
 	};
 }
 
-// TODO optimise if the size of char is 1 byte
-// TODO rotation could be used as well. 1234 >>>> 8 = 4123. Then only 1 and 3 need to be switched.
-template <typename T, typename D, afc::endianness o> inline void afc::Int32Base<T, D, o>::set(const uint32_t i, const afc::endianness interpretation)
+template <typename T, typename D, afc::endianness o>
+inline void afc::Int32Base<T, D, o>::set(const T i, const afc::endianness interpretation)
 {
 	if (interpretation == o) {
-		data = i;
-		return;
-	}
-	// making 1234 -> 4321 transformation.
-	uint32_t mask = 0xff;
-	data = (i&mask)<<24;
-	mask <<= 8;
-	data += (i&mask)<<8;
-	mask <<= 8;
-	data += (i&mask)>>8;
-	mask <<= 8;
-	data += (i&mask)>>24;
-}
-
-// TODO optimise if the size of char is 1 byte
-template <typename T, typename D, afc::endianness src> template <afc::endianness dest>
-	inline void afc::Int32Base<T, D, src>::toBytes(unsigned char out[]) const
-{
-	uint32_t t = data;
-	if (dest == src) {
-		out[0] = t&0xff;
-		t >>= 8;
-		out[1] = t&0xff;
-		t >>= 8;
-		out[2] = t&0xff;
-		t >>= 8;
-		out[3] = t;
+		m_data.dword = i;
 	} else {
-		out[3] = t&0xff;
-		t >>= 8;
-		out[2] = t&0xff;
-		t >>= 8;
-		out[1] = t&0xff;
-		t >>= 8;
-		out[0] = t;
+		data input = {i};
+		m_data.bytes[0] = input.bytes[3];
+		m_data.bytes[1] = input.bytes[2];
+		m_data.bytes[2] = input.bytes[1];
+		m_data.bytes[3] = input.bytes[0];
 	}
 }
 
-// TODO optimise if the size of char is 1 byte
+template <typename T, typename D, afc::endianness src> template <afc::endianness dest>
+inline void afc::Int32Base<T, D, src>::toBytes(unsigned char out[]) const
+{
+	if (dest == src) {
+		out[0] = m_data.bytes[0];
+		out[1] = m_data.bytes[1];
+		out[2] = m_data.bytes[2];
+		out[3] = m_data.bytes[3];
+	} else {
+		out[0] = m_data.bytes[3];
+		out[1] = m_data.bytes[2];
+		out[2] = m_data.bytes[1];
+		out[3] = m_data.bytes[0];
+	}
+}
+
 template <typename T, typename D, afc::endianness o> template <afc::endianness src>
-	inline D afc::Int32Base<T, D, o>::fromBytes(const unsigned char in[])
+inline D afc::Int32Base<T, D, o>::fromBytes(const unsigned char in[])
 {
 	const uint32_t val = (src==endianness::BE)^(o==endianness::BE)^(PLATFORM_BYTE_ORDER==endianness::BE) ?
 			(((((in[0]<<8) + in[1])<<8) + in[2])<<8) + in[3] :
