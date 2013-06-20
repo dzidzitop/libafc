@@ -3,6 +3,10 @@
 
 #include "../platform.h"
 #include <cstdint>
+#include <climits>
+#include <cstddef>
+
+static_assert(CHAR_BIT == 8, "only octet bytes (char) are supported");
 
 namespace afc
 {
@@ -17,79 +21,77 @@ namespace afc
 	#error "unsupported platform"
 #endif
 
-	// TODO remove this class and move everything to templates.
-	template<typename T, endianness o> class Int32Base
+	template<typename T, endianness o> class IntegerBase
 	{
+		static const size_t bytesCount = sizeof(T);
 	public:
-		Int32Base(const T i, const endianness byteOrder = PLATFORM_BYTE_ORDER);
-		Int32Base(const unsigned char in[], const endianness byteOrder = PLATFORM_BYTE_ORDER);
-		template<endianness bo> Int32Base(const Int32Base<T, bo> &i) : Int32Base(i.data.dword, bo) {}
+		IntegerBase(const T val, const endianness byteOrder = PLATFORM_BYTE_ORDER);
+		IntegerBase(const unsigned char in[], const endianness byteOrder = PLATFORM_BYTE_ORDER);
+		template<endianness bo> IntegerBase(const IntegerBase<T, bo> &val) : IntegerBase(val.data.value, bo) {}
 
 		/**
 		 * Preserves the order of bytes.
 		 */
-		operator T() const {return static_cast<T>(m_data.dword);}
+		operator T() const {return static_cast<T>(m_data.value);}
 
 		template<endianness dest> inline void toBytes(unsigned char out[]) const;
-		template<endianness src> inline static Int32Base fromBytes(const unsigned char in[]) {return Int32Base(in, src);}
+		template<endianness src> inline static IntegerBase fromBytes(const unsigned char in[]) {return IntegerBase(in, src);}
 	private:
-		static_assert(sizeof(T) == 4, "T is not a dword");
 		union data
 		{
-			T dword;
-			char bytes[4];
+			T value;
+			char bytes[bytesCount];
 		};
 
 		data m_data;
 	};
 
-	template<endianness o = PLATFORM_BYTE_ORDER> using Int32 = Int32Base<std::int32_t, o>;
-	template<endianness o = PLATFORM_BYTE_ORDER> using UInt32 = Int32Base<std::uint32_t, o>;
+	template<endianness o = PLATFORM_BYTE_ORDER> using Int16 = IntegerBase<std::int16_t, o>;
+	template<endianness o = PLATFORM_BYTE_ORDER> using UInt16 = IntegerBase<std::uint16_t, o>;
+	template<endianness o = PLATFORM_BYTE_ORDER> using Int32 = IntegerBase<std::int32_t, o>;
+	template<endianness o = PLATFORM_BYTE_ORDER> using UInt32 = IntegerBase<std::uint32_t, o>;
+	template<endianness o = PLATFORM_BYTE_ORDER> using Int64 = IntegerBase<std::int64_t, o>;
+	template<endianness o = PLATFORM_BYTE_ORDER> using UInt64 = IntegerBase<std::uint64_t, o>;
 }
 
 template <typename T, afc::endianness o>
-inline afc::Int32Base<T, o>::Int32Base(const unsigned char in[], const afc::endianness byteOrder)
+inline afc::IntegerBase<T, o>::IntegerBase(const unsigned char in[], const afc::endianness byteOrder)
 {
 	if (byteOrder == o) {
-		m_data.bytes[0] = in[0];
-		m_data.bytes[1] = in[1];
-		m_data.bytes[2] = in[2];
-		m_data.bytes[3] = in[3];
+		for (size_t i = 0; i < bytesCount; ++i) {
+			m_data.bytes[i] = in[i];
+		}
 	} else {
-		m_data.bytes[0] = in[3];
-		m_data.bytes[1] = in[2];
-		m_data.bytes[2] = in[1];
-		m_data.bytes[3] = in[0];
+		for (size_t i = 0; i < bytesCount; ++i) {
+			m_data.bytes[i] = in[bytesCount-1 - i];
+		}
 	}
 }
 
 template <typename T, afc::endianness o>
-inline afc::Int32Base<T, o>::Int32Base(const T i, const endianness byteOrder)
+inline afc::IntegerBase<T, o>::IntegerBase(const T val, const endianness byteOrder)
 {
 	if (byteOrder == o) {
-		m_data.dword = i;
+		m_data.value = val;
 	} else {
-		data input = {i};
-		m_data.bytes[0] = input.bytes[3];
-		m_data.bytes[1] = input.bytes[2];
-		m_data.bytes[2] = input.bytes[1];
-		m_data.bytes[3] = input.bytes[0];
+		data input = {val};
+		for (size_t i = 0; i < bytesCount; ++i) {
+			m_data.bytes[i] = input.bytes[bytesCount-1 - i];
+		}
 	}
 }
 
 template <typename T, afc::endianness src> template <afc::endianness dest>
-inline void afc::Int32Base<T, src>::toBytes(unsigned char out[]) const
+inline void afc::IntegerBase<T, src>::toBytes(unsigned char out[]) const
 {
 	if (dest == src) {
-		out[0] = m_data.bytes[0];
-		out[1] = m_data.bytes[1];
-		out[2] = m_data.bytes[2];
-		out[3] = m_data.bytes[3];
+		for (size_t i = 0; i < bytesCount; ++i) {
+			out[i] = m_data.bytes[i];
+		}
 	} else {
-		out[0] = m_data.bytes[3];
-		out[1] = m_data.bytes[2];
-		out[2] = m_data.bytes[1];
-		out[3] = m_data.bytes[0];
+		for (size_t i = 0; i < bytesCount; ++i) {
+			out[i] = m_data.bytes[bytesCount-1 - i];
+		}
 	}
 }
 
