@@ -6,7 +6,7 @@
 #include <climits>
 #include <cstddef>
 
-static_assert(CHAR_BIT == 8, "only octet bytes (char) are supported");
+static_assert(CHAR_BIT == 8, "only 8-bit bytes (chars) are supported");
 
 namespace afc
 {
@@ -26,7 +26,8 @@ namespace afc
 		static const size_t bytesCount = sizeof(T);
 	public:
 		IntegerBase(const T val, const endianness byteOrder = PLATFORM_BYTE_ORDER);
-		IntegerBase(const unsigned char in[], const endianness byteOrder = PLATFORM_BYTE_ORDER);
+		IntegerBase(const unsigned char in[], const endianness byteOrder = PLATFORM_BYTE_ORDER) {init(in, byteOrder);}
+		IntegerBase(const char in[], const endianness byteOrder = PLATFORM_BYTE_ORDER) {init(in, byteOrder);}
 		template<endianness bo> IntegerBase(const IntegerBase<T, bo> &val) : IntegerBase(val.data.value, bo) {}
 
 		/**
@@ -36,9 +37,12 @@ namespace afc
 
 		template<endianness dest> inline void toBytes(unsigned char out[]) const;
 		template<endianness src> inline static IntegerBase fromBytes(const unsigned char in[]) {return IntegerBase(in, src);}
+		template<endianness src> inline static IntegerBase fromBytes(const char in[]) {return IntegerBase(in, src);}
 
 		typedef T type;
 	private:
+		template<typename CharType> inline void init(const CharType in[], const endianness byteOrder = PLATFORM_BYTE_ORDER);
+
 		union data
 		{
 			T value;
@@ -56,9 +60,10 @@ namespace afc
 	template<endianness o = PLATFORM_BYTE_ORDER> using UInt64 = IntegerBase<std::uint64_t, o>;
 }
 
-template <typename T, afc::endianness o>
-inline afc::IntegerBase<T, o>::IntegerBase(const unsigned char in[], const afc::endianness byteOrder)
+template<typename T, afc::endianness o> template<typename CharType>
+inline void afc::IntegerBase<T, o>::init(const CharType in[], const afc::endianness byteOrder)
 {
+	static_assert(sizeof(CharType) == 1, "only 8-bit bytes (chars) are supported");
 	if (byteOrder == o) {
 		for (size_t i = 0; i < bytesCount; ++i) {
 			m_data.bytes[i] = in[i];
@@ -70,7 +75,7 @@ inline afc::IntegerBase<T, o>::IntegerBase(const unsigned char in[], const afc::
 	}
 }
 
-template <typename T, afc::endianness o>
+template<typename T, afc::endianness o>
 inline afc::IntegerBase<T, o>::IntegerBase(const T val, const endianness byteOrder)
 {
 	if (byteOrder == o) {
@@ -83,7 +88,7 @@ inline afc::IntegerBase<T, o>::IntegerBase(const T val, const endianness byteOrd
 	}
 }
 
-template <typename T, afc::endianness src> template <afc::endianness dest>
+template<typename T, afc::endianness src> template <afc::endianness dest>
 inline void afc::IntegerBase<T, src>::toBytes(unsigned char out[]) const
 {
 	if (dest == src) {
