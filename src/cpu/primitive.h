@@ -32,10 +32,12 @@ namespace afc
 		/**
 		 * Preserves the order of bytes.
 		 */
-		operator T() const {return static_cast<T>(m_data.value);}
+		operator T() const {return m_data.value;}
 
 		template<endianness dest> inline void toBytes(unsigned char out[]) const;
 		template<endianness src> inline static IntegerBase fromBytes(const unsigned char in[]) {return IntegerBase(in, src);}
+
+		typedef T type;
 	private:
 		union data
 		{
