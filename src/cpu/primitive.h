@@ -46,7 +46,7 @@ namespace afc
 		union data
 		{
 			T value;
-			char bytes[bytesCount];
+			unsigned char bytes[bytesCount];
 		};
 
 		data m_data;
