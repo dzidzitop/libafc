@@ -1,8 +1,11 @@
 srcDir=src
+testDir=test
 buildDir=build
 cxxFlags=-Wall -fPIC -std=c++11 -O2
 ccFlags=-Wall -fPIC -O2
 ldFlags=
+cxxFlags_test=-I"../cpptest" -I"$srcDir" -I"$srcDir/algo" -I"$srcDir/cpu" $cxxFlags
+ldFlags_test=-L"../cpptest/Debug" -L"$buildDir" $ldFlags
 
 rule cxx
   depfile=$out.d
@@ -16,7 +19,14 @@ rule linkDynamic
   command=g++ $ldFlags -shared -o $out $in
 
 rule linkStatic
-  command = rm -f $out && ar crs $out $in
+  command=rm -f $out && ar crs $out $in
+
+rule bin
+  command=g++ $ldFlags_test -o $out $in $libs
+
+rule cxx_test
+  depfile=$out.d
+  command=g++ $cxxFlags_test -MMD -MF $out.d -c $in -o $out
 
 build $buildDir/_demangle.o: cxx $srcDir/_demangle.cpp
 build $buildDir/assertion.o: cxx $srcDir/assertion.cpp
@@ -28,7 +38,18 @@ build $buildDir/number.o: cxx $srcDir/number.cpp
 build $buildDir/StackTrace.o: cxx $srcDir/StackTrace.cpp
 build $buildDir/utils.o: cxx $srcDir/utils.cpp
 
-build $buildDir/afc.so: linkDynamic $
+build $buildDir/run_tests.o: cxx_test $testDir/run_tests.cpp
+build $buildDir/CompileTimeMathTest.o: cxx_test $testDir/CompileTimeMathTest.cpp
+build $buildDir/FastDivisionTest.o: cxx_test $testDir/FastDivisionTest.cpp
+build $buildDir/FileTest.o: cxx_test $testDir/FileTest.cpp
+build $buildDir/MathUtilsTest.o: cxx_test $testDir/MathUtilsTest.cpp
+build $buildDir/NumberTest.o: cxx_test $testDir/NumberTest.cpp
+build $buildDir/RepositoryTest.o: cxx_test $testDir/RepositoryTest.cpp
+build $buildDir/TokeniserTest.o: cxx_test $testDir/TokeniserTest.cpp
+build $buildDir/UtilsTest.o: cxx_test $testDir/UtilsTest.cpp
+build $buildDir/cpu/Int32Test.o: cxx_test $testDir/cpu/Int32Test.cpp
+
+build $buildDir/libafc.so: linkDynamic $
     $buildDir/_demangle.o $
     $buildDir/assertion.o $
     $buildDir/backtrace.o $
@@ -49,3 +70,23 @@ build $buildDir/libafc.a: linkStatic $
     $buildDir/number.o $
     $buildDir/StackTrace.o $
     $buildDir/utils.o
+
+build $buildDir/libafc_test: bin $
+    $buildDir/libafc.so $
+    $buildDir/run_tests.o $
+    $buildDir/CompileTimeMathTest.o $
+    $buildDir/FastDivisionTest.o $
+    $buildDir/FileTest.o $
+    $buildDir/MathUtilsTest.o $
+    $buildDir/NumberTest.o $
+    $buildDir/RepositoryTest.o $
+    $buildDir/TokeniserTest.o $
+    $buildDir/UtilsTest.o $
+    $buildDir/cpu/Int32Test.o
+  libs=-lc -lcpptest -lafc -Wl,--as-needed
+
+build sharedLib: phony $buildDir/libafc.so
+build staticLib: phony $buildDir/libafc.a
+build testBinary: phony $buildDir/libafc_test
+
+build all: phony sharedLib staticLib
