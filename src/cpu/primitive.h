@@ -35,13 +35,15 @@ namespace afc
 		 */
 		operator T() const {return m_data.value;}
 
-		template<endianness dest> inline void toBytes(unsigned char out[]) const;
+		template<endianness dest> inline void toBytes(unsigned char out[]) const {toBytesImpl<unsigned char, dest>(out);}
+		template<endianness dest> inline void toBytes(char out[]) const {toBytesImpl<char, dest>(out);}
 		template<endianness src> inline static IntegerBase fromBytes(const unsigned char in[]) {return IntegerBase(in, src);}
 		template<endianness src> inline static IntegerBase fromBytes(const char in[]) {return IntegerBase(in, src);}
 
 		typedef T type;
 	private:
 		template<typename CharType> inline void init(const CharType in[], const endianness byteOrder = PLATFORM_BYTE_ORDER);
+		template<typename CharType, endianness dest> inline void toBytesImpl(CharType out[]) const;
 
 		union data
 		{
@@ -88,9 +90,10 @@ inline afc::IntegerBase<T, o>::IntegerBase(const T val, const endianness byteOrd
 	}
 }
 
-template<typename T, afc::endianness src> template <afc::endianness dest>
-inline void afc::IntegerBase<T, src>::toBytes(unsigned char out[]) const
+template<typename T, afc::endianness src> template<typename CharType, afc::endianness dest>
+inline void afc::IntegerBase<T, src>::toBytesImpl(CharType out[]) const
 {
+	static_assert(sizeof(CharType) == 1, "only 8-bit bytes (chars) are supported");
 	if (dest == src) {
 		for (size_t i = 0; i < bytesCount; ++i) {
 			out[i] = m_data.bytes[i];
