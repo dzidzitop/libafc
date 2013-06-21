@@ -1,0 +1,51 @@
+srcDir=src
+buildDir=build
+cxxFlags=-Wall -fPIC -std=c++11 -O2
+ccFlags=-Wall -fPIC -O2
+ldFlags=
+
+rule cxx
+  depfile=$out.d
+  command=g++ $cxxFlags -MMD -MF $out.d -c $in -o $out
+
+rule cc
+  depfile=$out.d
+  command=gcc $ccFlags -MMD -MF $out.d -c $in -o $out
+
+rule linkDynamic
+  command=g++ $ldFlags -shared -o $out $in
+
+rule linkStatic
+  command = rm -f $out && ar crs $out $in
+
+build $buildDir/_demangle.o: cxx $srcDir/_demangle.cpp
+build $buildDir/assertion.o: cxx $srcDir/assertion.cpp
+build $buildDir/backtrace.o: cxx $srcDir/backtrace.cpp
+build $buildDir/Exception.o: cxx $srcDir/Exception.cpp
+build $buildDir/File.o: cxx $srcDir/File.cpp
+build $buildDir/libintl.o: cc $srcDir/libintl.c
+build $buildDir/number.o: cxx $srcDir/number.cpp
+build $buildDir/StackTrace.o: cxx $srcDir/StackTrace.cpp
+build $buildDir/utils.o: cxx $srcDir/utils.cpp
+
+build $buildDir/afc.so: linkDynamic $
+    $buildDir/_demangle.o $
+    $buildDir/assertion.o $
+    $buildDir/backtrace.o $
+    $buildDir/Exception.o $
+    $buildDir/File.o $
+    $buildDir/libintl.o $
+    $buildDir/number.o $
+    $buildDir/StackTrace.o $
+    $buildDir/utils.o
+
+build $buildDir/libafc.a: linkStatic $
+    $buildDir/_demangle.o $
+    $buildDir/assertion.o $
+    $buildDir/backtrace.o $
+    $buildDir/Exception.o $
+    $buildDir/File.o $
+    $buildDir/libintl.o $
+    $buildDir/number.o $
+    $buildDir/StackTrace.o $
+    $buildDir/utils.o
