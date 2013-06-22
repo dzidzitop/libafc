@@ -72,7 +72,6 @@ build $buildDir/libafc.a: linkStatic $
     $buildDir/utils.o
 
 build $buildDir/libafc_test: bin $
-    $buildDir/libafc.so $
     $buildDir/run_tests.o $
     $buildDir/CompileTimeMathTest.o $
     $buildDir/FastDivisionTest.o $
@@ -82,7 +81,8 @@ build $buildDir/libafc_test: bin $
     $buildDir/RepositoryTest.o $
     $buildDir/TokeniserTest.o $
     $buildDir/UtilsTest.o $
-    $buildDir/cpu/Int32Test.o
+    $buildDir/cpu/Int32Test.o $
+    | $buildDir/libafc.so
   libs=-lc -lcpptest -lafc -Wl,--as-needed
 
 build sharedLib: phony $buildDir/libafc.so
