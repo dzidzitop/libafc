@@ -65,7 +65,7 @@ namespace
 	};
 }
 
-u16string stringToUTF16LE(const string &src, const string &encoding)
+u16string afc::stringToUTF16LE(const string &src, const string &encoding)
 {
 	if (src.empty()) {
 		return u16string();
