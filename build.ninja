@@ -36,6 +36,7 @@ build $buildDir/File.o: cxx $srcDir/afc/File.cpp
 build $buildDir/libintl.o: cc $srcDir/afc/libintl.c
 build $buildDir/number.o: cxx $srcDir/afc/number.cpp
 build $buildDir/StackTrace.o: cxx $srcDir/afc/StackTrace.cpp
+build $buildDir/stream.o: cxx $srcDir/afc/stream.cpp
 build $buildDir/stringToUTF16.o: cxx $srcDir/afc/stringToUTF16.cpp
 build $buildDir/utils.o: cxx $srcDir/afc/utils.cpp
 
@@ -59,6 +60,7 @@ build $buildDir/libafc.so: linkDynamic $
     $buildDir/libintl.o $
     $buildDir/number.o $
     $buildDir/StackTrace.o $
+    $buildDir/stream.o $
     $buildDir/stringToUTF16.o $
     $buildDir/utils.o
 
@@ -71,6 +73,7 @@ build $buildDir/libafc.a: linkStatic $
     $buildDir/libintl.o $
     $buildDir/number.o $
     $buildDir/StackTrace.o $
+    $buildDir/stream.o $
     $buildDir/stringToUTF16.o $
     $buildDir/utils.o
 
@@ -86,10 +89,12 @@ build $buildDir/libafc_test: bin $
     $buildDir/UtilsTest.o $
     $buildDir/cpu/Int32Test.o $
     | $buildDir/libafc.so
-  libs=-lc -lcpptest -lafc -Wl,--as-needed
+  libs=-lc -lz -lcpptest -lafc -Wl,--as-needed
 
 build sharedLib: phony $buildDir/libafc.so
 build staticLib: phony $buildDir/libafc.a
 build testBinary: phony $buildDir/libafc_test
 
 build all: phony sharedLib staticLib
+
+default all
