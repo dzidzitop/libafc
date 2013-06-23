@@ -1,9 +1,9 @@
 #include "NumberTest.h"
-#include "number.h"
-#include "Stopwatch.h"
+#include <afc/number.h>
+#include <afc/Stopwatch.h>
 #include <cstdlib>
 #include <climits>
-#include "compile_time_math.h"
+#include <afc/compile_time_math.h>
 
 using namespace std;
 
@@ -241,7 +241,7 @@ void afc::NumberTest::testToStringInt()
 	TEST_ASSERT(toString(1, 36) == "1");
 	TEST_ASSERT(toString(-1, 36) == "-1");
 	TEST_ASSERT(toString(-35*36-34, 36) == "-zy");
-	
+
 	TEST_THROWS(toString(1, 0), InvalidArgumentException &);
 	TEST_THROWS(toString(1, 1), InvalidArgumentException &);
 	TEST_THROWS(toString(1, 37), InvalidArgumentException &);

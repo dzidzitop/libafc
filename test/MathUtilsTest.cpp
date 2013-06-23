@@ -1,5 +1,5 @@
 #include "MathUtilsTest.h"
-#include "math_utils.h"
+#include <afc/math_utils.h>
 
 afc::MathUtilsTest::MathUtilsTest()
 {

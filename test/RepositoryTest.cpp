@@ -1,5 +1,5 @@
 #include "RepositoryTest.h"
-#include "Repository.h"
+#include <afc/Repository.h>
 #include <string>
 
 using std::string;

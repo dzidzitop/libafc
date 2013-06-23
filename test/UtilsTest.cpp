@@ -1,5 +1,5 @@
 #include "UtilsTest.h"
-#include "../src/utils.h"
+#include <afc/utils.h>
 #include <functional>
 
 using std::string;

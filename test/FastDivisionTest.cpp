@@ -1,5 +1,5 @@
 #include "FastDivisionTest.h"
-#include "fast_division.h"
+#include <afc/fast_division.h>
 #include <climits>
 
 afc::FastDivisionTest::FastDivisionTest()

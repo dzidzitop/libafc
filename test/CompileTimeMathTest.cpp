@@ -1,5 +1,5 @@
 #include "CompileTimeMathTest.h"
-#include "compile_time_math.h"
+#include <afc/compile_time_math.h>
 #include <climits>
 #include <cmath>
 

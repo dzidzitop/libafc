@@ -28,15 +28,15 @@ rule cxx_test
   depfile=$out.d
   command=g++ $cxxFlags_test -MMD -MF $out.d -c $in -o $out
 
-build $buildDir/_demangle.o: cxx $srcDir/_demangle.cpp
-build $buildDir/assertion.o: cxx $srcDir/assertion.cpp
-build $buildDir/backtrace.o: cxx $srcDir/backtrace.cpp
-build $buildDir/Exception.o: cxx $srcDir/Exception.cpp
-build $buildDir/File.o: cxx $srcDir/File.cpp
-build $buildDir/libintl.o: cc $srcDir/libintl.c
-build $buildDir/number.o: cxx $srcDir/number.cpp
-build $buildDir/StackTrace.o: cxx $srcDir/StackTrace.cpp
-build $buildDir/utils.o: cxx $srcDir/utils.cpp
+build $buildDir/_demangle.o: cxx $srcDir/afc/_demangle.cpp
+build $buildDir/assertion.o: cxx $srcDir/afc/assertion.cpp
+build $buildDir/backtrace.o: cxx $srcDir/afc/backtrace.cpp
+build $buildDir/Exception.o: cxx $srcDir/afc/Exception.cpp
+build $buildDir/File.o: cxx $srcDir/afc/File.cpp
+build $buildDir/libintl.o: cc $srcDir/afc/libintl.c
+build $buildDir/number.o: cxx $srcDir/afc/number.cpp
+build $buildDir/StackTrace.o: cxx $srcDir/afc/StackTrace.cpp
+build $buildDir/utils.o: cxx $srcDir/afc/utils.cpp
 
 build $buildDir/run_tests.o: cxx_test $testDir/run_tests.cpp
 build $buildDir/CompileTimeMathTest.o: cxx_test $testDir/CompileTimeMathTest.cpp

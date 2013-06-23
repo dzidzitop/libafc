@@ -1,6 +1,6 @@
 #include "TokeniserTest.h"
-#include "../src/utils.h"
-#include "Exception.h"
+#include <afc/utils.h>
+#include <afc/Exception.h>
 
 using std::string;
 

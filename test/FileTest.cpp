@@ -1,5 +1,5 @@
 #include "FileTest.h"
-#include "File.h"
+#include <afc/File.h>
 
 afc::FileTest::FileTest()
 {
