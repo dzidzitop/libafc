@@ -16,9 +16,9 @@ namespace
 	class Iconv
 	{
 	public:
-		Iconv(const string &srcEncoding)
+		Iconv(const char * const destEncoding, const char * const srcEncoding)
 		{
-			ctx = iconv_open("UTF-16LE", srcEncoding.c_str());
+			ctx = iconv_open(destEncoding, srcEncoding);
 			if (ctx == reinterpret_cast<iconv_t>(-1)) {
 				const int err = errno;
 				switch (err) {
@@ -29,7 +29,7 @@ namespace
 				case ENOMEM:
 					throw IllegalStateException("Insufficient storage space is available.");
 				case EINVAL:
-					throw IllegalStateException("The conversion from " + srcEncoding +
+					throw IllegalStateException(string("The conversion from ") + srcEncoding +
 							" to UTF-16LE is not supported by the implementation.");
 				default:
 					throw IllegalStateException("Unable to initialise encoding context. errno: " + err);
@@ -70,7 +70,7 @@ u16string afc::stringToUTF16LE(const string &src, const string &encoding)
 	if (src.empty()) {
 		return u16string();
 	}
-	Iconv conv(encoding);
+	Iconv conv("UTF-16LE", encoding.c_str());
 	char * srcBuf = const_cast<char *>(src.c_str()); // for some reason iconv takes non-const source buffer
 	size_t srcSize = src.size();
 	const size_t destSize = 4 * srcSize; // max length of a UTF16-LE character is 4 bytes
