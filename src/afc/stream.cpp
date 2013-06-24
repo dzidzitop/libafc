@@ -1,16 +1,16 @@
 #include "stream.h"
 #include "Exception.h"
-#include <vector>
+#include <string>
+#include <sstream>
 
-using afc::File;
-using afc::IOException;
-using afc::IllegalStateException;
-using afc::MalformedFormatException;
-using afc::UnsupportedFormatException;
+using namespace afc;
 using namespace std;
 
 namespace
 {
+	// 128 is small enough to not consume too much of the stack and quite large to minimise the amount of invocations
+	static const size_t gZipSkipChunkSize = 128;
+
 	void throwIOException(const char * const message = "")
 	{
 		throw IOException(message);
@@ -34,6 +34,11 @@ namespace
 	void throwUnsupportedFormatException(const char * const message = "")
 	{
 		throw UnsupportedFormatException(message);
+	}
+
+	void throwInvalidArgumentException(const char * const message = "")
+	{
+		throw InvalidArgumentException(message);
 	}
 
 	inline void ensureNotClosed(FILE * const file) {
@@ -142,6 +147,7 @@ afc::GZipFileInputStream::GZipFileInputStream(const File &file)
 }
 
 // TODO process closed stream correctly
+// TODO handle negative n
 size_t afc::GZipFileInputStream::read(unsigned char * const buf, const size_t n)
 {
 	ensureNotClosed(m_file);
@@ -182,8 +188,26 @@ void afc::GZipFileInputStream::reset()
 
 size_t afc::GZipFileInputStream::skip(const size_t n)
 {
-	vector<unsigned char> buf(n);
-	return read(&buf[0], n);
+	if (n < 0) {
+		// TODO replace later with string += n;
+		stringstream msg;
+		msg << "Byte amount to skip must be a non-negative value: " << n;
+		throwInvalidArgumentException(msg.str().c_str());
+	}
+
+	// reading n bytes since gzseek does not allow for skipping less than n bytes in case of premature end of the file
+	unsigned char buf[gZipSkipChunkSize];
+	size_t skipped = 0;
+	size_t bytesLeft = n;
+	for (; bytesLeft > gZipSkipChunkSize; bytesLeft -= gZipSkipChunkSize) {
+		const size_t count = read(buf, gZipSkipChunkSize);
+		skipped += count;
+		if (count != gZipSkipChunkSize) {
+			return skipped;
+		}
+	}
+	skipped += read(buf, bytesLeft);
+	return skipped;
 }
 
 afc::GZipFileOutputStream::GZipFileOutputStream(const File &file)
