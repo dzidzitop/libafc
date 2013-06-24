@@ -3,6 +3,7 @@
 #include <errno.h>
 #include <climits>
 #include <cstddef>
+#include <cstring>
 
 #include "Exception.h"
 #include "cpu/primitive.h"
@@ -65,33 +66,46 @@ namespace
 	};
 }
 
-u16string afc::stringToUTF16LE(const string &src, const string &encoding)
+namespace {
+	u16string _stringToUTF16LE(const char * const src, const size_t n, const char * const encoding)
+	{
+		Iconv conv("UTF-16LE", encoding);
+		char * srcBuf = const_cast<char *>(src); // for some reason iconv takes non-const source buffer
+		size_t srcSize = n;
+		const size_t destSize = 4 * srcSize; // max length of a UTF16-LE character is 4 bytes
+		size_t destCharsLeft = destSize;
+		unique_ptr<char[]> destBuf(new char[destSize]);
+		char * mutableDestBuf = destBuf.get(); // iconv modifies the pointers to the buffers
+
+		conv(&srcBuf, &srcSize, &mutableDestBuf, &destCharsLeft);
+
+		const size_t bufSize = destSize - destCharsLeft;
+		if (isOdd(bufSize)) {
+			throw MalformedFormatException("Unsupported character sequence");
+		}
+
+		// converting the char buffer to u16string
+		const char * const buf = destBuf.get();
+		u16string result;
+		result.reserve(bufSize/2);
+		for (size_t i = 0; i < bufSize; i+=2) {
+			const char16_t codePoint = UInt16<>::fromBytes<endianness::LE>(&buf[i]); // a UTF16 code point
+			result.push_back(codePoint);
+		}
+		return result;
+	}
+}
+
+u16string afc::stringToUTF16LE(const char * const src, const char * const encoding)
+{
+	// TODO handle null pointer?
+	return _stringToUTF16LE(src, strlen(src), encoding);
+}
+
+u16string afc::stringToUTF16LE(const string &src, const char * const encoding)
 {
 	if (src.empty()) {
 		return u16string();
 	}
-	Iconv conv("UTF-16LE", encoding.c_str());
-	char * srcBuf = const_cast<char *>(src.c_str()); // for some reason iconv takes non-const source buffer
-	size_t srcSize = src.size();
-	const size_t destSize = 4 * srcSize; // max length of a UTF16-LE character is 4 bytes
-	size_t destCharsLeft = destSize;
-	unique_ptr<char[]> destBuf(new char[destSize]);
-	char * mutableDestBuf = destBuf.get(); // iconv modifies the pointers to the buffers
-
-	conv(&srcBuf, &srcSize, &mutableDestBuf, &destCharsLeft);
-
-	const size_t bufSize = destSize - destCharsLeft;
-	if (isOdd(bufSize)) {
-		throw MalformedFormatException("Unsupported character sequence");
-	}
-
-	// converting the char buffer to u16string
-	const char * const buf = destBuf.get();
-	u16string result;
-	result.reserve(bufSize/2);
-	for (size_t i = 0; i < bufSize; i+=2) {
-		const char16_t codePoint = UInt16<>::fromBytes<endianness::LE>(&buf[i]); // a UTF16 code point
-		result.push_back(codePoint);
-	}
-	return result;
+	return _stringToUTF16LE(src.c_str(), src.size(), encoding);
 }
