@@ -24,6 +24,7 @@ namespace afc
 		const std::string &name() const throw() {return m_name;}
 
 		// TODO probably separator could be cut right here (faster)
+		// TODO handle case when this file is root
 		File parent() const {return File(m_path.substr(0, m_path.size() - m_name.size()));}
 
 		void listFiles(std::vector<std::string> &list);

@@ -4,6 +4,7 @@
 afc::FileTest::FileTest()
 {
 	TEST_ADD(FileTest::testCharPtrConstructor);
+	TEST_ADD(FileTest::testCharPtrConstructor_EmptyPath);
 	TEST_ADD(FileTest::testStringConstructor);
 	TEST_ADD(FileTest::testFileParentStringConstructor);
 }
@@ -17,9 +18,22 @@ void afc::FileTest::testCharPtrConstructor()
 	TEST_ASSERT(&f.path() == &f.path());
 	TEST_ASSERT(&f.name() == &f.name());
 
-	File parent = f.parent();
+	const File parent = f.parent();
 	TEST_ASSERT(parent.path() == "/hello/world");
 	TEST_ASSERT(parent.name() == "world");
+}
+
+void afc::FileTest::testCharPtrConstructor_EmptyPath()
+{
+	const File f("");
+	TEST_ASSERT_MSG(f.path().empty(), f.path().c_str());
+	TEST_ASSERT_MSG(f.name().empty(), f.name().c_str());
+	TEST_ASSERT(&f.path() == &f.path());
+	TEST_ASSERT(&f.name() == &f.name());
+
+	const File parent = f.parent();
+	TEST_ASSERT(parent.path().empty());
+	TEST_ASSERT(parent.name().empty());
 }
 
 void afc::FileTest::testStringConstructor()

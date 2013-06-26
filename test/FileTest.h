@@ -10,6 +10,7 @@ namespace afc
 		FileTest();
 
 		void testCharPtrConstructor();
+		void testCharPtrConstructor_EmptyPath();
 		void testStringConstructor();
 		void testFileParentStringConstructor();
 	};

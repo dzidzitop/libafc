@@ -37,13 +37,15 @@ afc::File::File(const char * const path)
 			lastSeparatorPos = size;
 		}
 	}
-	if (size != 0) {
-		if (lastSeparatorPos == size - 1) {
-			m_path.assign(path, size - 1);
-		} else {
-			m_path.assign(path, size);
-			nameSeparatorPos = lastSeparatorPos; // in foo/bar/baz last separator is before file name
-		}
+	if (size == 0) {
+		// both m_path and m_name are empty strings already
+		return;
+	}
+	if (lastSeparatorPos == size - 1) {
+		m_path.assign(path, size - 1);
+	} else {
+		m_path.assign(path, size);
+		nameSeparatorPos = lastSeparatorPos; // in foo/bar/baz last separator is before file name
 	}
 	if (nameSeparatorPos != static_cast<size_t>(-1)) {
 		m_name = m_path.substr(nameSeparatorPos + 1);
