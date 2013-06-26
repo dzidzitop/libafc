@@ -13,7 +13,7 @@ void afc::FileTest::testCharPtrConstructor()
 	// TODO add more tests
 	const File f("/hello/world/youyou_hey");
 	TEST_ASSERT(f.path() == "/hello/world/youyou_hey");
-	TEST_ASSERT(f.name() == "youyou_hey");
+	TEST_ASSERT_MSG(f.name() == "youyou_hey", f.name().c_str());
 	TEST_ASSERT(&f.path() == &f.path());
 	TEST_ASSERT(&f.name() == &f.name());
 
