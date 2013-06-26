@@ -9,17 +9,19 @@ using std::string;
 using std::size_t;
 
 #ifdef AFC_WIN32
-	const string afc::File::separator = "\\";
+	const char afc::File::separator = '\\';
 #else
-	const string afc::File::separator = "/";
+	const char afc::File::separator = '/';
 #endif
 
 // TODO cut separator
 afc::File::File(const File &parent, const std::string &name)
 {
-	const size_t nameSize = endsWith(name, separator) ? name.size() - separator.size() : name.size();
-	m_path.reserve(parent.m_path.size() + separator.size() + nameSize);
-	m_path.append(parent.m_path).append(separator).append(name, 0, nameSize);
+	const size_t nameSize = name.size() != 0 || name.back() == separator ? name.size() - 1 : name.size();
+	m_path.reserve(parent.m_path.size() + 1 + nameSize);
+	m_path += parent.m_path;
+	m_path += separator;
+	m_path.append(name, 0, nameSize);
 	initName(m_path);
 }
 

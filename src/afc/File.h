@@ -26,15 +26,14 @@ namespace afc
 		File parent() const {return File(m_path.substr(0, m_path.size() - m_name.size()));}
 
 		void listFiles(std::vector<std::string> &list);
-		
+
 		unsigned long long size();
 		void setSize(const unsigned long long size);
 
-		// TODO make it char
-		static const std::string separator;
+		static const char separator;
 	private:
-		void initPath(const std::string &path) {m_path = endsWith(path, separator) ? path.substr(0, path.size() - separator.size()) : path;}
-		void initName(const std::string &path) {const size_t pos = path.find_last_of(separator); m_name = (pos == std::string::npos ? path : path.substr(pos + separator.size()));}
+		void initPath(const std::string &path) {m_path = (path.size() != 0 && path.back() == separator ? path.substr(0, path.size() - 1) : path);}
+		void initName(const std::string &path) {const size_t pos = path.find_last_of(separator); m_name = (pos == std::string::npos ? path : path.substr(pos + 1));}
 		std::string m_path;
 		std::string m_name;
 	};
