@@ -16,9 +16,11 @@ namespace
 		throw IOException(message);
 	}
 
-	void throwCannotOpenFileIOException(const File &file)
+	void throwCannotOpenFileIOException(const char * const file)
 	{
-		throwIOException(("unable to open file '" + file.absolutePath() + '\'').c_str());
+		stringstream buf;
+		buf << "unable to open file '" << file << '\'';
+		throwIOException(buf.str().c_str());
 	}
 
 	void throwIllegalStateException(const char * const message = "")

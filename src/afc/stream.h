@@ -1,7 +1,7 @@
 #ifndef STREAM_H_
 #define STREAM_H_
 
-#include "File.h"
+#include <cstdio>
 #include <zlib.h>
 
 // TODO check whether or not it is safe to throw exceptions in destructors
