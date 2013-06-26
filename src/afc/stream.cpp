@@ -54,9 +54,9 @@ namespace
 	}
 }
 
-afc::FileInputStream::FileInputStream(const File &file)
+afc::FileInputStream::FileInputStream(const char * const file)
 {
-	m_file = fopen(file.path().c_str(), "rb");
+	m_file = fopen(file, "rb");
 	if (m_file == 0) {
 		throwCannotOpenFileIOException(file);
 	}
@@ -111,9 +111,9 @@ void afc::FileInputStream::close()
 	m_file = 0;
 }
 
-afc::FileOutputStream::FileOutputStream(const File &file)
+afc::FileOutputStream::FileOutputStream(const char * const file)
 {
-	m_file = fopen(file.path().c_str(), "wb");
+	m_file = fopen(file, "wb");
 	if (m_file == 0) {
 		throwCannotOpenFileIOException(file);
 	}
@@ -138,9 +138,9 @@ void afc::FileOutputStream::close()
 	m_file = 0;
 }
 
-afc::GZipFileInputStream::GZipFileInputStream(const File &file)
+afc::GZipFileInputStream::GZipFileInputStream(const char * const file)
 {
-	m_file = gzopen(file.path().c_str(), "rb");
+	m_file = gzopen(file, "rb");
 	if (m_file == 0) {
 		throwCannotOpenFileIOException(file);
 	}
@@ -210,9 +210,9 @@ size_t afc::GZipFileInputStream::skip(const size_t n)
 	return skipped;
 }
 
-afc::GZipFileOutputStream::GZipFileOutputStream(const File &file)
+afc::GZipFileOutputStream::GZipFileOutputStream(const char * const file)
 {
-	m_file = gzopen(file.path().c_str(), "wb");
+	m_file = gzopen(file, "wb");
 	if (m_file == 0) {
 		throwCannotOpenFileIOException(file);
 	}

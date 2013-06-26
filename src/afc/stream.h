@@ -33,7 +33,7 @@ namespace afc
 	class FileInputStream : public InputStream
 	{
 	public:
-		FileInputStream(const afc::File &file);
+		FileInputStream(const char * const file);
 		~FileInputStream() {close();};
 
 		virtual size_t read(unsigned char * const data, const size_t n);
@@ -47,7 +47,7 @@ namespace afc
 	class FileOutputStream : public OutputStream
 	{
 	public:
-		FileOutputStream(const afc::File &file);
+		FileOutputStream(const char * const file);
 		~FileOutputStream() {close();};
 
 		virtual void write(const unsigned char * const data, const size_t n);
@@ -59,7 +59,7 @@ namespace afc
 	class GZipFileInputStream : public InputStream
 	{
 	public:
-		GZipFileInputStream(const afc::File &file);
+		GZipFileInputStream(const char * const file);
 		~GZipFileInputStream() {close();};
 
 		virtual size_t read(unsigned char * const buf, const size_t n);
@@ -74,7 +74,7 @@ namespace afc
 	class GZipFileOutputStream : public OutputStream
 	{
 	public:
-		GZipFileOutputStream(const afc::File &file);
+		GZipFileOutputStream(const char * const file);
 		~GZipFileOutputStream() {close();};
 
 		virtual void write(const unsigned char * const data, const size_t n);
