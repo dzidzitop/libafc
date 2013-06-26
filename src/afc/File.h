@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include "utils.h"
+#include <cstddef>
 
 // FIXME in UNIX files could contain '/' in their names, thus division by separator is wrong
 namespace afc
@@ -12,7 +13,7 @@ namespace afc
 	{
 	public:
 		// TODO cut separator
-		File(const char * const path) {initPath(path); initName(m_path);}
+		File(const char * const path);
 		// TODO cut separator
 		File(const std::string &path) {initPath(path); initName(m_path);}
 		File(const File &parent, const std::string &name);

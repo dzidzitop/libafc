@@ -25,6 +25,33 @@ afc::File::File(const File &parent, const std::string &name)
 	initName(m_path);
 }
 
+afc::File::File(const char * const path)
+{
+	size_t nameSeparatorPos = static_cast<size_t>(-1);
+	size_t lastSeparatorPos = static_cast<size_t>(-1);
+	const char * p = path;
+	size_t size = 0;
+	for (char c; (c = *p); ++p, ++size) {
+		if (c == separator) {
+			nameSeparatorPos = lastSeparatorPos;
+			lastSeparatorPos = size;
+		}
+	}
+	if (size != 0) {
+		if (lastSeparatorPos == size - 1) {
+			m_path.assign(path, size - 1);
+		} else {
+			m_path.assign(path, size);
+			nameSeparatorPos = lastSeparatorPos; // in foo/bar/baz last separator is before file name
+		}
+	}
+	if (nameSeparatorPos != static_cast<size_t>(-1)) {
+		m_name = m_path.substr(nameSeparatorPos + 1);
+	} else {
+		m_name = m_path;
+	}
+}
+
 void afc::File::listFiles(vector<string> &list)
 {
 	DIR * const dir = opendir(m_path.c_str());
