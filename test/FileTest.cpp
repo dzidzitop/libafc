@@ -46,7 +46,7 @@ void testStringConstructor_PathIsRoot();
 
 void afc::FileTest::testStringConstructor_AbsolutePathWithSeparators()
 {
-	const File f("/hello/world/youyou_hey");
+	const File f(string("/hello/world/youyou_hey"));
 	TEST_ASSERT(f.path() == "/hello/world/youyou_hey");
 	TEST_ASSERT_MSG(f.name() == "youyou_hey", f.name().c_str());
 	TEST_ASSERT(&f.path() == &f.path());
