@@ -5,13 +5,16 @@
 
 namespace afc
 {
+	// TODO add more tests
 	struct FileTest : public Test::Suite
 	{
 		FileTest();
 
 		void testCharPtrConstructor();
 		void testCharPtrConstructor_EmptyPath();
-		void testStringConstructor();
+		void testStringConstructor_EmptyPath();
+		void testStringConstructor_AbsolutePathWithoutSeparators();
+		void testStringConstructor_AbsolutePathWithSeparators();
 		void testFileParentStringConstructor();
 	};
 }

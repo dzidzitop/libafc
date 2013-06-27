@@ -5,7 +5,9 @@ afc::FileTest::FileTest()
 {
 	TEST_ADD(FileTest::testCharPtrConstructor);
 	TEST_ADD(FileTest::testCharPtrConstructor_EmptyPath);
-	TEST_ADD(FileTest::testStringConstructor);
+	TEST_ADD(FileTest::testStringConstructor_EmptyPath);
+	TEST_ADD(FileTest::testStringConstructor_AbsolutePathWithoutSeparators);
+	TEST_ADD(FileTest::testStringConstructor_AbsolutePathWithSeparators);
 	TEST_ADD(FileTest::testFileParentStringConstructor);
 }
 
@@ -36,9 +38,49 @@ void afc::FileTest::testCharPtrConstructor_EmptyPath()
 	TEST_ASSERT(parent.name().empty());
 }
 
-void afc::FileTest::testStringConstructor()
+void testStringConstructor_LastCharIsSeparator();
+void testStringConstructor_EmptyPath();
+void testStringConstructor_PathWithoutSeparators();
+void testStringConstructor_PathWithSeparators();
+void testStringConstructor_PathIsRoot();
+
+void afc::FileTest::testStringConstructor_AbsolutePathWithSeparators()
 {
-	// TODO add some tests
+	const File f("/hello/world/youyou_hey");
+	TEST_ASSERT(f.path() == "/hello/world/youyou_hey");
+	TEST_ASSERT_MSG(f.name() == "youyou_hey", f.name().c_str());
+	TEST_ASSERT(&f.path() == &f.path());
+	TEST_ASSERT(&f.name() == &f.name());
+
+	const File parent = f.parent();
+	TEST_ASSERT(parent.path() == "/hello/world");
+	TEST_ASSERT(parent.name() == "world");
+}
+
+void afc::FileTest::testStringConstructor_AbsolutePathWithoutSeparators()
+{
+	const File f(string("/hello"));
+	TEST_ASSERT(f.path() == "/hello");
+	TEST_ASSERT_MSG(f.name() == "hello", f.name().c_str());
+	TEST_ASSERT(&f.path() == &f.path());
+	TEST_ASSERT(&f.name() == &f.name());
+
+	const File parent = f.parent();
+	TEST_ASSERT(parent.path() == "/");
+	TEST_ASSERT(parent.name() == "/");
+}
+
+void afc::FileTest::testStringConstructor_EmptyPath()
+{
+	const File f(string(""));
+	TEST_ASSERT_MSG(f.path().empty(), f.path().c_str());
+	TEST_ASSERT_MSG(f.name().empty(), f.name().c_str());
+	TEST_ASSERT(&f.path() == &f.path());
+	TEST_ASSERT(&f.name() == &f.name());
+
+	const File parent = f.parent();
+	TEST_ASSERT(parent.path().empty());
+	TEST_ASSERT(parent.name().empty());
 }
 
 void afc::FileTest::testFileParentStringConstructor()
