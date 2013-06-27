@@ -38,12 +38,6 @@ void afc::FileTest::testCharPtrConstructor_EmptyPath()
 	TEST_ASSERT(parent.name().empty());
 }
 
-void testStringConstructor_LastCharIsSeparator();
-void testStringConstructor_EmptyPath();
-void testStringConstructor_PathWithoutSeparators();
-void testStringConstructor_PathWithSeparators();
-void testStringConstructor_PathIsRoot();
-
 void afc::FileTest::testStringConstructor_AbsolutePathWithSeparators()
 {
 	const File f(string("/hello/world/youyou_hey"));
