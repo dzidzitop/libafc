@@ -14,15 +14,14 @@ using std::size_t;
 	const char afc::File::separator = '/';
 #endif
 
-// TODO cut separator
-afc::File::File(const File &parent, const std::string &name)
+afc::File::File(const File &parent, const std::string &subPath)
 {
-	const size_t nameSize = name.size() != 0 || name.back() == separator ? name.size() - 1 : name.size();
-	m_path.reserve(parent.m_path.size() + 1 + nameSize);
+	const size_t subPathSize = subPath.size() != 0 || subPath.back() == separator ? subPath.size() - 1 : subPath.size();
+	m_path.reserve(parent.m_path.size() + 1 + subPathSize);
 	m_path += parent.m_path;
 	m_path += separator;
-	m_path.append(name, 0, nameSize);
-	initName(m_path);
+	m_path.append(subPath, 0, subPathSize);
+	initName();
 }
 
 afc::File::File(const char * const path)
@@ -48,7 +47,32 @@ afc::File::File(const char * const path)
 		nameSeparatorPos = lastSeparatorPos; // in foo/bar/baz last separator is before file name
 	}
 	if (nameSeparatorPos != static_cast<size_t>(-1)) {
-		m_name = m_path.substr(nameSeparatorPos + 1);
+		m_name.assign(m_path, nameSeparatorPos + 1, m_path.size());
+	} else {
+		m_name = m_path;
+	}
+}
+
+afc::File::File(const string &path)
+{
+	const size_t pathSize = path.size();
+	if (pathSize == 0) {
+		// both m_path and m_name are empty strings already
+		return;
+	}
+	if (path.back() == separator) {
+		m_path.assign(path, 0, pathSize - 1);
+	} else {
+		m_path = path;
+	}
+	initName();
+}
+
+void afc::File::initName()
+{
+	size_t nameSeparatorPos = m_path.find_last_of(separator);
+	if (nameSeparatorPos != string::npos) {
+		m_name.assign(m_path, nameSeparatorPos + 1, m_path.size());
 	} else {
 		m_name = m_path;
 	}

@@ -40,7 +40,9 @@ void afc::FileTest::testCharPtrConstructor_EmptyPath()
 
 void afc::FileTest::testStringConstructor_AbsolutePathWithSeparators()
 {
-	const File f(string("/hello/world/youyou_hey"));
+	const string path("/hello/world/youyou_hey");
+
+	const File f(path);
 	TEST_ASSERT(f.path() == "/hello/world/youyou_hey");
 	TEST_ASSERT_MSG(f.name() == "youyou_hey", f.name().c_str());
 	TEST_ASSERT(&f.path() == &f.path());
@@ -53,7 +55,9 @@ void afc::FileTest::testStringConstructor_AbsolutePathWithSeparators()
 
 void afc::FileTest::testStringConstructor_AbsolutePathWithoutSeparators()
 {
-	const File f(string("/hello"));
+	const string path("hello");
+
+	const File f(path);
 	TEST_ASSERT(f.path() == "/hello");
 	TEST_ASSERT_MSG(f.name() == "hello", f.name().c_str());
 	TEST_ASSERT(&f.path() == &f.path());
@@ -66,7 +70,9 @@ void afc::FileTest::testStringConstructor_AbsolutePathWithoutSeparators()
 
 void afc::FileTest::testStringConstructor_EmptyPath()
 {
-	const File f(string(""));
+	const string path("");
+
+	const File f(path);
 	TEST_ASSERT_MSG(f.path().empty(), f.path().c_str());
 	TEST_ASSERT_MSG(f.name().empty(), f.name().c_str());
 	TEST_ASSERT(&f.path() == &f.path());

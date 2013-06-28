@@ -15,8 +15,8 @@ namespace afc
 		// TODO cut separator
 		File(const char * const path);
 		// TODO cut separator
-		File(const std::string &path) {initPath(path); initName(m_path);}
-		File(const File &parent, const std::string &name);
+		File(const std::string &path);
+		File(const File &parent, const std::string &subPath);
 
 		const std::string &path() const throw() {return m_path;}
 		// TODO fixme
@@ -34,8 +34,8 @@ namespace afc
 
 		static const char separator;
 	private:
-		void initPath(const std::string &path) {m_path = (path.size() != 0 && path.back() == separator ? path.substr(0, path.size() - 1) : path);}
-		void initName(const std::string &path) {const size_t pos = path.find_last_of(separator); m_name = (pos == std::string::npos ? path : path.substr(pos + 1));}
+		inline void initName();
+
 		std::string m_path;
 		std::string m_name;
 	};
