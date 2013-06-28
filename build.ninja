@@ -32,7 +32,6 @@ build $buildDir/_demangle.o: cxx $srcDir/afc/_demangle.cpp
 build $buildDir/assertion.o: cxx $srcDir/afc/assertion.cpp
 build $buildDir/backtrace.o: cxx $srcDir/afc/backtrace.cpp
 build $buildDir/Exception.o: cxx $srcDir/afc/Exception.cpp
-build $buildDir/File.o: cxx $srcDir/afc/File.cpp
 build $buildDir/libintl.o: cc $srcDir/afc/libintl.c
 build $buildDir/number.o: cxx $srcDir/afc/number.cpp
 build $buildDir/StackTrace.o: cxx $srcDir/afc/StackTrace.cpp
@@ -43,7 +42,6 @@ build $buildDir/utils.o: cxx $srcDir/afc/utils.cpp
 build $buildDir/run_tests.o: cxx_test $testDir/run_tests.cpp
 build $buildDir/CompileTimeMathTest.o: cxx_test $testDir/CompileTimeMathTest.cpp
 build $buildDir/FastDivisionTest.o: cxx_test $testDir/FastDivisionTest.cpp
-build $buildDir/FileTest.o: cxx_test $testDir/FileTest.cpp
 build $buildDir/MathUtilsTest.o: cxx_test $testDir/MathUtilsTest.cpp
 build $buildDir/NumberTest.o: cxx_test $testDir/NumberTest.cpp
 build $buildDir/RepositoryTest.o: cxx_test $testDir/RepositoryTest.cpp
@@ -56,7 +54,6 @@ build $buildDir/libafc.so: linkDynamic $
     $buildDir/assertion.o $
     $buildDir/backtrace.o $
     $buildDir/Exception.o $
-    $buildDir/File.o $
     $buildDir/libintl.o $
     $buildDir/number.o $
     $buildDir/StackTrace.o $
@@ -69,7 +66,6 @@ build $buildDir/libafc.a: linkStatic $
     $buildDir/assertion.o $
     $buildDir/backtrace.o $
     $buildDir/Exception.o $
-    $buildDir/File.o $
     $buildDir/libintl.o $
     $buildDir/number.o $
     $buildDir/StackTrace.o $
@@ -81,7 +77,6 @@ build $buildDir/libafc_test: bin $
     $buildDir/run_tests.o $
     $buildDir/CompileTimeMathTest.o $
     $buildDir/FastDivisionTest.o $
-    $buildDir/FileTest.o $
     $buildDir/MathUtilsTest.o $
     $buildDir/NumberTest.o $
     $buildDir/RepositoryTest.o $
