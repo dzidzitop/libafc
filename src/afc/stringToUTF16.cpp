@@ -143,7 +143,7 @@ string afc::utf16leToString(const u16string &src, const char * const encoding)
 			} else {
 				goto handleMalformedSequence;
 			}
-		} else { // either low surrogate or a non-character or >= 0xffff
+		} else { // either low surrogate or a non-character or > 0xffff
 			goto handleMalformedSequence;
 		}
 		destCharsLeft = 8;
