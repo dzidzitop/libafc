@@ -26,8 +26,8 @@ namespace afc
 		static const size_t bytesCount = sizeof(T);
 	public:
 		IntegerBase(const T val, const endianness byteOrder = PLATFORM_BYTE_ORDER);
-		IntegerBase(const unsigned char in[], const endianness byteOrder = PLATFORM_BYTE_ORDER) {init(in, byteOrder);}
-		IntegerBase(const char in[], const endianness byteOrder = PLATFORM_BYTE_ORDER) {init(in, byteOrder);}
+		explicit IntegerBase(const unsigned char in[], const endianness byteOrder = PLATFORM_BYTE_ORDER) {init(in, byteOrder);}
+		explicit IntegerBase(const char in[], const endianness byteOrder = PLATFORM_BYTE_ORDER) {init(in, byteOrder);}
 		template<endianness bo> IntegerBase(const IntegerBase<T, bo> &val) : IntegerBase(val.data.value, bo) {}
 
 		/**
