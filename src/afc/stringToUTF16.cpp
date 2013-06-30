@@ -142,8 +142,7 @@ string afc::utf16leToString(const u16string &src, const char * const encoding)
 			} else {
 				goto handleMalformedSequence;
 			}
-		} else { // low surrogate
-			// TODO support char16_t that contain more than 16 bits?
+		} else { // either low surrogate or a non-character or >= 0xffff
 			goto handleMalformedSequence;
 		}
 		destCharsLeft = 8;
