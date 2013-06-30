@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <climits>
 #include <cstddef>
+#include <type_traits>
 
 static_assert(CHAR_BIT == 8, "only 8-bit bytes (chars) are supported");
 
@@ -23,6 +24,7 @@ namespace afc
 
 	template<typename T, endianness o> class IntegerBase
 	{
+		static_assert(std::is_integral<T>::value, "T must be an integral type.");
 		static const size_t bytesCount = sizeof(T);
 	public:
 		IntegerBase(const T val, const endianness byteOrder = PLATFORM_BYTE_ORDER);
