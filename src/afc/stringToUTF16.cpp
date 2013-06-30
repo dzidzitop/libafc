@@ -118,6 +118,7 @@ string afc::utf16leToString(const u16string &src, const char * const encoding)
 	Iconv conv(encoding, "UTF-16LE");
 
 	string result;
+	result.reserve(src.size()); // a reasonable estimate of the result's size.
 
 	char srcBuf[4];
 	char *mutableSrcBuf = srcBuf;
