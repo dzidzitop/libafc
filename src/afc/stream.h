@@ -4,7 +4,6 @@
 #include <cstdio>
 #include <zlib.h>
 
-// TODO check whether or not it is safe to throw exceptions in destructors
 namespace afc
 {
 	struct Closeable
@@ -34,7 +33,7 @@ namespace afc
 	{
 	public:
 		FileInputStream(const char * const file);
-		~FileInputStream() {close();};
+		~FileInputStream();
 
 		virtual size_t read(unsigned char * const data, const size_t n);
 		virtual void reset();
@@ -48,7 +47,7 @@ namespace afc
 	{
 	public:
 		FileOutputStream(const char * const file);
-		~FileOutputStream() {close();};
+		~FileOutputStream();
 
 		virtual void write(const unsigned char * const data, const size_t n);
 		virtual void close();
@@ -60,7 +59,7 @@ namespace afc
 	{
 	public:
 		GZipFileInputStream(const char * const file);
-		~GZipFileInputStream() {close();};
+		~GZipFileInputStream();
 
 		virtual size_t read(unsigned char * const buf, const size_t n);
 		virtual void reset();
@@ -75,7 +74,7 @@ namespace afc
 	{
 	public:
 		GZipFileOutputStream(const char * const file);
-		~GZipFileOutputStream() {close();};
+		~GZipFileOutputStream();
 
 		virtual void write(const unsigned char * const data, const size_t n);
 

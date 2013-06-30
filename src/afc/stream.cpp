@@ -2,6 +2,7 @@
 #include "Exception.h"
 #include <string>
 #include <sstream>
+#include <functional>
 
 using namespace afc;
 using namespace std;
@@ -43,23 +44,39 @@ namespace
 		throw InvalidArgumentException(message);
 	}
 
-	inline void ensureNotClosed(FILE * const file) {
-		if (file == 0) {
-			throwIOException("stream is closed");
+	template<typename FileType>
+	inline void ensureNotClosed(const FileType file) {
+		if (file == nullptr) {
+			throwIOException("Stream is closed");
 		}
 	}
 
-	inline void ensureNotClosed(gzFile file) {
-		if (file == 0) {
-			throwIOException("stream is closed");
+	template<typename FileType, typename CloseFunction>
+	inline void closeFileRef(FileType *&file, CloseFunction close)
+	{
+		if (file == nullptr) {
+			return;
 		}
+		if (close(file) != 0) {
+			throwIOException("Unable to close file");
+		}
+		file = nullptr;
+	}
+
+	template<typename FileType, typename CloseFunction>
+	inline void closeFileNoexcept(FileType * const file, CloseFunction close) noexcept
+	{
+		if (file == nullptr) {
+			return;
+		}
+		close(file); // ignoring any potential fclose failure
 	}
 }
 
 afc::FileInputStream::FileInputStream(const char * const file)
 {
 	m_file = fopen(file, "rb");
-	if (m_file == 0) {
+	if (m_file == nullptr) {
 		throwCannotOpenFileIOException(file);
 	}
 }
@@ -104,19 +121,18 @@ size_t afc::FileInputStream::skip(const size_t n)
 
 void afc::FileInputStream::close()
 {
-	if (m_file == 0) {
-		return;
-	}
-	if (fclose(m_file) != 0) {
-		throwIOException("file is not closed");
-	}
-	m_file = 0;
+	closeFileRef(m_file, function<int (FILE *)>(fclose));
+}
+
+afc::FileInputStream::~FileInputStream()
+{
+	closeFileNoexcept(m_file, function<int (FILE *)>(fclose));
 }
 
 afc::FileOutputStream::FileOutputStream(const char * const file)
 {
 	m_file = fopen(file, "wb");
-	if (m_file == 0) {
+	if (m_file == nullptr) {
 		throwCannotOpenFileIOException(file);
 	}
 }
@@ -131,13 +147,12 @@ void afc::FileOutputStream::write(const unsigned char * const data, const size_t
 
 void afc::FileOutputStream::close()
 {
-	if (m_file == 0) {
-		return;
-	}
-	if (fclose(m_file) != 0) {
-		throwIOException("file is not closed");
-	}
-	m_file = 0;
+	closeFileRef(m_file, function<int (FILE *)>(fclose));
+}
+
+afc::FileOutputStream::~FileOutputStream()
+{
+	closeFileNoexcept(m_file, function<int (FILE *)>(fclose));
 }
 
 afc::GZipFileInputStream::GZipFileInputStream(const char * const file)
@@ -171,13 +186,12 @@ size_t afc::GZipFileInputStream::read(unsigned char * const buf, const size_t n)
 
 void afc::GZipFileInputStream::close()
 {
-	if (m_file == nullptr) {
-		return;
-	}
-	if (gzclose(m_file) != 0) {
-		throwIOException("file is not closed");
-	}
-	m_file = nullptr;
+	closeFileRef(m_file, function<int (gzFile)>(gzclose));
+}
+
+afc::GZipFileInputStream::~GZipFileInputStream()
+{
+	closeFileNoexcept(m_file, function<int (gzFile)>(gzclose));
 }
 
 void afc::GZipFileInputStream::reset()
@@ -230,11 +244,10 @@ void afc::GZipFileOutputStream::write(const unsigned char * const data, const si
 
 void afc::GZipFileOutputStream::close()
 {
-	if (m_file == 0) {
-		return;
-	}
-	if (gzclose(m_file) != 0) {
-		throwIOException("file is not closed");
-	}
-	m_file = 0;
+	closeFileRef(m_file, function<int (gzFile)>(gzclose));
+}
+
+afc::GZipFileOutputStream::~GZipFileOutputStream()
+{
+	closeFileNoexcept(m_file, function<int (gzFile)>(gzclose));
 }
