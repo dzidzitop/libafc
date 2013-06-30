@@ -18,6 +18,8 @@ namespace afc
 	// code points have platform endianness, while characters are little-endian
 	std::u16string stringToUTF16LE(const char * const src, const char * const encoding);
 	std::u16string stringToUTF16LE(const std::string &src, const char * const encoding);
+	std::string utf16leToString(const std::u16string &src, const char * const encoding);
+
 
 	template<typename CharType = char> class Tokeniser
 	{

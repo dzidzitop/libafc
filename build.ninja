@@ -46,6 +46,7 @@ build $buildDir/MathUtilsTest.o: cxx_test $testDir/MathUtilsTest.cpp
 build $buildDir/NumberTest.o: cxx_test $testDir/NumberTest.cpp
 build $buildDir/RepositoryTest.o: cxx_test $testDir/RepositoryTest.cpp
 build $buildDir/TokeniserTest.o: cxx_test $testDir/TokeniserTest.cpp
+build $buildDir/UTF16LEToStringTest.o: cxx_test $testDir/UTF16LEToStringTest.cpp
 build $buildDir/UtilsTest.o: cxx_test $testDir/UtilsTest.cpp
 build $buildDir/cpu/Int32Test.o: cxx_test $testDir/cpu/Int32Test.cpp
 
@@ -81,6 +82,7 @@ build $buildDir/libafc_test: bin $
     $buildDir/NumberTest.o $
     $buildDir/RepositoryTest.o $
     $buildDir/TokeniserTest.o $
+    $buildDir/UTF16LEToStringTest.o $
     $buildDir/UtilsTest.o $
     $buildDir/cpu/Int32Test.o $
     | $buildDir/libafc.so

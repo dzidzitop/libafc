@@ -4,6 +4,7 @@
 #include <climits>
 #include <cstddef>
 #include <cstring>
+#include <algorithm>
 
 #include "Exception.h"
 #include "cpu/primitive.h"
@@ -13,6 +14,8 @@ using namespace std;
 
 namespace
 {
+	const endianness LE = endianness::LE;
+
 	// RAII iconv wrapper
 	class Iconv
 	{
@@ -108,4 +111,46 @@ u16string afc::stringToUTF16LE(const string &src, const char * const encoding)
 		return u16string();
 	}
 	return _stringToUTF16LE(src.c_str(), src.size(), encoding);
+}
+
+string afc::utf16leToString(const u16string &src, const char * const encoding)
+{
+	Iconv conv(encoding, "UTF-16LE");
+
+	string result;
+
+	char srcBuf[4];
+	char *mutableSrcBuf = srcBuf;
+	size_t srcCharsLeft;
+	char destBuf[8]; // TODO support encodings that can take more than 8 bytes to encode a character
+	char *mutableDestBuf = destBuf;
+	size_t destCharsLeft;
+	for (size_t i = 0, n = src.size(); i < n; ++i, mutableSrcBuf = srcBuf, mutableDestBuf = destBuf) {
+		const char16_t c = src[i];
+		UInt16<>(c).toBytes<LE>(srcBuf);
+		if (c < 0xd800) { // plain character
+			srcCharsLeft = 2;
+		} else if (c < 0xdc00) { // high surrogate
+			if (++i < n) {
+				const char16_t lowSurrogate = src[i];
+				if (lowSurrogate >= 0xdc00 && lowSurrogate <= 0xdfff) {
+					UInt16<>(lowSurrogate).toBytes<LE>(srcBuf+2);
+					srcCharsLeft = 4;
+				} else {
+					goto handleMalformedSequence;
+				}
+			} else {
+				goto handleMalformedSequence;
+			}
+		} else { // low surrogate
+			// TODO support char16_t that contain more than 16 bits?
+			goto handleMalformedSequence;
+		}
+		destCharsLeft = 8;
+		conv(&mutableSrcBuf, &srcCharsLeft, &mutableDestBuf, &destCharsLeft);
+		for_each(destBuf, mutableDestBuf, [&result](const char byte){result.push_back(byte);});
+	}
+	return result;
+handleMalformedSequence:
+	throw MalformedFormatException("Unsupported character sequence");
 }

@@ -5,6 +5,7 @@
 #include "NumberTest.h"
 #include "RepositoryTest.h"
 #include "TokeniserTest.h"
+#include "UTF16LEToStringTest.h"
 #include "UtilsTest.h"
 #include "cpu/Int32Test.h"
 
@@ -21,6 +22,7 @@ int main() {
 	allTests.add(auto_ptr<Suite>(new NumberTest));
 	allTests.add(auto_ptr<Suite>(new RepositoryTest));
 	allTests.add(auto_ptr<Suite>(new TokeniserTest));
+	allTests.add(auto_ptr<Suite>(new UTF16LEToStringTest));
 	allTests.add(auto_ptr<Suite>(new UtilsTest));
 
 	allTests.add(auto_ptr<Suite>(new Int32Test));
