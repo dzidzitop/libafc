@@ -9,6 +9,7 @@ afc::UTF16LEToStringTest::UTF16LEToStringTest()
 {
 	TEST_ADD(UTF16LEToStringTest::testEmptyString_toASCII);
 	TEST_ADD(UTF16LEToStringTest::testNonEmptyString_toASCII);
+	TEST_ADD(UTF16LEToStringTest::testMultiByteNonEmptyString_toASCII_withTransliteration);
 	TEST_ADD(UTF16LEToStringTest::testEmptyString_toUTF8);
 	TEST_ADD(UTF16LEToStringTest::testSimpleNonEmptyString_toUTF8);
 	TEST_ADD(UTF16LEToStringTest::testMultiByteNonEmptyString_toUTF8);
@@ -26,6 +27,13 @@ void afc::UTF16LEToStringTest::testNonEmptyString_toASCII()
 	string s(utf16leToString(u16string(u"Hello, World!"), "ascii"));
 
 	TEST_ASSERT_MSG(s == "Hello, World!", s.c_str());
+}
+
+void afc::UTF16LEToStringTest::testMultiByteNonEmptyString_toASCII_withTransliteration()
+{
+	string s(utf16leToString(u16string(u"\u0160\u010da\u015bcie"), "ascii//TRANSLIT"));
+
+	TEST_ASSERT_MSG(s == u8"??a?cie", s.c_str());
 }
 
 void afc::UTF16LEToStringTest::testEmptyString_toUTF8()

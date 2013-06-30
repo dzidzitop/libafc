@@ -13,6 +13,7 @@ namespace afc
 
 		void testEmptyString_toASCII();
 		void testNonEmptyString_toASCII();
+		void testMultiByteNonEmptyString_toASCII_withTransliteration();
 		void testEmptyString_toUTF8();
 		void testSimpleNonEmptyString_toUTF8();
 		void testMultiByteNonEmptyString_toUTF8();
