@@ -35,7 +35,7 @@ template<typename T, typename F> void afc::RandomStartHillClimbing<T, F>::solve(
 		
 		F newValue = space.value(state);
 		for (unsigned step = 0; step < m_maxSteps; ++step) {
-			std::vector< __internal::Candidate<T, F> > candidates;
+			std::vector<__internal::Candidate<T, F>> candidates;
 			
 			for (unsigned j = 0, n = space.dimensionCount(); j < n; ++j) {
 				const T backup = state[j];

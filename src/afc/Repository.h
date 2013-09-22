@@ -7,7 +7,7 @@
 
 namespace afc
 {
-	template< typename T, typename Less = std::less<T> > class Repository
+	template<typename T, typename Less = std::less<T>> class Repository
 	{
 	public:
 		Repository() : m_values() {}
