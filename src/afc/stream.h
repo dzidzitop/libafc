@@ -33,7 +33,10 @@ namespace afc
 	{
 	public:
 		FileInputStream(const char * const file);
+		FileInputStream(FileInputStream &) = delete;
 		~FileInputStream();
+
+		void operator=(FileInputStream &) = delete;
 
 		virtual size_t read(unsigned char * const data, const size_t n);
 		virtual void reset();
@@ -47,7 +50,10 @@ namespace afc
 	{
 	public:
 		FileOutputStream(const char * const file);
+		FileOutputStream(FileOutputStream &) = delete;
 		~FileOutputStream();
+
+		void operator=(FileOutputStream &) = delete;
 
 		virtual void write(const unsigned char * const data, const size_t n);
 		virtual void close();
@@ -59,7 +65,10 @@ namespace afc
 	{
 	public:
 		GZipFileInputStream(const char * const file);
+		GZipFileInputStream(GZipFileInputStream &) = delete;
 		~GZipFileInputStream();
+
+		void operator=(GZipFileInputStream &) = delete;
 
 		virtual size_t read(unsigned char * const buf, const size_t n);
 		virtual void reset();
@@ -74,7 +83,10 @@ namespace afc
 	{
 	public:
 		GZipFileOutputStream(const char * const file);
+		GZipFileOutputStream(GZipFileOutputStream &) = delete;
 		~GZipFileOutputStream();
+
+		void operator=(GZipFileOutputStream &) = delete;
 
 		virtual void write(const unsigned char * const data, const size_t n);
 
