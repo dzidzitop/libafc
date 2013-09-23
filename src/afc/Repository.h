@@ -11,7 +11,10 @@ namespace afc
 	{
 	public:
 		Repository() : m_values() {}
+		Repository(const Repository &) = delete;
 		inline ~Repository() throw();
+
+		void operator=(const Repository &) = delete;
 
 		inline const T &get(const T &val);
 		inline bool remove(const T &val);
