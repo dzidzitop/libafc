@@ -28,12 +28,15 @@ namespace afc
 		Tokeniser(const std::basic_string<CharType> &str, const CharType delimiter)
 			: m_str(str), m_delimiter(delimiter), m_begin(0) {}
 		Tokeniser(const std::basic_string<CharType> &&str, const CharType delimiter)
-			: m_str(str), m_delimiter(delimiter), m_begin(0) {}
+			: m_inputCopy(str), m_str(m_inputCopy), m_delimiter(delimiter), m_begin(0) {}
 
 		bool hasNext() const throw() {return m_begin != std::basic_string<CharType>::npos;}
 		std::basic_string<CharType> next();
 	private:
-		const std::basic_string<CharType> m_str;
+		/* m_inputCopy is used only with temporary strings because they die early.
+		   In other cases no copying of the input string is used. */
+		const std::basic_string<CharType> m_inputCopy;
+		const std::basic_string<CharType> &m_str;
 		const CharType m_delimiter;
 		size_t m_begin;
 	};
