@@ -122,7 +122,7 @@ void afc::split(const string &s, vector<string> &out, const char delim, const bo
 	}
 }
 
-string afc::systemCharset(void) noexcept
+string afc::systemCharset(void)
 {
 	return string(nl_langinfo(CODESET));
 }
