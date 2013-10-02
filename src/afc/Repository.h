@@ -9,12 +9,13 @@ namespace afc
 {
 	template<typename T, typename Less = std::less<T>> class Repository
 	{
+		Repository(const Repository &) = delete;
+		Repository(Repository &&) = delete;
+		Repository &operator=(const Repository &) = delete;
+		Repository &operator=(Repository &&) = delete;
 	public:
 		Repository() : m_values() {}
-		Repository(const Repository &) = delete;
 		inline ~Repository() throw();
-
-		void operator=(const Repository &) = delete;
 
 		inline const T &get(const T &val);
 		inline bool remove(const T &val);
