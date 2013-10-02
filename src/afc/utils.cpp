@@ -1,6 +1,7 @@
 #include "utils.h"
 #include "platform.h"
 #include <cctype>
+#include <langinfo.h>
 
 using std::string;
 using std::vector;
@@ -41,7 +42,7 @@ namespace afc
 	{
 		char result[PATH_MAX];
 		struct pst_status ps;
-		
+
 		if (pstat_getproc(&ps, sizeof(ps), 0, getpid()) < 0) {
 			return std::string();
 		}
@@ -119,4 +120,9 @@ void afc::split(const string &s, vector<string> &out, const char delim, const bo
 			++end;
 		}
 	}
+}
+
+string afc::systemCharset(void) noexcept
+{
+	return string(nl_langinfo(CODESET));
 }

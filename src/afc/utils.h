@@ -15,6 +15,8 @@ namespace afc
 	bool startsWith(const std::string &str, const std::string &substr) throw();
 	bool endsWith(const std::string &str, const std::string &substr) throw();
 
+	std::string systemCharset(void) noexcept;
+
 	// code points have platform endianness, while characters are little-endian
 	std::u16string stringToUTF16LE(const char * const src, const char * const encoding);
 	std::u16string stringToUTF16LE(const std::string &src, const char * const encoding);
