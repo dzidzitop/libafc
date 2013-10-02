@@ -4,7 +4,6 @@
 #include <langinfo.h>
 
 using std::string;
-using std::vector;
 using std::isspace;
 
 #ifdef AFC_LINUX
@@ -95,31 +94,6 @@ bool afc::endsWith(const std::string &str, const std::string &substr) throw()
 		}
 	}
 	return true;
-}
-
-void afc::split(const string &s, vector<string> &out, const char delim, const bool skipEmptyTokens)
-{
-	out.clear();
-	size_t end = 0;
-
-	for (;;) {
-		size_t start = end;
-		if (skipEmptyTokens) {
-			start = s.find_first_not_of(delim, start);
-			if (start == string::npos) {
-				return;
-			}
-		}
-
-		end = s.find_first_of(delim, start);
-		if (end == string::npos) {
-			out.push_back(s.substr(start, s.size()-start));
-			return;
-		} else {
-			out.push_back(s.substr(start, end-start));
-			++end;
-		}
-	}
 }
 
 string afc::systemCharset(void)

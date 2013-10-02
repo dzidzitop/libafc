@@ -11,7 +11,6 @@ namespace afc
 
 		void testConstants();
 		void testTrim();
-		void testSplit();
 		void testStartsWith();
 		void testEndsWith();
 		void testBinarySearch();

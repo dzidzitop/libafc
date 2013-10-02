@@ -8,7 +8,6 @@ using std::vector;
 afc::UtilsTest::UtilsTest()
 {
 	TEST_ADD(UtilsTest::testTrim);
-	TEST_ADD(UtilsTest::testSplit);
 	TEST_ADD(UtilsTest::testStartsWith);
 	TEST_ADD(UtilsTest::testEndsWith);
 	TEST_ADD(UtilsTest::testBinarySearch);
@@ -55,117 +54,6 @@ void afc::UtilsTest::testTrim()
 		string s("\tworld   ");
 		trim(s);
 		TEST_ASSERT(s == "world");
-	}
-}
-
-void afc::UtilsTest::testSplit()
-{
-	{
-		vector<string> v;
-		split(" Hello World! Hey\t   he\ty", v);
-		TEST_ASSERT(v.size() == 7);
-		TEST_ASSERT(v[0] == "");
-		TEST_ASSERT(v[1] == "Hello");
-		TEST_ASSERT(v[2] == "World!");
-		TEST_ASSERT(v[3] == "Hey\t");
-		TEST_ASSERT(v[4] == "");
-		TEST_ASSERT(v[5] == "");
-		TEST_ASSERT(v[6] == "he\ty");
-	}
-
-	{
-		vector<string> v;
-		split(" Hello World! Hey\t   he\ty", v, ' ', true);
-		TEST_ASSERT(v.size() == 4);
-		TEST_ASSERT(v[0] == "Hello");
-		TEST_ASSERT(v[1] == "World!");
-		TEST_ASSERT(v[2] == "Hey\t");
-		TEST_ASSERT(v[3] == "he\ty");
-	}
-
-	{
-		vector<string> v;
-		split("", v);
-		TEST_ASSERT(v.size() == 1);
-		TEST_ASSERT(v[0] == "");
-	}
-
-	{
-		vector<string> v;
-		split("", v, ' ', true);
-		TEST_ASSERT(v.size() == 0);
-	}
-
-	{
-		vector<string> v;
-		split("  Hello World!   ", v);
-		TEST_ASSERT(v.size() == 7);
-		TEST_ASSERT(v[0] == "");
-		TEST_ASSERT(v[1] == "");
-		TEST_ASSERT(v[2] == "Hello");
-		TEST_ASSERT(v[3] == "World!");
-		TEST_ASSERT(v[4] == "");
-		TEST_ASSERT(v[5] == "");
-		TEST_ASSERT(v[6] == "");
-	}
-
-	{
-		vector<string> v;
-		split(" Hello World!  ", v, ' ', true);
-		TEST_ASSERT(v.size() == 2);
-		TEST_ASSERT(v[0] == "Hello");
-		TEST_ASSERT(v[1] == "World!");
-	}
-
-	{
-		vector<string> v;
-		split("   ", v);
-		TEST_ASSERT(v.size() == 4);
-		TEST_ASSERT(v[0] == "");
-		TEST_ASSERT(v[1] == "");
-		TEST_ASSERT(v[2] == "");
-		TEST_ASSERT(v[3] == "");
-	}
-
-	{
-		vector<string> v;
-		split("   ", v, ' ', true);
-		TEST_ASSERT(v.size() == 0);
-	}
-
-	{
-		vector<string> v;
-		split("::Hello:World!:::", v, ':');
-		TEST_ASSERT(v.size() == 7);
-		TEST_ASSERT(v[0] == "");
-		TEST_ASSERT(v[1] == "");
-		TEST_ASSERT(v[2] == "Hello");
-		TEST_ASSERT(v[3] == "World!");
-		TEST_ASSERT(v[4] == "");
-		TEST_ASSERT(v[5] == "");
-		TEST_ASSERT(v[6] == "");
-	}
-
-	{
-		vector<string> v;
-		split("::Hello:World!:::", v, ':', true);
-		TEST_ASSERT(v.size() == 2);
-		TEST_ASSERT(v[0] == "Hello");
-		TEST_ASSERT(v[1] == "World!");
-	}
-
-	{
-		vector<string> v;
-		split("Hello!", v);
-		TEST_ASSERT(v.size() == 1);
-		TEST_ASSERT(v[0] == "Hello!");
-	}
-
-	{
-		vector<string> v;
-		split("Hello!", v, ' ', true);
-		TEST_ASSERT(v.size() == 1);
-		TEST_ASSERT(v[0] == "Hello!");
 	}
 }
 

@@ -11,7 +11,6 @@ namespace afc
 	std::string getExecPath();
 
 	void trim(std::string &s);
-	void split(const std::string &s, std::vector<std::string> &out, const char delim = ' ', const bool skipEmptyTokens = false);
 	bool startsWith(const std::string &str, const std::string &substr) throw();
 	bool endsWith(const std::string &str, const std::string &substr) throw();
 
