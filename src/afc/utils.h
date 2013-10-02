@@ -24,6 +24,10 @@ namespace afc
 
 	template<typename CharType = char> class Tokeniser
 	{
+		Tokeniser(const Tokeniser &) = delete;
+		Tokeniser(Tokeniser &&) = delete;
+		Tokeniser &operator=(const Tokeniser &) = delete;
+		Tokeniser &operator=(Tokeniser &&) = delete;
 	public:
 		Tokeniser(const std::basic_string<CharType> &str, const CharType delimiter)
 			: m_str(str), m_delimiter(delimiter), m_begin(0) {}
