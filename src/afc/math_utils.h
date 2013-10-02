@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include <climits>
+#include <type_traits>
 
 namespace afc
 {
@@ -34,10 +35,9 @@ namespace afc
 		return (i & PARITY_MASK) != 0;
 	}
 
-	inline unsigned mean(const unsigned x, const unsigned y) throw()
+	template<typename T> inline T mean(const T x, const T y) noexcept
 	{
-		// TODO implement in a more optimal way for other CPUs and compilers
-		//return (static_cast<unsigned long long>(x) + y)>>1;
+		static_assert(std::is_integral<T>::value, "T must be an integral type.");
 		return (x>>1) + (y>>1) + (x&y&1);
 	}
 

@@ -12,7 +12,10 @@ namespace afc
 		void testSameSign();
 		void testIsEven();
 		void testIsOdd();
-		void testMean();
+		void testMean_Signed();
+		void testMean_Unsigned();
+		void testMean_SignedLong();
+		void testMean_UnsignedLong();
 	};
 }
 
