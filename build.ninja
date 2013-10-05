@@ -31,12 +31,12 @@ rule cxx_test
 build $buildDir/_demangle.o: cxx $srcDir/afc/_demangle.cpp
 build $buildDir/assertion.o: cxx $srcDir/afc/assertion.cpp
 build $buildDir/backtrace.o: cxx $srcDir/afc/backtrace.cpp
+build $buildDir/convertCharset.o: cxx $srcDir/afc/convertCharset.cpp
 build $buildDir/Exception.o: cxx $srcDir/afc/Exception.cpp
 build $buildDir/libintl.o: cc $srcDir/afc/libintl.c
 build $buildDir/number.o: cxx $srcDir/afc/number.cpp
 build $buildDir/StackTrace.o: cxx $srcDir/afc/StackTrace.cpp
 build $buildDir/stream.o: cxx $srcDir/afc/stream.cpp
-build $buildDir/stringToUTF16.o: cxx $srcDir/afc/stringToUTF16.cpp
 build $buildDir/utils.o: cxx $srcDir/afc/utils.cpp
 
 build $buildDir/run_tests.o: cxx_test $testDir/run_tests.cpp
@@ -54,24 +54,24 @@ build $buildDir/libafc.so: linkDynamic $
     $buildDir/_demangle.o $
     $buildDir/assertion.o $
     $buildDir/backtrace.o $
+    $buildDir/convertCharset.o $
     $buildDir/Exception.o $
     $buildDir/libintl.o $
     $buildDir/number.o $
     $buildDir/StackTrace.o $
     $buildDir/stream.o $
-    $buildDir/stringToUTF16.o $
     $buildDir/utils.o
 
 build $buildDir/libafc.a: linkStatic $
     $buildDir/_demangle.o $
     $buildDir/assertion.o $
     $buildDir/backtrace.o $
+    $buildDir/convertCharset.o $
     $buildDir/Exception.o $
     $buildDir/libintl.o $
     $buildDir/number.o $
     $buildDir/StackTrace.o $
     $buildDir/stream.o $
-    $buildDir/stringToUTF16.o $
     $buildDir/utils.o
 
 build $buildDir/libafc_test: bin $
