@@ -78,9 +78,10 @@ template<typename T> void afc::appendToString(const T value, const unsigned char
 		throw InvalidArgumentException("Base must be between 2 and 36.");
 	}
 
-	size_t count = 0;
+	unsigned count = 0;
 	UnsignedT val = std::is_signed<T>::value && value < 0 ? -value : value;
 
+	// TODO use direct order and bulk append.
 	// The buffer that contains digits in the reverse order.
 	char digits[numeric_limits<UnsignedT>::digits];
 
