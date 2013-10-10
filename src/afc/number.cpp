@@ -1,6 +1,5 @@
 #include "number.h"
 #include <climits>
-#include <cassert>
 #include "compile_time_math.h"
 
 using std::string;
@@ -119,9 +118,6 @@ namespace
 		enum {val = UINT_MAX/x};
 	};
 
-	const unsigned char INT_DIGIT_MAX_COUNT = afc::BitCount<UINT_MAX>::result;
-	const unsigned char UINT_DIGIT_MAX_COUNT = afc::BitCount<UINT_MAX>::result;
-
 	const unsigned char CHAR_TO_DIGIT_SIZE = 0x80;
 	const char CHAR_TO_DIGIT_DISALLOWED_BITS =  ~0x7f;
 	const unsigned char UD = 0xff; // undefined digit
@@ -136,11 +132,6 @@ namespace
 		 UD, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
 		 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, UD, UD, UD, UD};
 
-	const char digitToChar[MAX_BASE] =
-		{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-		 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
-		 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
-		 'u', 'v', 'w', 'x', 'y', 'z'};
 	const unsigned maxPrevInt[2][MAX_BASE+1] =
 		{{0, 0, MPI<2>::pos, MPI<3>::pos, MPI<4>::pos, MPI<5>::pos, MPI<6>::pos, MPI<7>::pos, MPI<8>::pos, MPI<9>::pos,
 		  MPI<10>::pos, MPI<11>::pos, MPI<12>::pos, MPI<13>::pos, MPI<14>::pos, MPI<15>::pos, MPI<16>::pos, MPI<17>::pos, MPI<18>::pos,
@@ -354,51 +345,4 @@ void afc::appendToString(const int i, std::string &out)
 void afc::appendToString(const unsigned i, std::string &out)
 {
 	appendToString(i, 10, out);
-}
-
-// TODO support efficient implementation of binary bases
-void afc::appendToString(const int i, const unsigned base, std::string &out)
-{
-	if (base < 2 || base > MAX_BASE) {
-		throwInvalidBaseException();
-	}
-	char digits[INT_DIGIT_MAX_COUNT];
-	size_t count = 0;
-	unsigned val = i < 0 ? -i : i;
-	while (val >= base) {
-		const unsigned nextVal = val / base;
-		digits[count++] = digitToChar[val - nextVal*base];
-		val = nextVal;
-	}
-	digits[count++] = digitToChar[val];
-	assert(count <= INT_DIGIT_MAX_COUNT);
-	const size_t toReserve = out.size() + count;
-	if (i < 0) {
-		out.reserve(toReserve+1);
-		out += '-';
-	} else {
-		out.reserve(toReserve);
-	}
-	do {
-		out += digits[--count];
-	} while (count != 0);
-}
-
-// TODO support efficient implementation of binary bases
-void afc::appendToString(const unsigned i, const unsigned base, std::string &out)
-{
-	if (base < 2 || base > MAX_BASE) {
-		throwInvalidBaseException();
-	}
-	char digits[UINT_DIGIT_MAX_COUNT];
-	size_t count = 0;
-	unsigned val = i;
-	while (val >= base) {
-		const unsigned nextVal = val / base;
-		digits[count++] = digitToChar[val - nextVal*base];
-		val = nextVal;
-	}
-	digits[count++] = digitToChar[val];
-	assert(count <= UINT_DIGIT_MAX_COUNT);
-	out.append(&digits[0], count);
 }

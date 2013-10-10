@@ -145,9 +145,9 @@ void afc::NumberTest::testAppendToString()
 {
 	{
 		string result;
-		appendToString(123, 10, result);
+		appendToString<int>(123, 10, result);
 		TEST_ASSERT(result == "123");
-		appendToString(-456, 10, result);
+		appendToString<int>(-456, 10, result);
 		TEST_ASSERT(result == "123-456");
 	}
 	{
@@ -161,24 +161,24 @@ void afc::NumberTest::testAppendToString()
 	}
 	{
 		string result("aaa");
-		appendToString(411787, 10, result);
+		appendToString<int>(411787, 10, result);
 		TEST_ASSERT(result == "aaa411787");
-		appendToString(411787, 27, result);
+		appendToString<int>(411787, 27, result);
 		TEST_ASSERT(result == "aaa411787kona");
-		appendToString(45896, 36, result);
+		appendToString<int>(45896, 36, result);
 		TEST_ASSERT(result == "aaa411787konazew");
-		appendToString(45896, 35, result);
+		appendToString<int>(45896, 35, result);
 		TEST_ASSERT(result == "aaa411787konazew12gb");
 	}
 	{
 		string result("aaa");
-		TEST_THROWS(appendToString(234, 1, result), InvalidArgumentException &);
+		TEST_THROWS(appendToString<int>(234, 1, result), InvalidArgumentException &);
 		TEST_ASSERT(result == "aaa");
-		TEST_THROWS(appendToString(234, 0, result), InvalidArgumentException &);
+		TEST_THROWS(appendToString<int>(234, 0, result), InvalidArgumentException &);
 		TEST_ASSERT(result == "aaa");
-		TEST_THROWS(appendToString(234, 37, result), InvalidArgumentException &);
+		TEST_THROWS(appendToString<int>(234, 37, result), InvalidArgumentException &);
 		TEST_ASSERT(result == "aaa");
-		TEST_THROWS(appendToString(234, UINT_MAX, result), InvalidArgumentException &);
+		TEST_THROWS(appendToString<int>(234, UINT_MAX, result), InvalidArgumentException &);
 		TEST_ASSERT(result == "aaa");
 	}
 	{
@@ -193,7 +193,7 @@ void afc::NumberTest::testAppendToString()
 	}
 	{
 		string result;
-		appendToString(static_cast<int>(-0x80000000), 2, result);
+		appendToString<int>(static_cast<int>(-0x80000000), 2, result);
 		TEST_ASSERT(result == "-10000000000000000000000000000000");
 	}
 	{
@@ -245,6 +245,5 @@ void afc::NumberTest::testToStringInt()
 	TEST_THROWS(toString(1, 0), InvalidArgumentException &);
 	TEST_THROWS(toString(1, 1), InvalidArgumentException &);
 	TEST_THROWS(toString(1, 37), InvalidArgumentException &);
-	TEST_THROWS(toString(1, 256), InvalidArgumentException &);
-	TEST_THROWS(toString(1, 258), InvalidArgumentException &);
+	TEST_THROWS(toString(1, 255), InvalidArgumentException &);
 }
