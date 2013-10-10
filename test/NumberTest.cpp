@@ -11,7 +11,7 @@ afc::NumberTest::NumberTest()
 {
 	TEST_ADD(NumberTest::testParseInt);
 	TEST_ADD(NumberTest::testParseUInt);
-	TEST_ADD(NumberTest::testAppendToString);
+	TEST_ADD(NumberTest::testAppendToStringInt);
 	TEST_ADD(NumberTest::testToStringInt);
 }
 
@@ -141,7 +141,7 @@ void afc::NumberTest::testParseUInt()
 	TEST_THROWS(parseUInt("*32d@(99", 35), ParseException &);
 }
 
-void afc::NumberTest::testAppendToString()
+void afc::NumberTest::testAppendToStringInt()
 {
 	{
 		string result;
@@ -152,11 +152,11 @@ void afc::NumberTest::testAppendToString()
 	}
 	{
 		string result;
-		appendToString(123, result);
+		appendToString<int>(123, result);
 		TEST_ASSERT(result == "123");
-		appendToString(-456, result);
+		appendToString<int>(-456, result);
 		TEST_ASSERT(result == "123-456");
-		appendToString(0, result);
+		appendToString<int>(0, result);
 		TEST_ASSERT(result == "123-4560");
 	}
 	{
@@ -178,18 +178,8 @@ void afc::NumberTest::testAppendToString()
 		TEST_ASSERT(result == "aaa");
 		TEST_THROWS(appendToString<int>(234, 37, result), InvalidArgumentException &);
 		TEST_ASSERT(result == "aaa");
-		TEST_THROWS(appendToString<int>(234, UINT_MAX, result), InvalidArgumentException &);
+		TEST_THROWS(appendToString<int>(234, 255, result), InvalidArgumentException &);
 		TEST_ASSERT(result == "aaa");
-	}
-	{
-		string s;
-		s += -23;
-		s += +56454;
-		s += -0xFF;
-		TEST_ASSERT(s == "-2356454-255");
-	}
-	{
-		TEST_ASSERT(string("qwe") + 567 + "eee" + 90 + 12 == "qwe567eee9012");
 	}
 	{
 		string result;

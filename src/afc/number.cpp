@@ -334,15 +334,3 @@ unsigned afc::parseUInt(const string &str, unsigned base) throw(ParseException, 
 	}
 	parseAndReturnUIntBase(str, size, base);
 }
-
-// TODO support efficient decimal
-void afc::appendToString(const int i, std::string &out)
-{
-	appendToString(i, 10, out);
-}
-
-// TODO support efficient decimal
-void afc::appendToString(const unsigned i, std::string &out)
-{
-	appendToString(i, 10, out);
-}

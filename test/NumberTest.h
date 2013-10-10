@@ -11,7 +11,7 @@ namespace afc
 
 		void testParseInt();
 		void testParseUInt();
-		void testAppendToString();
+		void testAppendToStringInt();
 		void testToStringInt();
 	};
 }

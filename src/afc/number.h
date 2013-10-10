@@ -44,23 +44,17 @@ namespace afc
 	// TODO test this
 	unsigned parseHexUInt(const std::string &str) throw(ParseException, OverflowException);
 
-	void appendToString(const int i, std::string &out);
-	// TODO test this
-	void appendToString(const unsigned i, std::string &out);
-	// TODO test this
+	// TODO support efficient decimal base
+	// TODO test this for all types
 	template<typename T> void appendToString(const T value, const unsigned char base, std::string &out);
+	template<typename T> void appendToString(const T value, std::string &out)
+			{ appendToString(value, static_cast<unsigned char>(10), out); }
 
-	inline std::string toString(const int i, const unsigned base = 10) {string s; appendToString<int>(i, base, s); return s;}
+	inline std::string toString(const int i, const unsigned char base = 10)
+			{string s; appendToString<int>(i, base, s); return s;}
 	// TODO test this
-	inline std::string toString(const unsigned i, const unsigned base = 10) {string s; appendToString<unsigned>(i, base, s); return s;}
-}
-
-namespace std
-{
-	inline string &operator+=(string &str, const int i) {afc::appendToString(i, str); return str;}
-	inline string &operator+=(string &str, const unsigned i) {afc::appendToString(i, str); return str;}
-	inline std::string operator+(const string &str, const int i) {string s(str); return s += i;}
-	inline std::string operator+(const string &str, const unsigned i) {string s(str); return s += i;}
+	inline std::string toString(const unsigned i, const unsigned char base = 10)
+			{string s; appendToString<unsigned>(i, base, s); return s;}
 }
 
 // TODO support efficient implementation of binary bases
