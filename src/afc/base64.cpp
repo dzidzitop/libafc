@@ -20,13 +20,16 @@ namespace
 
 	inline void encodeTriplet(const char * const src, char * const dest) noexcept
 	{
-		const size_t pos1 = src[0] >> 2;
+		// Casting all chars to unsigned chars, because the result of applying >> is defined for the latter.
+		typedef unsigned char uc;
+
+		const size_t pos1 = uc(src[0]) >> 2;
 		assert(pos1 < 64);
-		const size_t pos2 = ((src[0] & 0x03) << 4) + ((src[1] & 0xf0) >> 4);
+		const size_t pos2 = ((uc(src[0]) & 0x03) << 4) + ((uc(src[1]) & 0xf0) >> 4);
 		assert(pos2 < 64);
-		const size_t pos3 = ((src[1] & 0x0f) << 2) + ((src[2] & 0xc0) >> 6);
+		const size_t pos3 = ((uc(src[1]) & 0x0f) << 2) + ((uc(src[2]) & 0xc0) >> 6);
 		assert(pos3 < 64);
-		const size_t pos4 = src[2] & 0x3f;
+		const size_t pos4 = uc(src[2]) & 0x3f;
 		assert(pos4 < 64);
 
 		dest[0] = base64EncodeTable[pos1];
