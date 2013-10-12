@@ -1,6 +1,5 @@
 #include "base64.hpp"
 #include <cassert>
-#include <iterator>
 #include <limits>
 
 using namespace std;
@@ -19,7 +18,7 @@ namespace
 			'w', 'x', 'y', 'z', '0', '1', '2', '3',
 			'4', '5', '6', '7', '8', '9', '+', '/' };
 
-	template<typename Iterator> inline void encodeTriplet(const char * const src, Iterator dest) throw()
+	inline void encodeTriplet(const char * const src, char * const dest) noexcept
 	{
 		const size_t pos1 = src[0] >> 2;
 		assert(pos1 < 64);
@@ -30,10 +29,10 @@ namespace
 		const size_t pos4 = src[2] & 0x3f;
 		assert(pos4 < 64);
 
-		*dest++ = base64EncodeTable[pos1];
-		*dest++ = base64EncodeTable[pos2];
-		*dest++ = base64EncodeTable[pos3];
-		*dest++ = base64EncodeTable[pos4];
+		dest[0] = base64EncodeTable[pos1];
+		dest[1] = base64EncodeTable[pos2];
+		dest[2] = base64EncodeTable[pos3];
+		dest[3] = base64EncodeTable[pos4];
 	}
 }
 
@@ -48,22 +47,29 @@ string afc::encodeBase64(const string &str)
 	 */
 	dest.reserve((size + 2) / 3 * 4);
 
+	char chunk[4];
 	size_t i = 0;
 
 	for (const size_t n = size - tailSize; i < n; i += 3) {
-		encodeTriplet(&str[i], back_inserter(dest));
+		encodeTriplet(&str[i], chunk);
+		dest.append(chunk, 4);
 	}
 
 	// Last one or two octets are encoded in a different way.
 	if (tailSize > 0) {
-		char tail[4];
+		char tail[3];
+		tail[0] = str[i];
+		tail[1] = tailSize == 1 ? 0 : str[i+1];
+		tail[2] = 0;
 
-		encodeTriplet(&str[i], tail);
+		encodeTriplet(tail, chunk);
 
-		dest.push_back(tail[0]);
-		dest.push_back(tail[1]);
-		dest.push_back(tailSize == 1 ? '=' : tail[2]);
-		dest.push_back('=');
+		if (tailSize == 1) {
+			chunk[2] = '=';
+		}
+		chunk[3] = '=';
+
+		dest.append(chunk, 4);
 	}
 
 	return dest;
