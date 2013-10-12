@@ -41,20 +41,30 @@ string afc::encodeBase64(const string &str)
 {
 	const size_t size = str.size();
 	const size_t tailSize = size % 3;
+
 	string dest;
+	/* Each three octets are encoded into four octets.
+	 * Pre-allocating space for them (including tailing '=' characters).
+	 */
 	dest.reserve((size + 2) / 3 * 4);
+
 	size_t i = 0;
-	for (const size_t n = size - tailSize; i < n; i += 3)
-	{
+
+	for (const size_t n = size - tailSize; i < n; i += 3) {
 		encodeTriplet(&str[i], back_inserter(dest));
 	}
+
+	// Last one or two octets are encoded in a different way.
 	if (tailSize > 0) {
 		char tail[4];
+
 		encodeTriplet(&str[i], tail);
+
 		dest.push_back(tail[0]);
 		dest.push_back(tail[1]);
 		dest.push_back(tailSize == 1 ? '=' : tail[2]);
 		dest.push_back('=');
 	}
+
 	return dest;
 }
