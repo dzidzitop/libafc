@@ -115,6 +115,25 @@ namespace
 
 		return string(destBuf.get(), bufSize);
 	}
+
+	// TODO remove duplication.
+	// TODO optimise memory usage.
+	string _convertFromUtf8(const char * const src, const size_t n, const char * const encoding)
+	{
+		Iconv conv(encoding, "UTF-8");
+		char * srcBuf = const_cast<char *>(src); // for some reason iconv takes non-const source buffer
+		size_t srcSize = n;
+		const size_t destSize = 8 * srcSize; // max length of a character supported is 8 bytes
+		size_t destCharsLeft = destSize;
+		unique_ptr<char[]> destBuf(new char[destSize]);
+		char * mutableDestBuf = destBuf.get(); // iconv modifies the pointers to the buffers
+
+		conv(&srcBuf, &srcSize, &mutableDestBuf, &destCharsLeft);
+
+		const size_t bufSize = destSize - destCharsLeft;
+
+		return string(destBuf.get(), bufSize);
+	}
 }
 
 string afc::convertToUtf8(const char * const src, const char * const encoding)
@@ -129,6 +148,20 @@ string afc::convertToUtf8(const string &src, const char * const encoding)
 		return string();
 	}
 	return _convertToUtf8(src.c_str(), src.size(), encoding);
+}
+
+string afc::convertFromUtf8(const char * const src, const char * const encoding)
+{
+	// TODO handle null pointer?
+	return _convertFromUtf8(src, strlen(src), encoding);
+}
+
+string afc::convertFromUtf8(const string &src, const char * const encoding)
+{
+	if (src.empty()) {
+		return string();
+	}
+	return _convertFromUtf8(src.c_str(), src.size(), encoding);
 }
 
 u16string afc::stringToUTF16LE(const char * const src, const char * const encoding)

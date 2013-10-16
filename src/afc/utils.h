@@ -9,6 +9,8 @@
 namespace afc
 {
 	std::string getExecPath();
+	std::string getHomeDir();
+	std::string getDataDir();
 
 	void trim(std::string &s);
 	bool startsWith(const std::string &str, const std::string &substr) throw();
@@ -18,6 +20,7 @@ namespace afc
 
 	std::string convertToUtf8(const char *src, const char *encoding);
 	std::string convertToUtf8(const std::string &src, const char *encoding);
+	std::string convertFromUtf8(const char *stc, const char *encoding);
 	std::string convertFromUtf8(const std::string &stc, const char *encoding);
 
 	// code points have platform endianness, while characters are little-endian
