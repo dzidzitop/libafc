@@ -35,7 +35,6 @@ build $buildDir/base64.o: cxx $srcDir/afc/base64.cpp
 build $buildDir/convertCharset.o: cxx $srcDir/afc/convertCharset.cpp
 build $buildDir/Exception.o: cxx $srcDir/afc/Exception.cpp
 build $buildDir/libintl.o: cc $srcDir/afc/libintl.c
-build $buildDir/number.o: cxx $srcDir/afc/number.cpp
 build $buildDir/StackTrace.o: cxx $srcDir/afc/StackTrace.cpp
 build $buildDir/stream.o: cxx $srcDir/afc/stream.cpp
 build $buildDir/utils.o: cxx $srcDir/afc/utils.cpp
@@ -60,7 +59,6 @@ build $buildDir/libafc.so: linkDynamic $
     $buildDir/convertCharset.o $
     $buildDir/Exception.o $
     $buildDir/libintl.o $
-    $buildDir/number.o $
     $buildDir/StackTrace.o $
     $buildDir/stream.o $
     $buildDir/utils.o
@@ -73,7 +71,6 @@ build $buildDir/libafc.a: linkStatic $
     $buildDir/convertCharset.o $
     $buildDir/Exception.o $
     $buildDir/libintl.o $
-    $buildDir/number.o $
     $buildDir/StackTrace.o $
     $buildDir/stream.o $
     $buildDir/utils.o

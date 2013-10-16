@@ -24,26 +24,6 @@ namespace afc
 			 'u', 'v', 'w', 'x', 'y', 'z'};
 	}
 
-	int parseInt(const std::string &str) throw(ParseException, OverflowException, UnderflowException);
-	int parseInt(const std::string &str, unsigned base) throw(ParseException, InvalidArgumentException, OverflowException, UnderflowException);
-	// TODO
-	//static int parseInt(const char * const str, unsigned base = 0) throw(ParseException, InvalidArgumentException);
-	// TODO test this
-	int parseOctInt(const std::string &str) throw(ParseException, OverflowException, UnderflowException);
-	// TODO test this
-	int parseHexInt(const std::string &str) throw(ParseException, OverflowException, UnderflowException);
-	// TODO test this
-	// TODO optimise performance
-	// TODO another impl. for base == 0
-	unsigned parseUInt(const std::string &str) throw(ParseException, OverflowException);
-	unsigned parseUInt(const std::string &str, unsigned base) throw(ParseException, InvalidArgumentException, OverflowException);
-	// TODO
-	//static int parseUInt(const char * const str, unsigned base = 0) throw(ParseException, InvalidArgumentException);
-	// TODO test this
-	unsigned parseOctUInt(const std::string &str) throw(ParseException, OverflowException);
-	// TODO test this
-	unsigned parseHexUInt(const std::string &str) throw(ParseException, OverflowException);
-
 	// TODO support efficient decimal base
 	// TODO test this for all types
 	template<typename T> void appendToString(const T value, const unsigned char base, std::string &out);

@@ -9,8 +9,6 @@ namespace afc
 	{
 		NumberTest();
 
-		void testParseInt();
-		void testParseUInt();
 		void testAppendToStringInt();
 		void testToStringInt();
 	};
