@@ -15,7 +15,9 @@
 using std::cout;
 
 #ifdef __GNUC__
-	#include <bfd.h>
+	#ifdef AFC_STACK_TRACE_DEPTH
+		#include <bfd.h>
+	#endif
 	#include <sys/stat.h>
 	#include "utils.h"
 #elif defined AFC_UNIX
