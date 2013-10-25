@@ -1,5 +1,6 @@
 #include "UtilsTest.h"
 #include <afc/utils.h>
+#include <afc/string_util.hpp>
 #include <functional>
 
 using std::string;
@@ -7,54 +8,9 @@ using std::vector;
 
 afc::UtilsTest::UtilsTest()
 {
-	TEST_ADD(UtilsTest::testTrim);
 	TEST_ADD(UtilsTest::testStartsWith);
 	TEST_ADD(UtilsTest::testEndsWith);
 	TEST_ADD(UtilsTest::testBinarySearch);
-}
-
-void afc::UtilsTest::testTrim()
-{
-	{
-		string s;
-		trim(s);
-		TEST_ASSERT(s.empty());
-	}
-	{
-		string s("asd");
-		trim(s);
-		TEST_ASSERT(s == "asd");
-	}
-	{
-		string s("\t  \n\r   hello \r\t   world   ");
-		trim(s);
-		TEST_ASSERT(s == "hello \r\t   world");
-	}
-	{
-		string s("   \t\t\t\t");
-		trim(s);
-		TEST_ASSERT(s.empty());
-	}
-	{
-		string s("\t  \n\r   hello \r\t   world");
-		trim(s);
-		TEST_ASSERT(s == "hello \r\t   world");
-	}
-	{
-		string s("hello \r\t   world   ");
-		trim(s);
-		TEST_ASSERT(s == "hello \r\t   world");
-	}
-	{
-		string s("\t  \n\r   hello \r\t   world\t");
-		trim(s);
-		TEST_ASSERT(s == "hello \r\t   world");
-	}
-	{
-		string s("\tworld   ");
-		trim(s);
-		TEST_ASSERT(s == "world");
-	}
 }
 
 void afc::UtilsTest::testStartsWith()

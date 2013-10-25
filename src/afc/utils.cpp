@@ -1,10 +1,8 @@
 #include "utils.h"
 #include "platform.h"
-#include <cctype>
 #include <langinfo.h>
 
 using std::string;
-using std::isspace;
 
 #ifdef AFC_LINUX
 	#include <limits.h>
@@ -53,47 +51,6 @@ namespace afc
 #else
 	#error "unsupported system"
 #endif
-}
-
-void afc::trim(string &s)
-{
-	size_t n = s.size();
-	size_t start = 0;
-	for (; start < n && isspace(s[start]); ++start) {/*nothing to do*/}
-	size_t count = n - start;
-	size_t end = n - 1;
-	for (; count > 0 && isspace(s[end]); --end, --count) {/*nothing to do*/}
-	if (count != n) {
-		s = s.substr(start, count);
-	}
-}
-
-bool afc::startsWith(const std::string &str, const std::string &substr) throw()
-{
-	const size_t m = substr.size();
-	if (m > str.size()) {
-		return false;
-	}
-	for (size_t i = 0, j = 0; i < m;) {
-		if (str[i++] != substr[j++]) {
-			return false;
-		}
-	}
-	return true;
-}
-
-bool afc::endsWith(const std::string &str, const std::string &substr) throw()
-{
-	const size_t n = str.size(), m = substr.size();
-	if (m > n) {
-		return false;
-	}
-	for (size_t i = n - m, j = 0; i < n;) {
-		if (str[i++] != substr[j++]) {
-			return false;
-		}
-	}
-	return true;
 }
 
 string afc::systemCharset(void)

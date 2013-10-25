@@ -9,9 +9,9 @@ namespace afc
 	{
 		UtilsTest();
 
-		void testConstants();
-		void testTrim();
+		// TODO move this to a separate test case.
 		void testStartsWith();
+		// TODO move this to a separate test case.
 		void testEndsWith();
 		void testBinarySearch();
 	};
