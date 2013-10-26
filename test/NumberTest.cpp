@@ -6,7 +6,6 @@ using namespace std;
 afc::NumberTest::NumberTest()
 {
 	TEST_ADD(NumberTest::testAppendToStringInt);
-	TEST_ADD(NumberTest::testToStringInt);
 }
 
 void afc::NumberTest::testAppendToStringInt()
@@ -59,19 +58,4 @@ void afc::NumberTest::testAppendToStringInt()
 		appendToString(-20, result);
 		TEST_ASSERT(result == "-20");
 	}
-}
-
-void afc::NumberTest::testToStringInt()
-{
-	TEST_ASSERT(toString(1234309) == "1234309");
-	TEST_ASSERT(toString(0xFF, 2) == "11111111");
-	TEST_ASSERT(toString(-0) == "0");
-	TEST_ASSERT(toString(1, 36) == "1");
-	TEST_ASSERT(toString(-1, 36) == "-1");
-	TEST_ASSERT(toString(-35*36-34, 36) == "-zy");
-
-	TEST_THROWS(toString(1, 0), InvalidArgumentException &);
-	TEST_THROWS(toString(1, 1), InvalidArgumentException &);
-	TEST_THROWS(toString(1, 37), InvalidArgumentException &);
-	TEST_THROWS(toString(1, 255), InvalidArgumentException &);
 }

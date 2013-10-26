@@ -29,12 +29,6 @@ namespace afc
 	template<typename T> void appendToString(const T value, const unsigned char base, std::string &out);
 	template<typename T> void appendToString(const T value, std::string &out)
 			{ appendToString(value, static_cast<unsigned char>(10), out); }
-
-	inline std::string toString(const int i, const unsigned char base = 10)
-			{string s; appendToString<int>(i, base, s); return s;}
-	// TODO test this
-	inline std::string toString(const unsigned i, const unsigned char base = 10)
-			{string s; appendToString<unsigned>(i, base, s); return s;}
 }
 
 // TODO support efficient implementation of binary bases

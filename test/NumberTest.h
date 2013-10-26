@@ -10,7 +10,6 @@ namespace afc
 		NumberTest();
 
 		void testAppendToStringInt();
-		void testToStringInt();
 	};
 }
 
