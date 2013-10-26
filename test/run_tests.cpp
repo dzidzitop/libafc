@@ -7,7 +7,7 @@
 #include "RepositoryTest.h"
 #include "TokeniserTest.h"
 #include "UTF16LEToStringTest.h"
-#include "UtilsTest.h"
+#include "StringUtilTest.hpp"
 #include "cpu/Int32Test.h"
 
 using namespace std;
@@ -23,9 +23,9 @@ int main() {
 	allTests.add(auto_ptr<Suite>(new MathUtilsTest));
 	allTests.add(auto_ptr<Suite>(new NumberTest));
 	allTests.add(auto_ptr<Suite>(new RepositoryTest));
+	allTests.add(auto_ptr<Suite>(new StringUtilTest));
 	allTests.add(auto_ptr<Suite>(new TokeniserTest));
 	allTests.add(auto_ptr<Suite>(new UTF16LEToStringTest));
-	allTests.add(auto_ptr<Suite>(new UtilsTest));
 
 	allTests.add(auto_ptr<Suite>(new Int32Test));
 	allTests.run(out);
