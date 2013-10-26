@@ -1,7 +1,5 @@
 #include "UtilsTest.h"
-#include <afc/utils.h>
 #include <afc/string_util.hpp>
-#include <functional>
 
 using std::string;
 using std::vector;
@@ -10,7 +8,6 @@ afc::UtilsTest::UtilsTest()
 {
 	TEST_ADD(UtilsTest::testStartsWith);
 	TEST_ADD(UtilsTest::testEndsWith);
-	TEST_ADD(UtilsTest::testBinarySearch);
 }
 
 void afc::UtilsTest::testStartsWith()
@@ -45,59 +42,4 @@ void afc::UtilsTest::testEndsWith()
 	TEST_ASSERT(endsWith("", ""));
 	TEST_ASSERT(!endsWith("", "z"));
 	TEST_ASSERT(!endsWith("", "ss"));
-}
-
-void afc::UtilsTest::testBinarySearch()
-{
-	std::less<int> less;
-	{
-		vector<int> a;
-		for (int i = 0; i < 10; ++i) {
-			a.push_back(i);
-		}
-		for (int i = 9; i >= 0; --i) {
-			size_t pos;
-			const bool success = binarySearch(a, i, less, pos);
-			TEST_ASSERT(success);
-			TEST_ASSERT(pos == static_cast<unsigned>(i));
-		}
-		size_t pos;
-		TEST_ASSERT((!binarySearch(a, -2, less, pos)));
-		TEST_ASSERT((!binarySearch(a, 10, less, pos)));
-		TEST_ASSERT((!binarySearch(a, 12, less, pos)));
-	}
-
-	{
-		vector<int> a;
-		for (int i = 0; i < 20; i += 2) {
-			a.push_back(i);
-		}
-		for (int i = 18; i >= 0; i -= 2) {
-			size_t pos;
-			const bool success = binarySearch(a, i, less, pos);
-			TEST_ASSERT(success);
-			TEST_ASSERT(pos == static_cast<unsigned>(i/2));
-		}
-	}
-
-	{
-		vector<int> a;
-		for (int i = 18; i >= 0; i -= 2) {
-			size_t pos;
-			const bool success = binarySearch(a, i, less, pos);
-			TEST_ASSERT(!success);
-		}
-	}
-
-	{
-		vector<int> a;
-		a.push_back(5);
-		size_t pos;
-		TEST_ASSERT(binarySearch(a, 5, less, pos));
-		TEST_ASSERT(pos == 0);
-
-		TEST_ASSERT(!binarySearch(a, 4, less, pos));
-		TEST_ASSERT(!binarySearch(a, 6, less, pos));
-		TEST_ASSERT(!binarySearch(a, 0, less, pos));
-	}
 }

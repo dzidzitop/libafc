@@ -8,6 +8,7 @@
 
 #include "Exception.h"
 #include "cpu/primitive.h"
+#include "math_utils.h"
 
 using namespace afc;
 using namespace std;
