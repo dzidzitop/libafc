@@ -1,6 +1,5 @@
 #include "utils.h"
 #include "platform.h"
-#include <langinfo.h>
 
 using std::string;
 
@@ -51,9 +50,4 @@ namespace afc
 #else
 	#error "unsupported system"
 #endif
-}
-
-string afc::systemCharset(void)
-{
-	return string(nl_langinfo(CODESET));
 }

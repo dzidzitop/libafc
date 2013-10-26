@@ -2,6 +2,7 @@
 #define AFC_UTILS_H_
 
 #include <string>
+#include <langinfo.h>
 
 namespace afc
 {
@@ -9,7 +10,7 @@ namespace afc
 	std::string getHomeDir();
 	std::string getDataDir();
 
-	std::string systemCharset(void);
+	inline std::string systemCharset(void) { return std::string(nl_langinfo(CODESET)); }
 
 	std::string convertToUtf8(const char *src, const char *encoding);
 	std::string convertToUtf8(const std::string &src, const char *encoding);
