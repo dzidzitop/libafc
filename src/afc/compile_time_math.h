@@ -1,3 +1,18 @@
+/* libafc - utils to facilitate C++ development.
+Copyright (C) 2010-2013 Dźmitry Laŭčuk
+
+libafc is free software: you can redistribute it and/or modify it under
+the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #ifndef AFC_COMPILE_TIME_MATH_H_
 #define AFC_COMPILE_TIME_MATH_H_
 
@@ -17,7 +32,7 @@ namespace afc
 	{
 		enum {result = 1};
 	};
-	
+
 	template<unsigned val> struct OnesCount
 	{
 		enum {result = (val&1) + OnesCount<(val>>1)>::result};
@@ -26,7 +41,7 @@ namespace afc
 	{
 		enum {result = 0};
 	};
-	
+
 	template<unsigned val> struct LeadZeroCount
 	{
 	private:
@@ -38,7 +53,7 @@ namespace afc
 	{
 		enum {result = BitCount<UINT_MAX>::result};
 	};
-	
+
 	template<unsigned val> struct Log2
 	{
 		enum
@@ -48,12 +63,12 @@ namespace afc
 		};
 	};
 	template<> struct Log2<0>;
-	
+
 	template<int x, int y> struct IntMin
 	{
 		enum {result = x < y ? x : y};
 	};
-	
+
 	template<int x, int y> struct IntMax
 	{
 		enum {result = x < y ? y : x};
