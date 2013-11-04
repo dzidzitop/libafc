@@ -1,7 +1,6 @@
 #include "CompileTimeMathTest.h"
 #include <afc/compile_time_math.h>
 #include <climits>
-#include <cmath>
 #include <limits>
 
 afc::CompileTimeMathTest::CompileTimeMathTest()
