@@ -40,13 +40,10 @@ void afc::CompileTimeMathTest::testOnesCount()
 
 void afc::CompileTimeMathTest::testLeadZeroCount()
 {
-	if (UINT_MAX == 0xffffffff) {
-		TEST_ASSERT(LeadZeroCount<0>::result == 32);
-		TEST_ASSERT(LeadZeroCount<1>::result == 31);
-	}
-	TEST_ASSERT(LeadZeroCount<0>::result == std::numeric_limits<unsigned>::digits);
-	TEST_ASSERT(LeadZeroCount<UINT_MAX>::result == 0);
-	TEST_ASSERT(LeadZeroCount<0xf0>::result == std::numeric_limits<unsigned>::digits - 8);
+	TEST_ASSERT(leadZeroCount(0u) == unsigned(std::numeric_limits<unsigned>::digits));
+	TEST_ASSERT(leadZeroCount(1u) == std::numeric_limits<unsigned>::digits - 1);
+	TEST_ASSERT(leadZeroCount(UINT_MAX) == 0);
+	TEST_ASSERT(leadZeroCount(0xf0u) == std::numeric_limits<unsigned>::digits - 8);
 }
 
 void afc::CompileTimeMathTest::testLog2()

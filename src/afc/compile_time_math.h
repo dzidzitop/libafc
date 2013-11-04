@@ -36,24 +36,24 @@ namespace afc
 		return val == 0 ? 0 : (val & 1) + onesCount(val >> 1);
 	}
 
-	template<unsigned val> struct LeadZeroCount
+
+
+	template<typename T>
+	constexpr unsigned leadZeroCount(const T val)
 	{
-	private:
-		static const unsigned rightmostOneValue = 1 << (std::numeric_limits<unsigned>::digits - 1);
-	public:
-		enum {result = (val&LeadZeroCount::rightmostOneValue) == 0 ? LeadZeroCount<(val>>1)>::result - 1 : 0};
-	};
-	template<> struct LeadZeroCount<0>
-	{
-		enum {result = std::numeric_limits<unsigned>::digits};
-	};
+		static_assert(std::is_integral<T>::value && std::is_unsigned<T>::value,
+				"An integral unsigned type is expected.");
+		// static const unsigned rightmostOneValue = 1 << (std::numeric_limits<T>::digits - 1);
+		return val == 0 ? std::numeric_limits<unsigned>::digits :
+				(val & (1 << (std::numeric_limits<T>::digits - 1))) != 0 ? 0 : leadZeroCount(val >> 1) - 1;
+	}
 
 	template<unsigned val> struct Log2
 	{
 		enum
 		{
-			floor = std::numeric_limits<unsigned>::digits - 1 - LeadZeroCount<val>::result,
-			ceil = std::numeric_limits<unsigned>::digits - LeadZeroCount<val-1>::result,
+			floor = std::numeric_limits<unsigned>::digits - 1 - leadZeroCount(val),
+			ceil = std::numeric_limits<unsigned>::digits - leadZeroCount(val - 1),
 		};
 	};
 	template<> struct Log2<0>;
