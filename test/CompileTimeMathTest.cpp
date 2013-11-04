@@ -26,16 +26,16 @@ void afc::CompileTimeMathTest::testBitCount()
 
 void afc::CompileTimeMathTest::testOnesCount()
 {
-	TEST_ASSERT(OnesCount<0>::result == 0);
-	TEST_ASSERT(OnesCount<1>::result == 1);
-	TEST_ASSERT(OnesCount<2>::result == 1);
-	TEST_ASSERT(OnesCount<3>::result == 2);
-	TEST_ASSERT(OnesCount<4>::result == 1);
-	TEST_ASSERT(OnesCount<5>::result == 2);
-	TEST_ASSERT(OnesCount<6>::result == 2);
-	TEST_ASSERT(OnesCount<7>::result == 3);
-	TEST_ASSERT(OnesCount<0xFF>::result == 8);
-	TEST_ASSERT(OnesCount<0x100>::result == 1);
+	TEST_ASSERT(onesCount(0) == 0);
+	TEST_ASSERT(onesCount(1) == 1);
+	TEST_ASSERT(onesCount(2) == 1);
+	TEST_ASSERT(onesCount(3) == 2);
+	TEST_ASSERT(onesCount(4) == 1);
+	TEST_ASSERT(onesCount(5) == 2);
+	TEST_ASSERT(onesCount(6) == 2);
+	TEST_ASSERT(onesCount(7) == 3);
+	TEST_ASSERT(onesCount(0xff) == 8);
+	TEST_ASSERT(onesCount(0x100) == 1);
 }
 
 void afc::CompileTimeMathTest::testLeadZeroCount()

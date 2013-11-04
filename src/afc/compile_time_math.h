@@ -29,14 +29,12 @@ namespace afc
 		return val == 0 || val == 1 ? 1 : bitCount(val >> 1) + 1;
 	}
 
-	template<unsigned val> struct OnesCount
+	template<typename T>
+	constexpr unsigned onesCount(const T val)
 	{
-		enum {result = (val&1) + OnesCount<(val>>1)>::result};
-	};
-	template<> struct OnesCount<0>
-	{
-		enum {result = 0};
-	};
+		static_assert(std::is_integral<T>::value, "An integral type is expected.");
+		return val == 0 ? 0 : (val & 1) + onesCount(val >> 1);
+	}
 
 	template<unsigned val> struct LeadZeroCount
 	{
