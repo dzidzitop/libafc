@@ -2,6 +2,7 @@
 #include <afc/compile_time_math.h>
 #include <climits>
 #include <cmath>
+#include <limits>
 
 afc::CompileTimeMathTest::CompileTimeMathTest()
 {
@@ -15,12 +16,12 @@ afc::CompileTimeMathTest::CompileTimeMathTest()
 
 void afc::CompileTimeMathTest::testBitCount()
 {
-	TEST_ASSERT(BitCount<0>::result == 1);
-	TEST_ASSERT(BitCount<1>::result == 1);
-	TEST_ASSERT(BitCount<0xff>::result == 8);
-	TEST_ASSERT(BitCount<0x7f>::result == 7);
-	TEST_ASSERT(BitCount<0x20>::result == 6);
-	TEST_ASSERT(BitCount<0x1234>::result == 13);
+	TEST_ASSERT(bitCount(0) == 1);
+	TEST_ASSERT(bitCount(1) == 1);
+	TEST_ASSERT(bitCount(0xff) == 8);
+	TEST_ASSERT(bitCount(0x7f) == 7);
+	TEST_ASSERT(bitCount(0x20) == 6);
+	TEST_ASSERT(bitCount(0x1234) == 13);
 }
 
 void afc::CompileTimeMathTest::testOnesCount()
@@ -43,9 +44,9 @@ void afc::CompileTimeMathTest::testLeadZeroCount()
 		TEST_ASSERT(LeadZeroCount<0>::result == 32);
 		TEST_ASSERT(LeadZeroCount<1>::result == 31);
 	}
-	TEST_ASSERT(LeadZeroCount<0>::result == static_cast<unsigned>(BitCount<UINT_MAX>::result));
+	TEST_ASSERT(LeadZeroCount<0>::result == std::numeric_limits<unsigned>::digits);
 	TEST_ASSERT(LeadZeroCount<UINT_MAX>::result == 0);
-	TEST_ASSERT(LeadZeroCount<0xf0>::result == static_cast<unsigned>(BitCount<UINT_MAX>::result - 8));
+	TEST_ASSERT(LeadZeroCount<0xf0>::result == std::numeric_limits<unsigned>::digits - 8);
 }
 
 void afc::CompileTimeMathTest::testLog2()

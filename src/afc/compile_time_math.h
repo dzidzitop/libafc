@@ -17,21 +17,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #define AFC_COMPILE_TIME_MATH_H_
 
 #include <climits>
+#include <type_traits>
+#include <limits>
 
 namespace afc
 {
-	template<unsigned val> struct BitCount
+	template<typename T>
+	constexpr unsigned bitCount(const T val)
 	{
-		enum {result = BitCount<(val>>1)>::result+1};
-	};
-	template<> struct BitCount<1>
-	{
-		enum {result = 1};
-	};
-	template<> struct BitCount<0>
-	{
-		enum {result = 1};
-	};
+		static_assert(std::is_integral<T>::value, "An integral type is expected.");
+		return val == 0 || val == 1 ? 1 : bitCount(val >> 1) + 1;
+	}
 
 	template<unsigned val> struct OnesCount
 	{
@@ -45,21 +41,21 @@ namespace afc
 	template<unsigned val> struct LeadZeroCount
 	{
 	private:
-		static const unsigned rightmostOneValue = 1 << (BitCount<UINT_MAX>::result - 1);
+		static const unsigned rightmostOneValue = 1 << (std::numeric_limits<unsigned>::digits - 1);
 	public:
 		enum {result = (val&LeadZeroCount::rightmostOneValue) == 0 ? LeadZeroCount<(val>>1)>::result - 1 : 0};
 	};
 	template<> struct LeadZeroCount<0>
 	{
-		enum {result = BitCount<UINT_MAX>::result};
+		enum {result = std::numeric_limits<unsigned>::digits};
 	};
 
 	template<unsigned val> struct Log2
 	{
 		enum
 		{
-			floor = static_cast<unsigned>(BitCount<UINT_MAX>::result) - 1 - LeadZeroCount<val>::result,
-			ceil = static_cast<unsigned>(BitCount<UINT_MAX>::result) - LeadZeroCount<val-1>::result,
+			floor = std::numeric_limits<unsigned>::digits - 1 - LeadZeroCount<val>::result,
+			ceil = std::numeric_limits<unsigned>::digits - LeadZeroCount<val-1>::result,
 		};
 	};
 	template<> struct Log2<0>;

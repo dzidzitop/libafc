@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include "compile_time_math.h"
 #include <cassert>
 #include <climits>
+#include <limits>
 
 namespace afc
 {
@@ -62,7 +63,7 @@ namespace afc
 	template<unsigned divisor> struct __UIntDiv
 	{
 	friend unsigned divide<divisor>(const unsigned) throw();
-		static const unsigned N = BitCount<UINT_MAX>::result+1;
+		static const unsigned N = std::numeric_limits<unsigned>::digits + 1;
 		static const unsigned long long pow_N = 1ull << N;
 		static const unsigned prec = N;
 		static const unsigned l = Log2<divisor>::ceil;
