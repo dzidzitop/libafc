@@ -36,8 +36,6 @@ namespace afc
 		return val == 0 ? 0 : (val & 1) + onesCount(val >> 1);
 	}
 
-
-
 	template<typename T>
 	constexpr unsigned leadZeroCount(const T val)
 	{
@@ -48,15 +46,21 @@ namespace afc
 				(val & (1 << (std::numeric_limits<T>::digits - 1))) != 0 ? 0 : leadZeroCount(val >> 1) - 1;
 	}
 
-	template<unsigned val> struct Log2
+	template<typename T>
+	constexpr unsigned log2Floor(const T val)
 	{
-		enum
-		{
-			floor = std::numeric_limits<unsigned>::digits - 1 - leadZeroCount(val),
-			ceil = std::numeric_limits<unsigned>::digits - leadZeroCount(val - 1),
-		};
-	};
-	template<> struct Log2<0>;
+		static_assert(std::is_integral<T>::value && std::is_unsigned<T>::value,
+				"An integral unsigned type is expected.");
+		return std::numeric_limits<unsigned>::digits - 1 - leadZeroCount(val);
+	}
+
+	template<typename T>
+	constexpr unsigned log2Ceil(const T val)
+	{
+		static_assert(std::is_integral<T>::value && std::is_unsigned<T>::value,
+				"An integral unsigned type is expected.");
+		return std::numeric_limits<unsigned>::digits - leadZeroCount(val - 1);
+	}
 
 	template<int x, int y> struct IntMin
 	{

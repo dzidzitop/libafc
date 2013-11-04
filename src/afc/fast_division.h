@@ -66,7 +66,7 @@ namespace afc
 		static const unsigned N = std::numeric_limits<unsigned>::digits + 1;
 		static const unsigned long long pow_N = 1ull << N;
 		static const unsigned prec = N;
-		static const unsigned l = Log2<divisor>::ceil;
+		static const unsigned l = log2Ceil(divisor);
 		static const unsigned long long m_low = (1ull<<(N+l)) / divisor;
 		static const unsigned long long m_high = ((1ull<<(N+l)) + (1ull<<(N+l-prec))) / divisor;
 		static const unsigned long long m = __UIntDivReductor<m_low, m_high, l>::m_high_result;

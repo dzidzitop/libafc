@@ -48,18 +48,18 @@ void afc::CompileTimeMathTest::testLeadZeroCount()
 
 void afc::CompileTimeMathTest::testLog2()
 {
-	TEST_ASSERT(Log2<1>::floor == 0);
-	TEST_ASSERT(Log2<1>::ceil == 0);
-	TEST_ASSERT(Log2<2>::floor == 1);
-	TEST_ASSERT(Log2<2>::ceil == 1);
-	TEST_ASSERT(Log2<4>::floor == 2);
-	TEST_ASSERT(Log2<4>::ceil == 2);
-	TEST_ASSERT(Log2<16>::floor == 4);
-	TEST_ASSERT(Log2<16>::ceil == 4);
-	TEST_ASSERT(Log2<15>::floor == 3);
-	TEST_ASSERT(Log2<15>::ceil == 4);
-	TEST_ASSERT(Log2<17>::floor == 4);
-	TEST_ASSERT(Log2<17>::ceil == 5);
+	TEST_ASSERT(log2Floor(1u) == 0);
+	TEST_ASSERT(log2Ceil(1u) == 0);
+	TEST_ASSERT(log2Floor(2u) == 1);
+	TEST_ASSERT(log2Ceil(2u) == 1);
+	TEST_ASSERT(log2Floor(4u) == 2);
+	TEST_ASSERT(log2Ceil(4u) == 2);
+	TEST_ASSERT(log2Floor(16u) == 4);
+	TEST_ASSERT(log2Ceil(16u) == 4);
+	TEST_ASSERT(log2Floor(15u) == 3);
+	TEST_ASSERT(log2Ceil(15u) == 4);
+	TEST_ASSERT(log2Floor(17u) == 4);
+	TEST_ASSERT(log2Ceil(17u) == 5);
 }
 
 void afc::CompileTimeMathTest::testIntMin()
