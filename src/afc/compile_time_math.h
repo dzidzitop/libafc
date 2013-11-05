@@ -61,16 +61,6 @@ namespace afc
 				"An integral unsigned type is expected.");
 		return std::numeric_limits<unsigned>::digits - leadZeroCount(val - 1);
 	}
-
-	template<int x, int y> struct IntMin
-	{
-		enum {result = x < y ? x : y};
-	};
-
-	template<int x, int y> struct IntMax
-	{
-		enum {result = x < y ? y : x};
-	};
 }
 
 #endif /*AFC_COMPILE_TIME_MATH_H_*/

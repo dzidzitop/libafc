@@ -8,13 +8,11 @@ namespace afc
 	struct CompileTimeMathTest : public Test::Suite
 	{
 		CompileTimeMathTest();
-		
+
 		void testBitCount();
 		void testOnesCount();
 		void testLeadZeroCount();
 		void testLog2();
-		void testIntMin();
-		void testIntMax();
 	};
 }
 

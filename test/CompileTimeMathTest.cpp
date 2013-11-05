@@ -9,8 +9,6 @@ afc::CompileTimeMathTest::CompileTimeMathTest()
 	TEST_ADD(CompileTimeMathTest::testOnesCount);
 	TEST_ADD(CompileTimeMathTest::testLeadZeroCount);
 	TEST_ADD(CompileTimeMathTest::testLog2);
-	TEST_ADD(CompileTimeMathTest::testIntMin);
-	TEST_ADD(CompileTimeMathTest::testIntMax);
 }
 
 void afc::CompileTimeMathTest::testBitCount()
@@ -59,24 +57,4 @@ void afc::CompileTimeMathTest::testLog2()
 	TEST_ASSERT(log2Ceil(15u) == 4);
 	TEST_ASSERT(log2Floor(17u) == 4);
 	TEST_ASSERT(log2Ceil(17u) == 5);
-}
-
-void afc::CompileTimeMathTest::testIntMin()
-{
-	TEST_ASSERT((IntMin<0, 0>::result == 0));
-	TEST_ASSERT((IntMin<0, 1>::result == 0));
-	TEST_ASSERT((IntMin<1, 0>::result == 0));
-	TEST_ASSERT((IntMin<10, -10>::result == -10));
-	TEST_ASSERT((IntMin<-4, 12>::result == -4));
-	TEST_ASSERT((IntMin<100, 201>::result == 100));
-}
-
-void afc::CompileTimeMathTest::testIntMax()
-{
-	TEST_ASSERT((IntMax<0, 0>::result == 0));
-	TEST_ASSERT((IntMax<0, 1>::result == 1));
-	TEST_ASSERT((IntMax<1, 0>::result == 1));
-	TEST_ASSERT((IntMax<10, -10>::result == 10));
-	TEST_ASSERT((IntMax<-4, 12>::result == 12));
-	TEST_ASSERT((IntMax<100, 201>::result == 201));
 }
