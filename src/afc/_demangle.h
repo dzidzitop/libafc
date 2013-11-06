@@ -18,12 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 #include "platform.h"
 
-#ifdef AFC_HAS_EXECINFO
-	#include <execinfo.h>
-#else
-	#include <cstddef>
-#endif
-
+#include <cstddef>
 #include <string>
 #include <vector>
 #include <memory>

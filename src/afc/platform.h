@@ -19,7 +19,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #ifdef __linux__
 	#define AFC_UNIX
 	#define AFC_LINUX
-	#define AFC_HAS_EXECINFO
 #elif defined __unix__
 	#define AFC_UNIX
 #elif defined __WIN32__
