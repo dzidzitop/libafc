@@ -29,8 +29,8 @@ namespace afc
 
 	std::string convertToUtf8(const char *src, const char *encoding);
 	std::string convertToUtf8(const std::string &src, const char *encoding);
-	std::string convertFromUtf8(const char *stc, const char *encoding);
-	std::string convertFromUtf8(const std::string &stc, const char *encoding);
+	std::string convertFromUtf8(const char *src, const char *encoding);
+	std::string convertFromUtf8(const std::string &src, const char *encoding);
 
 	// code points have platform endianness, while characters are little-endian
 	std::u16string stringToUTF16LE(const char * const src, const char * const encoding);
