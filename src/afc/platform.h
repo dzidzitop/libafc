@@ -20,7 +20,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 	#define AFC_UNIX
 	#define AFC_LINUX
 	#define AFC_HAS_EXECINFO
-	#define AFC_PTHREADS
 #elif defined __unix__
 	#define AFC_UNIX
 #elif defined __WIN32__
@@ -28,7 +27,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 	#ifdef __GNUC__
 		#ifdef __CYGWIN__
 			#define AFC_WIN32_CYGWIN
-			#define AFC_PTHREADS
 		#elif defined __MINGW32__
 			#define AFC_WIN32_MINGW
 		#endif
