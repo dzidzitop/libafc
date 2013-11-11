@@ -1,10 +1,10 @@
 srcDir=src
 testDir=test
 buildDir=build
-cxxFlags=-Wall -fPIC -std=c++11 -O2
-ccFlags=-Wall -fPIC -O2
+cxxFlags=-Wall -fPIC -std=c++11 -O2 -DNDEBUG
+ccFlags=-Wall -fPIC -O2 -DNDEBUG
 ldFlags=
-cxxFlags_test=-I"../cpptest" -I"$srcDir" -I"$srcDir/algo" -I"$srcDir/cpu" $cxxFlags
+cxxFlags_test=-I"../cpptest" -I"$srcDir" -I"$srcDir/algo" -I"$srcDir/cpu" -Wall -std=c++11 -g3 -O0
 ldFlags_test=-L"../cpptest/Debug" -L"$buildDir" $ldFlags
 
 rule cxx
