@@ -33,6 +33,7 @@ build $buildDir/assertion.o: cxx $srcDir/afc/assertion.cpp
 build $buildDir/backtrace.o: cxx $srcDir/afc/backtrace.cpp
 build $buildDir/base64.o: cxx $srcDir/afc/base64.cpp
 build $buildDir/convertCharset.o: cxx $srcDir/afc/convertCharset.cpp
+build $buildDir/dateutil.o: cxx $srcDir/afc/dateutil.cpp
 build $buildDir/Exception.o: cxx $srcDir/afc/Exception.cpp
 build $buildDir/libintl.o: cc $srcDir/afc/libintl.c
 build $buildDir/StackTrace.o: cxx $srcDir/afc/StackTrace.cpp
@@ -58,6 +59,7 @@ build $buildDir/libafc.so: linkDynamic $
     $buildDir/backtrace.o $
     $buildDir/base64.o $
     $buildDir/convertCharset.o $
+    $buildDir/dateutil.o $
     $buildDir/Exception.o $
     $buildDir/libintl.o $
     $buildDir/StackTrace.o $
@@ -71,6 +73,7 @@ build $buildDir/libafc.a: linkStatic $
     $buildDir/backtrace.o $
     $buildDir/base64.o $
     $buildDir/convertCharset.o $
+    $buildDir/dateutil.o $
     $buildDir/Exception.o $
     $buildDir/libintl.o $
     $buildDir/StackTrace.o $
