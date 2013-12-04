@@ -30,18 +30,18 @@ namespace afc
 		Repository &operator=(Repository &&) = delete;
 	public:
 		Repository() : m_values() {}
-		inline ~Repository() throw() { clear(); };
+		~Repository() throw() { clear(); };
 
 		inline const T &get(const T &val);
 		inline bool remove(const T &val);
 
-		const size_t size() const throw() {return m_values.size();}
-		const bool empty() const throw() {return m_values.empty();}
+		const size_t size() const throw() { return m_values.size(); }
+		const bool empty() const throw() { return m_values.empty(); }
 		inline void clear();
 	private:
 		struct RealLess
 		{
-			bool operator()(const T * const o1, const T * const o2) throw() {return less(*o1, *o2);}
+			bool operator()(const T * const o1, const T * const o2) throw() { return less(*o1, *o2); }
 
 			Less less;
 		};
