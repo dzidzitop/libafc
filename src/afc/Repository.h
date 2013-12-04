@@ -30,7 +30,7 @@ namespace afc
 		Repository &operator=(Repository &&) = delete;
 	public:
 		Repository() : m_values() {}
-		inline ~Repository() throw();
+		inline ~Repository() throw() { clear(); };
 
 		inline const T &get(const T &val);
 		inline bool remove(const T &val);
@@ -48,11 +48,6 @@ namespace afc
 		typedef std::set<const T *, RealLess> Set;
 		Set m_values;
 	};
-}
-
-template<typename T, typename Less> afc::Repository<T, Less>::~Repository() throw()
-{
-	clear();
 }
 
 template<typename T, typename Less> const T &afc::Repository<T, Less>::get(const T &val)
@@ -80,8 +75,8 @@ template<typename T, typename Less> bool afc::Repository<T, Less>::remove(const 
 
 template<typename T, typename Less> void afc::Repository<T, Less>::clear()
 {
-	for (typename Set::const_iterator p = m_values.begin(), q = m_values.end(); p != q; ++p) {
-		delete *p;
+	for (const T * const val : m_values) {
+		delete val;
 	}
 	m_values.clear();
 }
