@@ -243,7 +243,8 @@ size_t afc::GZipFileInputStream::skip(const size_t n)
 
 afc::GZipFileOutputStream::GZipFileOutputStream(const char * const file)
 {
-	m_file = gzopen(file, "wb");
+	// TODO Make compression level configurable. Return level from 9 to default once this is implemented.
+	m_file = gzopen(file, "wb9");
 	if (m_file == 0) {
 		throwCannotOpenFileIOException(file);
 	}
