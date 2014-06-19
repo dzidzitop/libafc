@@ -43,7 +43,8 @@ void afc::md5String(const unsigned char * const data, const size_t n, string &de
 
 	for (size_t i = 0; i < MD5_DIGEST_LENGTH; ++i) {
 		const unsigned char b = hash[i];
-		dest.push_back(toHex(b & 0xff >> 4));
+		// 0xff is applied just in case non-octet bytes are used.
+		dest.push_back(toHex((b & 0xff) >> 4));
 		dest.push_back(toHex(b & 0xf));
 	}
 }
