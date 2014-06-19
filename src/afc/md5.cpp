@@ -23,7 +23,8 @@ using namespace std;
 namespace
 {
 	// A hex digit must be passed in.
-	inline char toHex(const char b) {
+	inline char toHex(const char b)
+	{
 		assert(b >= 0 && b < 16);
 		if (b < 10) {
 			return (char) ('0' + b);
