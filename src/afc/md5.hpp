@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include <ctime>
 #include <string>
 #include <cstddef>
+#include "ensure_ascii.hpp"
 
 namespace afc
 {

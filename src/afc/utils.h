@@ -18,6 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 #include <string>
 #include <langinfo.h>
+#include "ensure_ascii.hpp"
+#include <cassert>
 
 namespace afc
 {
@@ -36,6 +38,17 @@ namespace afc
 	std::u16string stringToUTF16LE(const char * const src, const char * const encoding);
 	std::u16string stringToUTF16LE(const std::string &src, const char * const encoding);
 	std::string utf16leToString(const std::u16string &src, const char * const encoding);
+
+	// A hex digit must be passed in.
+	inline char toHex(const char c)
+	{
+		assert(c >= 0 && c < 16);
+		if (c < 10) {
+			return (char) ('0' + c);
+		} else {
+			return (char) ('a' + c - 10);
+		}
+	}
 }
 
 #endif /*AFC_UTILS_H_*/

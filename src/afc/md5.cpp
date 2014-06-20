@@ -15,24 +15,9 @@ You should have received a copy of the GNU Lesser General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include "md5.hpp"
 #include <openssl/md5.h>
-#include <cassert>
-#include "ensure_ascii.hpp"
+#include "utils.h"
 
 using namespace std;
-
-namespace
-{
-	// A hex digit must be passed in.
-	inline char toHex(const char b)
-	{
-		assert(b >= 0 && b < 16);
-		if (b < 10) {
-			return (char) ('0' + b);
-		} else {
-			return (char) ('a' + b - 10);
-		}
-	}
-}
 
 void afc::md5String(const unsigned char * const data, const size_t n, string &dest)
 {
