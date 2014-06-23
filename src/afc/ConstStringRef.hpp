@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 namespace afc
 {
-	// Allows for efficient processing of string literals by resolving their size at compile-time.
+	// Allows for efficient processing of string literals by resolving their size at compile time.
 	class ConstStringRef
 	{
 	public:
