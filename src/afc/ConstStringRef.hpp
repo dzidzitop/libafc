@@ -31,14 +31,19 @@ namespace afc
 		~ConstStringRef() = default;
 
 		template <std::size_t n>
-		ConstStringRef(const char (&buf)[n]) : m_buf(buf), m_size(n - 1) {}
+		ConstStringRef(const char (&str)[n]) : m_str(str), m_size(n - 1) {}
 
-		operator const char *() const { return m_buf; }
+		explicit operator const char *() const { return m_str; }
 
-		const char *value() { return m_buf; }
+		const char *value() { return m_str; }
 		const size_t size() const { return m_size; }
+
+		char operator[](size_t i) const { return m_str[i]; };
+
+		const char *begin() const { return &m_str[0]; };
+		const char *end() const { return &m_str[m_size]; };
 	private:
-		const char *m_buf;
+		const char *m_str;
 		const size_t m_size;
 	};
 }
