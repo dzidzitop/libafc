@@ -48,10 +48,13 @@ namespace afc
 		const CharType *value() const { return m_str; }
 		size_t size() const { return m_size; }
 
-		CharType operator[](size_t i) const { return m_str[i]; };
+		CharType &operator[](const size_t i) { return m_str[i]; };
+		CharType operator[](const size_t i) const { return m_str[i]; };
 
-		CharType *begin() const { return &m_str[0]; };
-		CharType *end() const { return &m_str[m_size]; };
+		CharType *begin() { return &m_str[0]; };
+		const CharType *begin() const { return &m_str[0]; };
+		CharType *end() { return &m_str[m_size]; };
+		const CharType *end() const { return &m_str[m_size]; };
 	private:
 		CharType *m_str;
 		const size_t m_size;
