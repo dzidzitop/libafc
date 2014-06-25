@@ -49,7 +49,7 @@ namespace afc
 		size_t size() const { return m_size; }
 
 		CharType &operator[](const size_t i) { return m_str[i]; };
-		CharType operator[](const size_t i) const { return m_str[i]; };
+		const CharType &operator[](const size_t i) const { return m_str[i]; };
 
 		CharType *begin() { return &m_str[0]; };
 		const CharType *begin() const { return &m_str[0]; };
