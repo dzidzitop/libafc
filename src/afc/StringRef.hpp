@@ -39,7 +39,7 @@ namespace afc
 		template<std::size_t n>
 		StringRefBase(CharType (&str)[n]) : m_str(str), m_size(n - 1) {}
 
-		operator StringRefBase<const CharType>() { return StringRefBase<const CharType>(m_str, m_size); }
+		operator StringRefBase<const CharType>() const { return StringRefBase<const CharType>(m_str, m_size); }
 
 		explicit operator CharType *() { return m_str; }
 		explicit operator const CharType *() const { return m_str; }
