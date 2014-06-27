@@ -32,7 +32,7 @@ namespace afc
 		/* TODO It is public only because GCC 4.7 does not seem to support friend user-defined literals.
 		 * Make it private with granting access to operator"" _s.
 		 */
-		StringRefBase(CharType * const str, const size_t size) : m_str(str), m_size(size) {}
+		constexpr StringRefBase(CharType * const str, const size_t size) : m_str(str), m_size(size) {}
 	public:
 		StringRefBase(const StringRefBase &) = default;
 		StringRefBase(StringRefBase &&) = default;
@@ -42,9 +42,6 @@ namespace afc
 
 		template<size_t n>
 		constexpr StringRefBase(CharType (&str)[n]) : m_str(str), m_size(n - 1) {}
-
-
-		constexpr StringRefBase(CharType * const str, const size_t size) : m_str(str), m_size(size) {}
 
 		constexpr operator StringRefBase<const CharType>() const
 		{
