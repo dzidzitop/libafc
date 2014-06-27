@@ -17,10 +17,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 CPPUNIT_TEST_SUITE_REGISTRATION(DateUtilTest);
 
-#include <dateutil.hpp>
+#include <afc/dateutil.hpp>
 #include <time.h>
 
 using namespace std;
+using namespace afc;
 
 void DateUtilTest::setUp()
 {

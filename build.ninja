@@ -44,6 +44,7 @@ build $buildDir/utils.o: cxx $srcDir/afc/utils.cpp
 
 build $buildDir/run_tests.o: cxx_test $testDir/run_tests.cpp
 build $buildDir/CompileTimeMathTest.o: cxx_test $testDir/CompileTimeMathTest.cpp
+build $buildDir/DateUtilTest.o: cxx_test $testDir/DateUtilTest.cpp
 build $buildDir/EncodeBase64Test.o: cxx_test $testDir/EncodeBase64Test.cpp
 build $buildDir/FastDivisionTest.o: cxx_test $testDir/FastDivisionTest.cpp
 build $buildDir/MathUtilsTest.o: cxx_test $testDir/MathUtilsTest.cpp
@@ -87,6 +88,7 @@ build $buildDir/libafc.a: linkStatic $
 build $buildDir/libafc_test: bin $
     $buildDir/run_tests.o $
     $buildDir/CompileTimeMathTest.o $
+    $buildDir/DateUtilTest.o $
     $buildDir/EncodeBase64Test.o $
     $buildDir/FastDivisionTest.o $
     $buildDir/MathUtilsTest.o $
@@ -97,7 +99,7 @@ build $buildDir/libafc_test: bin $
     $buildDir/UTF16LEToStringTest.o $
     $buildDir/cpu/Int32Test.o $
     | $buildDir/libafc.so
-  libs=-lc -lz -lcpptest -lafc -lssl -Wl,--as-needed
+  libs=-lc -lz -lcpptest -lcppunit -lafc -lssl -Wl,--as-needed
 
 build sharedLib: phony $buildDir/libafc.so
 build staticLib: phony $buildDir/libafc.a
