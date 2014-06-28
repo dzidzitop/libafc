@@ -40,7 +40,7 @@ namespace afc
 		constexpr const char *value() const { return m_str; }
 		constexpr size_t size() const { return m_size; }
 
-		constexpr const char operator[](const size_t i) const { return m_str[i]; };
+		constexpr const char &operator[](const size_t i) const { return m_str[i]; };
 
 		constexpr const char *begin() const { return &m_str[0]; };
 		constexpr const char *end() const { return &m_str[m_size]; };
