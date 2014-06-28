@@ -22,53 +22,32 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 namespace afc
 {
 	// Allows for efficient processing of string literals by resolving their size at compile time.
-	template<typename CharType>
-	class StringRefBase
+	class ConstStringRef
 	{
 	private:
-		// Facilitates type casting from StringRefBase<CharType> to StringRefBase<const CharType>.
-		friend class StringRefBase<typename std::remove_const<CharType>::type>;
+		friend constexpr ConstStringRef operator"" _s(const char *, size_t);
+
+		constexpr ConstStringRef(const char * const str, const size_t size) : m_str(str), m_size(size) {}
 	public:
-		/* TODO It is public only because GCC 4.7 does not seem to support friend user-defined literals.
-		 * Make it private with granting access to operator"" _s.
-		 */
-		constexpr StringRefBase(CharType * const str, const size_t size) : m_str(str), m_size(size) {}
-	public:
-		StringRefBase(const StringRefBase &) = default;
-		StringRefBase(StringRefBase &&) = default;
-		StringRefBase &operator=(const StringRefBase &) = default;
-		StringRefBase &operator=(StringRefBase &&) = default;
-		~StringRefBase() = default;
+		ConstStringRef(const ConstStringRef &) = default;
+		ConstStringRef(ConstStringRef &&) = default;
+		ConstStringRef &operator=(const ConstStringRef &) = default;
+		ConstStringRef &operator=(ConstStringRef &&) = default;
+		~ConstStringRef() = default;
 
-		template<size_t n>
-		constexpr StringRefBase(CharType (&str)[n]) : m_str(str), m_size(n - 1) {}
+		constexpr explicit operator const char *() const { return m_str; }
 
-		constexpr operator StringRefBase<const CharType>() const
-		{
-			return StringRefBase<const CharType>(m_str, m_size);
-		}
-
-		explicit operator CharType *() { return m_str; }
-		constexpr explicit operator const CharType *() const { return m_str; }
-
-		CharType *value() { return m_str; }
-		constexpr const CharType *value() const { return m_str; }
+		constexpr const char *value() const { return m_str; }
 		constexpr size_t size() const { return m_size; }
 
-		CharType &operator[](const size_t i) { return m_str[i]; };
-		constexpr const CharType &operator[](const size_t i) const { return m_str[i]; };
+		constexpr const char operator[](const size_t i) const { return m_str[i]; };
 
-		CharType *begin() { return &m_str[0]; };
-		constexpr const CharType *begin() const { return &m_str[0]; };
-		CharType *end() { return &m_str[m_size]; };
-		constexpr const CharType *end() const { return &m_str[m_size]; };
+		constexpr const char *begin() const { return &m_str[0]; };
+		constexpr const char *end() const { return &m_str[m_size]; };
 	private:
-		CharType *m_str;
+		const char *m_str;
 		const size_t m_size;
 	};
-
-	typedef StringRefBase<char> StringRef;
-	typedef StringRefBase<const char> ConstStringRef;
 
 	constexpr ConstStringRef operator"" _s(const char * const str, const size_t n) { return ConstStringRef(str, n); };
 }
