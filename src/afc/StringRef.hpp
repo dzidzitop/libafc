@@ -45,7 +45,7 @@ namespace afc
 		constexpr const char *begin() const { return &m_str[0]; };
 		constexpr const char *end() const { return &m_str[m_size]; };
 	private:
-		const char *m_str;
+		const char * const m_str;
 		const size_t m_size;
 	};
 
