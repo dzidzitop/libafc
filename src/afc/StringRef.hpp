@@ -35,7 +35,7 @@ namespace afc
 		ConstStringRef &operator=(ConstStringRef &&) = default;
 		~ConstStringRef() = default;
 
-		constexpr explicit operator const char *() const { return m_str; }
+		constexpr operator const char *() const { return m_str; }
 
 		constexpr const char *value() const { return m_str; }
 		constexpr size_t size() const { return m_size; }
