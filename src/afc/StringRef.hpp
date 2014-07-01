@@ -17,7 +17,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #define AFC_STRINGREF_HPP_
 
 #include <cstddef>
-#include <type_traits>
 
 namespace afc
 {
