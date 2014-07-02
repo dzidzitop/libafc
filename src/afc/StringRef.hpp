@@ -24,7 +24,7 @@ namespace afc
 	class ConstStringRef
 	{
 	private:
-		friend constexpr ConstStringRef operator"" _s(const char *, std::size_t);
+		friend constexpr ConstStringRef operator"" _s(const char *, std::size_t) noexcept;
 
 		constexpr ConstStringRef(const char * const str, const std::size_t size) noexcept : m_str(str), m_size(size) {}
 	public:
@@ -48,7 +48,7 @@ namespace afc
 		const std::size_t m_size;
 	};
 
-	constexpr ConstStringRef operator"" _s(const char * const str, const std::size_t n) { return ConstStringRef(str, n); };
+	constexpr ConstStringRef operator"" _s(const char * const str, const std::size_t n) noexcept { return ConstStringRef(str, n); };
 }
 
 #endif /* AFC_STRINGREF_HPP_ */
