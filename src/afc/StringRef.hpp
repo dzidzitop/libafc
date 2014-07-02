@@ -34,7 +34,7 @@ namespace afc
 		ConstStringRef &operator=(ConstStringRef &&) = default;
 		~ConstStringRef() = default;
 
-		constexpr operator const char *() const noexcept { return m_str; }
+		constexpr explicit operator const char *() const noexcept { return m_str; }
 
 		constexpr const char *value() const noexcept { return m_str; }
 		constexpr std::size_t size() const noexcept { return m_size; }
