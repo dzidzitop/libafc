@@ -32,6 +32,9 @@ namespace afc
 		Tokeniser &operator=(const Tokeniser &) = delete;
 		Tokeniser &operator=(Tokeniser &&) = delete;
 	public:
+		// A synonym of the type std::basic_string<CharType>::iterator.
+		typedef typename std::basic_string<CharType>::iterator CharIterator;
+
 		Tokeniser(std::basic_string<CharType> &str, const CharType delimiter)
 			: m_str(str), m_delimiter(delimiter), m_begin(0) {}
 		Tokeniser(std::basic_string<CharType> &&str, const CharType delimiter)
@@ -39,7 +42,7 @@ namespace afc
 
 		bool hasNext() const throw() {return m_begin != std::basic_string<CharType>::npos;}
 		std::basic_string<CharType> next();
-		void next(CharType *&start, CharType *&end);
+		void next(CharIterator &start, CharIterator &end);
 	private:
 		/* m_inputCopy is used only with temporary strings because they die early.
 		   In other cases no copying of the input string is used. */
@@ -72,7 +75,7 @@ std::basic_string<CharType> afc::Tokeniser<CharType>::next()
 }
 
 template<typename CharType>
-void afc::Tokeniser<CharType>::next(CharType *&start, CharType *&end)
+void afc::Tokeniser<CharType>::next(CharIterator &start, CharIterator &end)
 {
 #ifdef AFC_EXCEPTIONS_ENABLED
 	if (m_begin == std::basic_string<CharType>::npos) {
@@ -80,13 +83,13 @@ void afc::Tokeniser<CharType>::next(CharType *&start, CharType *&end)
 	}
 #endif
 
-	start = &m_str[m_begin];
+	start = m_str.begin() + m_begin;
 	const std::size_t endIdx = m_str.find(m_delimiter, m_begin);
 	if (endIdx == std::basic_string<CharType>::npos) {
-		end = &m_str[0] + m_str.size();
+		end = m_str.end();
 		m_begin = std::basic_string<CharType>::npos;
 	} else {
-		end = &m_str[endIdx];
+		end = m_str.begin() + endIdx;
 		m_begin = endIdx + 1;
 	}
 }
