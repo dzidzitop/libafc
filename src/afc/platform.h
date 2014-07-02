@@ -1,5 +1,5 @@
 /* libafc - utils to facilitate C++ development.
-Copyright (C) 2010-2013 Dźmitry Laŭčuk
+Copyright (C) 2010-2014 Dźmitry Laŭčuk
 
 libafc is free software: you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by
@@ -48,6 +48,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 	#define AFC_LE
 #else
 	#error "unknown target processor architecture"
+#endif
+
+#ifdef __GNUG__
+	#if __EXCEPTIONS == 1
+		#define AFC_EXCEPTIONS_ENABLED
+	#endif
+#else
+	#error "unsupported compiler"
 #endif
 
 #endif /*AFC_PLATFORM_H_*/
