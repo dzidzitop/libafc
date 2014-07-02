@@ -26,7 +26,7 @@ namespace afc
 	private:
 		friend constexpr ConstStringRef operator"" _s(const char *, std::size_t);
 
-		constexpr ConstStringRef(const char * const str, const std::size_t size) : m_str(str), m_size(size) {}
+		constexpr ConstStringRef(const char * const str, const std::size_t size) noexcept : m_str(str), m_size(size) {}
 	public:
 		ConstStringRef(const ConstStringRef &) = default;
 		ConstStringRef(ConstStringRef &&) = default;
@@ -34,15 +34,15 @@ namespace afc
 		ConstStringRef &operator=(ConstStringRef &&) = default;
 		~ConstStringRef() = default;
 
-		constexpr operator const char *() const { return m_str; }
+		constexpr operator const char *() const noexcept { return m_str; }
 
-		constexpr const char *value() const { return m_str; }
-		constexpr std::size_t size() const { return m_size; }
+		constexpr const char *value() const noexcept { return m_str; }
+		constexpr std::size_t size() const noexcept { return m_size; }
 
-		constexpr const char &operator[](const std::size_t i) const { return m_str[i]; };
+		constexpr const char &operator[](const std::size_t i) const noexcept { return m_str[i]; };
 
-		constexpr const char *begin() const { return &m_str[0]; };
-		constexpr const char *end() const { return &m_str[m_size]; };
+		constexpr const char *begin() const noexcept { return &m_str[0]; };
+		constexpr const char *end() const noexcept { return &m_str[m_size]; };
 	private:
 		const char * const m_str;
 		const std::size_t m_size;
