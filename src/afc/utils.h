@@ -1,5 +1,5 @@
 /* libafc - utils to facilitate C++ development.
-Copyright (C) 2010-2013 Dźmitry Laŭčuk
+Copyright (C) 2010-2014 Dźmitry Laŭčuk
 
 libafc is free software: you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by
@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include <langinfo.h>
 #include "ensure_ascii.hpp"
 #include <cassert>
+#include <mutex>
 
 namespace afc
 {
@@ -49,6 +50,19 @@ namespace afc
 			return (char) ('a' + c - 10);
 		}
 	}
+
+	struct UnlockGuard
+	{
+		UnlockGuard(std::mutex &mutex) : m_mutex(mutex) { m_mutex.unlock(); };
+		~UnlockGuard() { m_mutex.lock(); }
+	private:
+		UnlockGuard(const UnlockGuard &) = delete;
+		UnlockGuard(UnlockGuard &&) = delete;
+		UnlockGuard &operator=(const UnlockGuard &) = delete;
+		UnlockGuard &operator=(UnlockGuard &&) = delete;
+
+		std::mutex &m_mutex;
+	};
 }
 
 #endif /*AFC_UTILS_H_*/
