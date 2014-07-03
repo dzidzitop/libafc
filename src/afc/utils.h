@@ -41,14 +41,11 @@ namespace afc
 	std::string utf16leToString(const std::u16string &src, const char * const encoding);
 
 	// A hex digit must be passed in.
-	inline char toHex(const char c)
+	template<typename T>
+	constexpr char toHex(const T c) noexcept
 	{
-		assert(c >= 0 && c < 16);
-		if (c < 10) {
-			return (char) ('0' + c);
-		} else {
-			return (char) ('a' + c - 10);
-		}
+		static_assert(std::is_integral<T>::value, "T must be an integral type.");
+		return c < 10 ? '0' + c : 'a' + c - 10;
 	}
 
 	struct UnlockGuard
