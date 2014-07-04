@@ -1,5 +1,4 @@
 #include <cpptest.h>
-#include "EncodeBase64Test.hpp"
 #include "FastDivisionTest.h"
 #include "MathUtilsTest.h"
 #include "NumberTest.h"
@@ -16,7 +15,6 @@ using namespace Test;
 int main() {
 	TextOutput out(TextOutput::Verbose);
 	Suite allTests;
-	allTests.add(auto_ptr<Suite>(new EncodeBase64Test));
 	allTests.add(auto_ptr<Suite>(new FastDivisionTest));
 	allTests.add(auto_ptr<Suite>(new MathUtilsTest));
 	allTests.add(auto_ptr<Suite>(new NumberTest));
