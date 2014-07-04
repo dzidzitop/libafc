@@ -1,60 +1,69 @@
+/* libafc - utils to facilitate C++ development.
+Copyright (C) 2010-2014 Dźmitry Laŭčuk
+
+libafc is free software: you can redistribute it and/or modify it under
+the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include "CompileTimeMathTest.h"
 #include <afc/compile_time_math.h>
 #include <climits>
 #include <limits>
 
-afc::CompileTimeMathTest::CompileTimeMathTest()
-{
-	TEST_ADD(CompileTimeMathTest::testBitCount);
-	TEST_ADD(CompileTimeMathTest::testOnesCount);
-	TEST_ADD(CompileTimeMathTest::testLeadZeroCount);
-	TEST_ADD(CompileTimeMathTest::testLog2);
-}
+CPPUNIT_TEST_SUITE_REGISTRATION(afc::CompileTimeMathTest);
 
 void afc::CompileTimeMathTest::testBitCount()
 {
-	TEST_ASSERT(bitCount(0) == 1);
-	TEST_ASSERT(bitCount(1) == 1);
-	TEST_ASSERT(bitCount(0xff) == 8);
-	TEST_ASSERT(bitCount(0x7f) == 7);
-	TEST_ASSERT(bitCount(0x20) == 6);
-	TEST_ASSERT(bitCount(0x1234) == 13);
+	CPPUNIT_ASSERT_EQUAL(1u, bitCount(0));
+	CPPUNIT_ASSERT_EQUAL(1u, bitCount(1));
+	CPPUNIT_ASSERT_EQUAL(8u, bitCount(0xff));
+	CPPUNIT_ASSERT_EQUAL(7u, bitCount(0x7f));
+	CPPUNIT_ASSERT_EQUAL(6u, bitCount(0x20));
+	CPPUNIT_ASSERT_EQUAL(13u, bitCount(0x1234));
 }
 
 void afc::CompileTimeMathTest::testOnesCount()
 {
-	TEST_ASSERT(onesCount(0) == 0);
-	TEST_ASSERT(onesCount(1) == 1);
-	TEST_ASSERT(onesCount(2) == 1);
-	TEST_ASSERT(onesCount(3) == 2);
-	TEST_ASSERT(onesCount(4) == 1);
-	TEST_ASSERT(onesCount(5) == 2);
-	TEST_ASSERT(onesCount(6) == 2);
-	TEST_ASSERT(onesCount(7) == 3);
-	TEST_ASSERT(onesCount(0xff) == 8);
-	TEST_ASSERT(onesCount(0x100) == 1);
+	CPPUNIT_ASSERT_EQUAL(0u, onesCount(0));
+	CPPUNIT_ASSERT_EQUAL(1u, onesCount(1));
+	CPPUNIT_ASSERT_EQUAL(1u, onesCount(2));
+	CPPUNIT_ASSERT_EQUAL(2u, onesCount(3));
+	CPPUNIT_ASSERT_EQUAL(1u, onesCount(4));
+	CPPUNIT_ASSERT_EQUAL(2u, onesCount(5));
+	CPPUNIT_ASSERT_EQUAL(2u, onesCount(6));
+	CPPUNIT_ASSERT_EQUAL(3u, onesCount(7));
+	CPPUNIT_ASSERT_EQUAL(8u, onesCount(0xff));
+	CPPUNIT_ASSERT_EQUAL(1u, onesCount(0x100));
 }
 
 void afc::CompileTimeMathTest::testLeadZeroCount()
 {
-	TEST_ASSERT(leadZeroCount(0u) == unsigned(std::numeric_limits<unsigned>::digits));
-	TEST_ASSERT(leadZeroCount(1u) == std::numeric_limits<unsigned>::digits - 1);
-	TEST_ASSERT(leadZeroCount(UINT_MAX) == 0);
-	TEST_ASSERT(leadZeroCount(0xf0u) == std::numeric_limits<unsigned>::digits - 8);
+	CPPUNIT_ASSERT_EQUAL(unsigned(std::numeric_limits<unsigned>::digits), leadZeroCount(0u));
+	CPPUNIT_ASSERT_EQUAL(unsigned(std::numeric_limits<unsigned>::digits - 1), leadZeroCount(1u));
+	CPPUNIT_ASSERT_EQUAL(0u, leadZeroCount(UINT_MAX));
+	CPPUNIT_ASSERT_EQUAL(unsigned(std::numeric_limits<unsigned>::digits - 8), leadZeroCount(0xf0u));
 }
 
 void afc::CompileTimeMathTest::testLog2()
 {
-	TEST_ASSERT(log2Floor(1u) == 0);
-	TEST_ASSERT(log2Ceil(1u) == 0);
-	TEST_ASSERT(log2Floor(2u) == 1);
-	TEST_ASSERT(log2Ceil(2u) == 1);
-	TEST_ASSERT(log2Floor(4u) == 2);
-	TEST_ASSERT(log2Ceil(4u) == 2);
-	TEST_ASSERT(log2Floor(16u) == 4);
-	TEST_ASSERT(log2Ceil(16u) == 4);
-	TEST_ASSERT(log2Floor(15u) == 3);
-	TEST_ASSERT(log2Ceil(15u) == 4);
-	TEST_ASSERT(log2Floor(17u) == 4);
-	TEST_ASSERT(log2Ceil(17u) == 5);
+	CPPUNIT_ASSERT_EQUAL(0u, log2Floor(1u));
+	CPPUNIT_ASSERT_EQUAL(0u, log2Ceil(1u));
+	CPPUNIT_ASSERT_EQUAL(1u, log2Floor(2u));
+	CPPUNIT_ASSERT_EQUAL(1u, log2Ceil(2u));
+	CPPUNIT_ASSERT_EQUAL(2u, log2Floor(4u));
+	CPPUNIT_ASSERT_EQUAL(2u, log2Ceil(4u));
+	CPPUNIT_ASSERT_EQUAL(4u, log2Floor(16u));
+	CPPUNIT_ASSERT_EQUAL(4u, log2Ceil(16u));
+	CPPUNIT_ASSERT_EQUAL(3u, log2Floor(15u));
+	CPPUNIT_ASSERT_EQUAL(4u, log2Ceil(15u));
+	CPPUNIT_ASSERT_EQUAL(4u, log2Floor(17u));
+	CPPUNIT_ASSERT_EQUAL(5u, log2Ceil(17u));
 }
