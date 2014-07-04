@@ -13,8 +13,8 @@ GNU Lesser General Public License for more details.
 
 You should have received a copy of the GNU Lesser General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>. */
-#ifndef DATEUTILTEST_HPP_
-#define DATEUTILTEST_HPP_
+#ifndef AFC_DATEUTILTEST_HPP_
+#define AFC_DATEUTILTEST_HPP_
 
 #include <cppunit/TestFixture.h>
 #include <cppunit/extensions/HelperMacros.h>
@@ -43,4 +43,4 @@ namespace afc
 	};
 }
 
-#endif /* DATEUTILTEST_HPP_ */
+#endif /* AFC_DATEUTILTEST_HPP_ */
