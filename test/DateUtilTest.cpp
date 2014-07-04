@@ -1,5 +1,5 @@
 /* libafc - utils to facilitate C++ development.
-Copyright (C) 2013 Dźmitry Laŭčuk
+Copyright (C) 2013-2014 Dźmitry Laŭčuk
 
 libafc is free software: you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by
@@ -15,7 +15,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include "DateUtilTest.hpp"
 
-CPPUNIT_TEST_SUITE_REGISTRATION(DateUtilTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(afc::DateUtilTest);
 
 #include <afc/dateutil.hpp>
 #include <time.h>
@@ -23,14 +23,14 @@ CPPUNIT_TEST_SUITE_REGISTRATION(DateUtilTest);
 using namespace std;
 using namespace afc;
 
-void DateUtilTest::setUp()
+void afc::DateUtilTest::setUp()
 {
 	m_timeZoneBackup = getenv("TZ");
 	// This time zone is set to ensure that conversion is performed via UTC.
 	setenv("TZ", "ABC-12:30", true);
 }
 
-void DateUtilTest::tearDown()
+void afc::DateUtilTest::tearDown()
 {
 	if (m_timeZoneBackup == nullptr) {
 		setenv("TZ", m_timeZoneBackup, true);
@@ -39,7 +39,7 @@ void DateUtilTest::tearDown()
 	}
 }
 
-void DateUtilTest::testParseValidISODateTime_PositiveUTCTimeZone()
+void afc::DateUtilTest::testParseValidISODateTime_PositiveUTCTimeZone()
 {
 	string input("2013-10-16T20:02:26+0000");
 	time_t dest;
@@ -58,7 +58,7 @@ void DateUtilTest::testParseValidISODateTime_PositiveUTCTimeZone()
 	CPPUNIT_ASSERT_EQUAL(string("2013-10-16T20:02:26+0000"), string(buf));
 }
 
-void DateUtilTest::testParseValidISODateTime_NegativeUTCTimeZone()
+void afc::DateUtilTest::testParseValidISODateTime_NegativeUTCTimeZone()
 {
 	string input("2013-10-16T20:02:26-0000");
 	time_t dest;
@@ -77,7 +77,7 @@ void DateUtilTest::testParseValidISODateTime_NegativeUTCTimeZone()
 	CPPUNIT_ASSERT_EQUAL(string("2013-10-16T20:02:26+0000"), string(buf));
 }
 
-void DateUtilTest::testParseValidISODateTime_PositiveNonUTCTimeZone()
+void afc::DateUtilTest::testParseValidISODateTime_PositiveNonUTCTimeZone()
 {
 	string input("2013-10-16T20:02:26+0300");
 	time_t dest;
@@ -96,7 +96,7 @@ void DateUtilTest::testParseValidISODateTime_PositiveNonUTCTimeZone()
 	CPPUNIT_ASSERT_EQUAL(string("2013-10-16T17:02:26+0000"), string(buf));
 }
 
-void DateUtilTest::testParseValidISODateTime_NegativeNonUTCTimeZone()
+void afc::DateUtilTest::testParseValidISODateTime_NegativeNonUTCTimeZone()
 {
 	string input("2013-10-16T20:02:26-0130");
 	time_t dest;
