@@ -20,6 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include <cassert>
 #include <initializer_list>
 #include <memory>
+#include <type_traits>
+#include <cstring>
 
 namespace afc
 {
@@ -35,7 +37,7 @@ namespace afc
 		FastStringBuffer &operator=(FastStringBuffer &&) = default;
 
 		FastStringBuffer() noexcept : m_buf(nullptr), m_capacity(0), m_size(0) {}
-		~FastStringBuffer() { delete[] m_buf; }
+		~FastStringBuffer() = default;
 
 		void reserve(const std::size_t n)
 		{
@@ -83,7 +85,7 @@ namespace afc
 			} else {
 				// Terminating the string with the null character.
 				m_buf[m_size] = CharType(0);
-				return m_buf;
+				return m_buf.get();
 			}
 		}
 
@@ -95,7 +97,7 @@ namespace afc
 		static const CharType empty[1];
 
 		// If not nullptr then one character is reserved for '\0'.
-		CharType *m_buf;
+		std::unique_ptr<CharType[]> m_buf;
 		std::size_t m_capacity;
 		std::size_t m_size;
 	};
@@ -119,13 +121,16 @@ void afc::FastStringBuffer<CharType>::expand(const std::size_t n)
 	 */
 	std::unique_ptr<CharType[]> newBuf(new CharType[newBufSize]);
 	if (m_buf != nullptr) {
-		for (std::size_t i = 0; i < m_size; ++i) {
-			newBuf[i] = m_buf[i];
+		if (std::is_pod<CharType>::value) {
+			// POD values are copied by std::memcpy, which is efficient for all compilers/runtimes.
+			std::memcpy(&newBuf[0], &m_buf[0], m_size * sizeof(CharType));
+		} else {
+			for (std::size_t i = 0; i < m_size; ++i) {
+				newBuf[i] = m_buf[i];
+			}
 		}
-		// It is safe to delete the old buffer here.
-		delete[] m_buf;
 	}
-	m_buf = newBuf.release();
+	m_buf.reset(newBuf.release());
 	m_capacity = newBufSize - 1;
 }
 
