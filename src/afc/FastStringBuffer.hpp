@@ -77,11 +77,13 @@ namespace afc
 
 		const CharType *c_str() const noexcept
 		{
-			// assert() can throw an exception, but this is fine with debug code.
-			assert(m_buf != nullptr);
-			// Terminating the string with the null character.
-			m_buf[m_size] = CharType(0);
-			return m_buf;
+			if (m_buf == nullptr) {
+				return empty;
+			} else {
+				// Terminating the string with the null character.
+				m_buf[m_size] = CharType(0);
+				return m_buf;
+			}
 		}
 
 		std::size_t capacity() const noexcept { return m_capacity; }
@@ -89,12 +91,17 @@ namespace afc
 	private:
 		void expand(const std::size_t n);
 
+		static const CharType empty[1];
+
 		// If not nullptr then one character is reserved for '\0'.
 		CharType *m_buf;
 		std::size_t m_capacity;
 		std::size_t m_size;
 	};
 }
+
+template<typename CharType>
+const CharType afc::FastStringBuffer<CharType>::empty[1] = {CharType(0)};
 
 template<typename CharType>
 void afc::FastStringBuffer<CharType>::expand(const std::size_t n)
