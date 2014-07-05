@@ -1,5 +1,5 @@
 /* libafc - utils to facilitate C++ development.
-Copyright (C) 2014 Dźmitry Laŭčuk
+Copyright (C) 2013-2014 Dźmitry Laŭčuk
 
 libafc is free software: you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by
@@ -25,17 +25,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 namespace afc
 {
-	template<typename CharType = char>
+	template<typename String = std::string>
 	class Tokeniser
 	{
 		Tokeniser(const Tokeniser &) = delete;
 		Tokeniser(Tokeniser &&) = delete;
 		Tokeniser &operator=(const Tokeniser &) = delete;
 		Tokeniser &operator=(Tokeniser &&) = delete;
+
+		typedef typename String::value_type CharType;
 	public:
-		// A synonym of the type std::basic_string<CharType>.
-		typedef typename std::basic_string<CharType> String;
-		// A synonym of the type std::basic_string<CharType>::iterator.
+		// A synonym of the type String::iterator.
 		typedef typename String::iterator CharIterator;
 
 		Tokeniser(String &str, const CharType delimiter)
@@ -60,8 +60,8 @@ namespace afc
 	};
 }
 
-template<typename CharType>
-typename afc::Tokeniser<CharType>::String afc::Tokeniser<CharType>::next()
+template<typename String>
+String afc::Tokeniser<String>::next()
 {
 #ifdef AFC_EXCEPTIONS_ENABLED
 	if (m_begin == std::basic_string<CharType>::npos) {
@@ -70,9 +70,9 @@ typename afc::Tokeniser<CharType>::String afc::Tokeniser<CharType>::next()
 #endif
 
 	const size_t end = m_str.find(m_delimiter, m_begin);
-	if (end == std::basic_string<CharType>::npos) {
+	if (end == String::npos) {
 		auto token = m_str.substr(m_begin);
-		m_begin = std::basic_string<CharType>::npos;
+		m_begin = String::npos;
 		return token;
 	} else {
 		auto token = m_str.substr(m_begin, end - m_begin);
@@ -81,8 +81,8 @@ typename afc::Tokeniser<CharType>::String afc::Tokeniser<CharType>::next()
 	}
 }
 
-template<typename CharType>
-void afc::Tokeniser<CharType>::next(CharIterator &start, CharIterator &end)
+template<typename String>
+void afc::Tokeniser<String>::next(CharIterator &start, CharIterator &end)
 {
 #ifdef AFC_EXCEPTIONS_ENABLED
 	if (m_begin == std::basic_string<CharType>::npos) {
@@ -92,9 +92,9 @@ void afc::Tokeniser<CharType>::next(CharIterator &start, CharIterator &end)
 
 	start = m_str.begin() + m_begin;
 	const std::size_t endIdx = m_str.find(m_delimiter, m_begin);
-	if (endIdx == std::basic_string<CharType>::npos) {
+	if (endIdx == String::npos) {
 		end = m_str.end();
-		m_begin = std::basic_string<CharType>::npos;
+		m_begin = String::npos;
 	} else {
 		end = m_str.begin() + endIdx;
 		m_begin = endIdx + 1;
