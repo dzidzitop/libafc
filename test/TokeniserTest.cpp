@@ -1,8 +1,10 @@
 #include "TokeniserTest.h"
 #include <afc/Tokeniser.hpp>
 #include <afc/Exception.h>
+#include <string>
 
 using std::string;
+using std::wstring;
 
 afc::TokeniserTest::TokeniserTest()
 {
@@ -17,7 +19,7 @@ afc::TokeniserTest::TokeniserTest()
 
 void afc::TokeniserTest::testEmptyInputString()
 {
-	afc::Tokeniser<char> t("", '-');
+	afc::Tokeniser<string> t("", '-');
 	TEST_ASSERT(t.hasNext() == true);
 	TEST_ASSERT(t.next() == "");
 	TEST_ASSERT(t.hasNext() == false);
@@ -26,7 +28,7 @@ void afc::TokeniserTest::testEmptyInputString()
 
 void afc::TokeniserTest::testSingleToken()
 {
-	afc::Tokeniser<char> t("abcde", '-');
+	afc::Tokeniser<string> t("abcde", '-');
 	TEST_ASSERT(t.hasNext() == true);
 	TEST_ASSERT(t.next() == "abcde");
 	TEST_ASSERT(t.hasNext() == false);
@@ -35,7 +37,7 @@ void afc::TokeniserTest::testSingleToken()
 
 void afc::TokeniserTest::testMultipleTokens()
 {
-	afc::Tokeniser<char> t("ab+c+d-e", '+');
+	afc::Tokeniser<string> t("ab+c+d-e", '+');
 	TEST_ASSERT(t.hasNext() == true);
 	TEST_ASSERT(t.next() == "ab");
 	TEST_ASSERT(t.hasNext() == true);
@@ -48,7 +50,7 @@ void afc::TokeniserTest::testMultipleTokens()
 
 void afc::TokeniserTest::testMultipleTokensWithEmptyToken()
 {
-	afc::Tokeniser<char> t("ab--de", '-');
+	afc::Tokeniser<string> t("ab--de", '-');
 	TEST_ASSERT(t.hasNext() == true);
 	TEST_ASSERT(t.next() == "ab");
 	TEST_ASSERT(t.hasNext() == true);
@@ -61,7 +63,7 @@ void afc::TokeniserTest::testMultipleTokensWithEmptyToken()
 
 void afc::TokeniserTest::testOnlyEmptyTokens()
 {
-	afc::Tokeniser<char> t("--", '-');
+	afc::Tokeniser<string> t("--", '-');
 	TEST_ASSERT(t.hasNext() == true);
 	TEST_ASSERT(t.next() == "");
 	TEST_ASSERT(t.hasNext() == true);
@@ -74,7 +76,7 @@ void afc::TokeniserTest::testOnlyEmptyTokens()
 
 void afc::TokeniserTest::testWideStringMultipleTokens()
 {
-	afc::Tokeniser<wchar_t> t(L"doing all right", L' ');
+	afc::Tokeniser<wstring> t(L"doing all right", L' ');
 	TEST_ASSERT(t.hasNext() == true);
 	TEST_ASSERT(t.next() == L"doing");
 	TEST_ASSERT(t.hasNext() == true);
@@ -88,7 +90,7 @@ void afc::TokeniserTest::testWideStringMultipleTokens()
 void afc::TokeniserTest::testInputIsNotRvalue()
 {
 	string str("doing all right");
-	afc::Tokeniser<char> t(str, ' ');
+	afc::Tokeniser<string> t(str, ' ');
 	TEST_ASSERT(t.hasNext() == true);
 	TEST_ASSERT(t.next() == "doing");
 	TEST_ASSERT(t.hasNext() == true);
