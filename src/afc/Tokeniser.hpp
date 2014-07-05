@@ -47,7 +47,7 @@ namespace afc
 						std::is_nothrow_copy_constructible<CharType>::value)
 				: m_inputCopy(str), m_str(m_inputCopy), m_delimiter(delimiter), m_begin(0) {}
 
-		bool hasNext() const noexcept {return m_begin != std::basic_string<CharType>::npos;}
+		bool hasNext() const noexcept {return m_begin != String::npos;}
 		String next();
 		void next(CharIterator &start, CharIterator &end);
 	private:
@@ -64,7 +64,7 @@ template<typename String>
 String afc::Tokeniser<String>::next()
 {
 #ifdef AFC_EXCEPTIONS_ENABLED
-	if (m_begin == std::basic_string<CharType>::npos) {
+	if (m_begin == String::npos) {
 		throwException<IllegalStateException>("Tokeniser::next is called when it has not more tokens");
 	}
 #endif
@@ -85,7 +85,7 @@ template<typename String>
 void afc::Tokeniser<String>::next(CharIterator &start, CharIterator &end)
 {
 #ifdef AFC_EXCEPTIONS_ENABLED
-	if (m_begin == std::basic_string<CharType>::npos) {
+	if (m_begin == String::npos) {
 		throwException<IllegalStateException>("Tokeniser::next is called when it has not more tokens");
 	}
 #endif
