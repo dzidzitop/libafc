@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include <cstddef>
 #include <cassert>
 #include <initializer_list>
+#include <memory>
 
 namespace afc
 {
@@ -116,15 +117,15 @@ void afc::FastStringBuffer<CharType>::expand(const std::size_t n)
 	 * while copying data from the old buffer to the new one. Otherwise this FastStringBuffer
 	 * remains unmodified.
 	 */
-	CharType * const newBuf = new CharType[newBufSize];
+	std::unique_ptr<CharType[]> newBuf(new CharType[newBufSize]);
 	if (m_buf != nullptr) {
 		for (std::size_t i = 0; i < m_size; ++i) {
 			newBuf[i] = m_buf[i];
 		}
 		// It is safe to delete the old buffer here.
-		delete m_buf;
+		delete[] m_buf;
 	}
-	m_buf = newBuf;
+	m_buf = newBuf.release();
 	m_capacity = newBufSize - 1;
 }
 
