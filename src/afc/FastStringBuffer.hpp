@@ -39,20 +39,7 @@ namespace afc
 		void reserve(const std::size_t n)
 		{
 			if (m_capacity < n) {
-				std::size_t newBufSize = m_capacity + 1;
-				do {
-					// TODO handler oveflow
-					newBufSize *= 2;
-				} while (newBufSize < n);
-				CharType * const newBuf = new CharType[newBufSize];
-				if (m_buf != nullptr) {
-					for (std::size_t i = 0; i < m_size; ++i) {
-						newBuf[i] = m_buf[i];
-					}
-					delete m_buf;
-				}
-				m_buf = newBuf;
-				m_capacity = newBufSize - 1;
+				expand(n);
 			}
 		}
 
@@ -100,11 +87,32 @@ namespace afc
 		std::size_t capacity() const noexcept { return m_capacity; }
 		std::size_t size() const noexcept { return m_size; }
 	private:
+		void expand(const std::size_t n);
+
 		// If not nullptr then one character is reserved for '\0'.
 		CharType *m_buf;
 		std::size_t m_capacity;
 		std::size_t m_size;
 	};
+}
+
+template<typename CharType>
+void afc::FastStringBuffer<CharType>::expand(const std::size_t n)
+{
+	std::size_t newBufSize = m_capacity + 1;
+	do {
+		// TODO handler oveflow
+		newBufSize *= 2;
+	} while (newBufSize < n);
+	CharType * const newBuf = new CharType[newBufSize];
+	if (m_buf != nullptr) {
+		for (std::size_t i = 0; i < m_size; ++i) {
+			newBuf[i] = m_buf[i];
+		}
+		delete m_buf;
+	}
+	m_buf = newBuf;
+	m_capacity = newBufSize - 1;
 }
 
 #endif /* AFC_FASTSTRINGBUFFER_HPP_ */
