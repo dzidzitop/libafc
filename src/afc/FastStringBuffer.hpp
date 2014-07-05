@@ -111,11 +111,17 @@ void afc::FastStringBuffer<CharType>::expand(const std::size_t n)
 		// TODO handler oveflow
 		newBufSize *= 2;
 	} while (newBufSize < n);
+
+	/* The old buffer is deleted (and replaced with the new buffer) iff no exception is thrown
+	 * while copying data from the old buffer to the new one. Otherwise this FastStringBuffer
+	 * remains unmodified.
+	 */
 	CharType * const newBuf = new CharType[newBufSize];
 	if (m_buf != nullptr) {
 		for (std::size_t i = 0; i < m_size; ++i) {
 			newBuf[i] = m_buf[i];
 		}
+		// It is safe to delete the old buffer here.
 		delete m_buf;
 	}
 	m_buf = newBuf;
