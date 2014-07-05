@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include <memory>
 #include <type_traits>
 #include <cstring>
+#include <algorithm>
 
 namespace afc
 {
@@ -52,9 +53,11 @@ namespace afc
 			assert(m_buf != nullptr);
 			assert(str != nullptr);
 			assert(m_size + n <= m_capacity);
-			for (std::size_t i = 0; i < n; ++i) {
-				m_buf[m_size++] = str[i];
-			}
+			/* Cannot use std::memcpy() here since str can be the internal buffer itself
+			 * returned to the caller by ::c_str().
+			 */
+			std::copy_n(&str[0], n, &m_buf[m_size]);
+			m_size += n;
 			return *this;
 		}
 
@@ -125,9 +128,7 @@ void afc::FastStringBuffer<CharType>::expand(const std::size_t n)
 			// POD values are copied by std::memcpy, which is efficient for all compilers/runtimes.
 			std::memcpy(&newBuf[0], &m_buf[0], m_size * sizeof(CharType));
 		} else {
-			for (std::size_t i = 0; i < m_size; ++i) {
-				newBuf[i] = m_buf[i];
-			}
+			std::copy_n(&m_buf[0], m_size, &newBuf[0]);
 		}
 	}
 	m_buf.reset(newBuf.release());
