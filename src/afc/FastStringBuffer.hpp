@@ -37,7 +37,7 @@ namespace afc
 		FastStringBuffer(FastStringBuffer &&) = default;
 		FastStringBuffer &operator=(FastStringBuffer &&) = default;
 
-		FastStringBuffer() noexcept : m_buf(nullptr), m_capacity(0), m_size(0) {}
+		FastStringBuffer() noexcept : m_buf(nullptr), m_bufEnd(nullptr), m_capacity(0) {}
 		~FastStringBuffer() = default;
 
 		void reserve(const std::size_t n)
@@ -52,12 +52,12 @@ namespace afc
 			// assert() can throw an exception, but this is fine with debug code.
 			assert(m_buf != nullptr);
 			assert(str != nullptr);
-			assert(m_size + n <= m_capacity);
+			assert(size() + n <= m_capacity);
+
 			/* Cannot use std::memcpy() here since str can be the internal buffer itself
 			 * returned to the caller by ::c_str().
 			 */
-			std::copy_n(&str[0], n, &m_buf[m_size]);
-			m_size += n;
+			m_bufEnd = std::copy_n(&str[0], n, m_bufEnd);
 			return *this;
 		}
 
@@ -65,9 +65,10 @@ namespace afc
 		{
 			// assert() can throw an exception, but this is fine with debug code.
 			assert(m_buf != nullptr);
-			assert(m_size + str.size() <= m_capacity);
+			assert(size() + str.size() <= m_capacity);
+
 			for (const char c : str) {
-				m_buf[m_size++] = c;
+				*m_bufEnd++ = c;
 			}
 			return *this;
 		}
@@ -76,8 +77,9 @@ namespace afc
 		{
 			// assert() can throw an exception, but this is fine with debug code.
 			assert(m_buf != nullptr);
-			assert(m_size < m_capacity);
-			m_buf[m_size++] = c;
+			assert(&m_buf[0] + m_capacity >= m_bufEnd);
+
+			*m_bufEnd++ = c;
 			return *this;
 		}
 
@@ -87,13 +89,13 @@ namespace afc
 				return empty;
 			} else {
 				// Terminating the string with the null character.
-				m_buf[m_size] = CharType(0);
+				*m_bufEnd = CharType(0);
 				return m_buf.get();
 			}
 		}
 
 		std::size_t capacity() const noexcept { return m_capacity; }
-		std::size_t size() const noexcept { return m_size; }
+		std::size_t size() const noexcept { return m_bufEnd - m_buf.get(); }
 	private:
 		void expand(const std::size_t n);
 
@@ -101,8 +103,8 @@ namespace afc
 
 		// If not nullptr then one character is reserved for '\0'.
 		std::unique_ptr<CharType[]> m_buf;
+		CharType *m_bufEnd;
 		std::size_t m_capacity;
-		std::size_t m_size;
 	};
 }
 
@@ -126,10 +128,13 @@ void afc::FastStringBuffer<CharType>::expand(const std::size_t n)
 	if (m_buf != nullptr) {
 		if (std::is_pod<CharType>::value) {
 			// POD values are copied by std::memcpy, which is efficient for all compilers/runtimes.
-			std::memcpy(&newBuf[0], &m_buf[0], m_size * sizeof(CharType));
+			std::memcpy(&newBuf[0], &m_buf[0], size() * sizeof(CharType));
+			m_bufEnd = newBuf.get() + size();
 		} else {
-			std::copy_n(&m_buf[0], m_size, &newBuf[0]);
+			m_bufEnd = std::copy(&m_buf[0], m_bufEnd, &newBuf[0]);
 		}
+	} else {
+		m_bufEnd = &newBuf[0];
 	}
 	m_buf.reset(newBuf.release());
 	m_capacity = newBufSize - 1;
