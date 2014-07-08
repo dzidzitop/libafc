@@ -194,6 +194,7 @@ void afc::FastStringBuffer<CharType>::expand(const std::size_t capacity)
 			// POD values are copied by std::memcpy, which is efficient for all compilers/runtimes.
 			std::memcpy(std::addressof(newBuf[0]), std::addressof(m_buf[0]), size * sizeof(CharType));
 		} else {
+			// TODO optimise this loop so that is takes advantage from move semantics, loop unrolling, etc.
 			for (CharType *src = std::addressof(m_buf[0]), *dest = std::addressof(newBuf[0]);
 					src != m_bufEnd; ++src, ++dest) {
 				new (dest) CharType(*src);
