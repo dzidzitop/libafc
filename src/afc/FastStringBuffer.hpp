@@ -118,8 +118,8 @@ namespace afc
 			return std::numeric_limits<decltype(m_bufEnd - &m_buf[0])>::max() - 1;
 		}
 	private:
-		void expand(std::size_t n);
-		inline std::size_t nextStorageSize(std::size_t n);
+		void expand(std::size_t capacity);
+		inline std::size_t nextStorageSize(std::size_t capacity);
 
 		static const CharType empty[1];
 
@@ -134,34 +134,44 @@ template<typename CharType>
 const CharType afc::FastStringBuffer<CharType>::empty[1] = {CharType(0)};
 
 template<typename CharType>
-inline std::size_t afc::FastStringBuffer<CharType>::nextStorageSize(const std::size_t n)
+inline std::size_t afc::FastStringBuffer<CharType>::nextStorageSize(const std::size_t capacity)
 {
+	// FastStringBuffer::reserve() does not expand storage if capacity == 0.
+	assert(capacity > 0);
+
 	const std::size_t maxSize = this->maxSize();
-	if (n > maxSize) { // n > maxSize()
+	/* To prevent overflows, checking (without arithmetic operations) that
+	 * the capacity requested fits hard limits of this FastStringBuffer.
+	 */
+	if (capacity > maxSize) {
 #ifdef AFC_EXCEPTIONS_ENABLED
 		throwException<OverflowException>("Capacity to reserve exceeds max size allowed.");
 #else
 		std::terminate();
 #endif
 	}
-	const std::size_t maxStorageSize = maxSize + 1;
-	const std::size_t newCapacity = n + 1;
 
+	const std::size_t maxStorageSize = maxSize + 1;
+	const std::size_t requestedStorageSize = capacity + 1;
+
+	/* Minimal next storage size is 2 (if n == 1) - one for the character requested,
+	 * the other for the terminating character.
+	 */
 	std::size_t newStorageSize = std::max(std::size_t(1), m_storageSize);
 	do {
 		newStorageSize *= 2;
 		if (newStorageSize <= m_storageSize || newStorageSize > maxStorageSize) {
-			// Overflow. Shrinking capacity to max allowed.
+			// Overflow. Reducing storage size to max allowed.
 			return maxStorageSize;
 		}
-	} while (newStorageSize < newCapacity);
+	} while (newStorageSize < requestedStorageSize);
 	return newStorageSize;
 }
 
 template<typename CharType>
-void afc::FastStringBuffer<CharType>::expand(const std::size_t n)
+void afc::FastStringBuffer<CharType>::expand(const std::size_t capacity)
 {
-	const std::size_t newStorageSize = nextStorageSize(n);
+	const std::size_t newStorageSize = nextStorageSize(capacity);
 
 	/* The old buffer is deleted (and replaced with the new buffer) iff no exception is thrown
 	 * while copying data from the old buffer to the new one. Otherwise this FastStringBuffer
