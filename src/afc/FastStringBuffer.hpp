@@ -72,7 +72,7 @@ namespace afc
 			/* Cannot use std::memcpy() here since str can be the internal buffer itself
 			 * returned to the caller by ::c_str().
 			 */
-			m_bufEnd = std::copy_n(&str[0], n, m_bufEnd);
+			m_bufEnd = std::copy_n(std::addressof(str[0]), n, m_bufEnd);
 			return *this;
 		}
 
@@ -92,7 +92,7 @@ namespace afc
 		{
 			// assert() can throw an exception, but this is fine with debug code.
 			assert(m_buf != nullptr);
-			assert(&m_buf[0] + capacity() > m_bufEnd);
+			assert(std::addressof(m_buf[0]) + capacity() > m_bufEnd);
 
 			*m_bufEnd++ = c;
 			return *this;
@@ -118,13 +118,13 @@ namespace afc
 		std::size_t size() const noexcept
 		{
 			// Works fine even if both are null pointers.
-			return m_bufEnd - &m_buf[0];
+			return m_bufEnd - std::addressof(m_buf[0]);
 		}
 
 		constexpr std::size_t maxSize() const noexcept
 		{
 			// The element m_buf[maxSize()] is reserved for the terminating character.
-			return std::numeric_limits<decltype(m_bufEnd - &m_buf[0])>::max() - 1;
+			return std::numeric_limits<decltype(m_bufEnd - std::addressof(m_buf[0]))>::max() - 1;
 		}
 	private:
 		void expand(std::size_t capacity);
@@ -192,7 +192,7 @@ void afc::FastStringBuffer<CharType>::expand(const std::size_t capacity)
 	if (size != 0) {
 		if (std::is_pod<CharType>::value) {
 			// POD values are copied by std::memcpy, which is efficient for all compilers/runtimes.
-			std::memcpy(&newBuf[0], &m_buf[0], size * sizeof(CharType));
+			std::memcpy(std::addressof(newBuf[0]), std::addressof(m_buf[0]), size * sizeof(CharType));
 		} else {
 			for (CharType *src = std::addressof(m_buf[0]), *dest = std::addressof(newBuf[0]);
 					src != m_bufEnd; ++src, ++dest) {
