@@ -24,13 +24,15 @@ void afc::md5String(const unsigned char * const data, const size_t n, string &de
 	unsigned char hash[MD5_DIGEST_LENGTH];
 	MD5(data, n, hash);
 
-	dest.reserve(dest.size() + MD5_DIGEST_LENGTH * 2);
+	// Contains encoded hash value.
+	char hashString[2 * MD5_DIGEST_LENGTH];
 
 	for (size_t i = 0; i < MD5_DIGEST_LENGTH; ++i) {
 		const unsigned char b = hash[i];
 		// 0xff is applied just in case non-octet bytes are used.
-		const char high = toHex((b & 0xff) >> 4);
-		const char low = toHex(b & 0xf);
-		dest.append({high, low});
+		hashString[2 * i] = toHex((b & 0xff) >> 4);
+		hashString[2 * i + 1] = toHex(b & 0xf);
 	}
+
+	dest.append(hashString, 2 * MD5_DIGEST_LENGTH);
 }
