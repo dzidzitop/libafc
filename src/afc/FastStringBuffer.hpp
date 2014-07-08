@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include <initializer_list>
 #include <limits>
 #include <memory>
+#include <new>
 #include <type_traits>
 #include <cstring>
 #include <algorithm>
@@ -44,7 +45,15 @@ namespace afc
 		FastStringBuffer &operator=(FastStringBuffer &&) = default;
 
 		FastStringBuffer() noexcept : m_buf(nullptr), m_bufEnd(nullptr), m_storageSize(0) {}
-		~FastStringBuffer() = default;
+
+		~FastStringBuffer()
+		{
+			if (std::is_pod<CharType>::value) {
+				// Nothing to do. POD structures do not need to be destructed.
+			} else {
+				std::for_each(std::addressof(m_buf[0]), m_bufEnd, [=](CharType &p) { p.~CharType(); });
+			}
+		}
 
 		void reserve(const std::size_t n)
 		{
@@ -177,14 +186,18 @@ void afc::FastStringBuffer<CharType>::expand(const std::size_t capacity)
 	 * while copying data from the old buffer to the new one. Otherwise this FastStringBuffer
 	 * remains unmodified.
 	 */
-	std::unique_ptr<CharType[]> newBuf(new CharType[newStorageSize]);
+	// Alignment of the block allocated is suitable for CharType elements.
+	std::unique_ptr<CharType[]> newBuf(static_cast<CharType *>(::operator new(newStorageSize * sizeof(CharType))));
 	const std::size_t size = this->size();
 	if (size != 0) {
 		if (std::is_pod<CharType>::value) {
 			// POD values are copied by std::memcpy, which is efficient for all compilers/runtimes.
 			std::memcpy(&newBuf[0], &m_buf[0], size * sizeof(CharType));
 		} else {
-			std::copy(&m_buf[0], m_bufEnd, &newBuf[0]);
+			for (CharType *src = std::addressof(m_buf[0]), *dest = std::addressof(newBuf[0]);
+					src != m_bufEnd; ++src, ++dest) {
+				new (dest) CharType(*src);
+			}
 		}
 	}
 	m_bufEnd = &newBuf[size];
