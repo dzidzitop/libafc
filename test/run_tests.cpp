@@ -1,5 +1,4 @@
 #include <cpptest.h>
-#include "NumberTest.h"
 #include "RepositoryTest.h"
 #include "TokeniserTest.h"
 #include "UTF16LEToStringTest.h"
@@ -13,7 +12,6 @@ using namespace Test;
 int main() {
 	TextOutput out(TextOutput::Verbose);
 	Suite allTests;
-	allTests.add(auto_ptr<Suite>(new NumberTest));
 	allTests.add(auto_ptr<Suite>(new RepositoryTest));
 	allTests.add(auto_ptr<Suite>(new StringUtilTest));
 	allTests.add(auto_ptr<Suite>(new TokeniserTest));
