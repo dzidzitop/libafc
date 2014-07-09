@@ -38,7 +38,7 @@ namespace afc
 	template<typename CharType>
 	class FastStringBuffer
 	{
-		friend FastStringBufferTest;
+		friend class FastStringBufferTest;
 	private:
 		FastStringBuffer(const FastStringBuffer &) = delete;
 		FastStringBuffer &operator=(const FastStringBuffer &) = delete;
