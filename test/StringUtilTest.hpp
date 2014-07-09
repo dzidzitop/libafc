@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 namespace afc
 {
-	struct StringUtilTest : public CppUnit::TestFixture
+	class StringUtilTest : public CppUnit::TestFixture
 	{
 		CPPUNIT_TEST_SUITE(StringUtilTest);
 		CPPUNIT_TEST(testStartsWith);
