@@ -43,13 +43,18 @@ namespace afc
 		return (i & PARITY_MASK) != 0;
 	}
 
-	template<typename T> inline constexpr T mean(const T x, const T y) noexcept
+	template<typename T>
+	constexpr T mean(const T x, const T y) noexcept
 	{
 		static_assert(std::is_integral<T>::value, "T must be an integral type.");
-		return (x>>1) + (y>>1) + (x&y&1);
+		return std::is_unsigned<T>::value ?
+				(x >> 1) + (y >> 1) + (x & y & 1) :
+				// TODO implement it more efficiently for signed integers.
+				(x > y ? y + (x - y) / 2 : x + (y - x) / 2);
 	}
 
-	template<typename T> constexpr bool isPow2(const T x) noexcept
+	template<typename T>
+	constexpr bool isPow2(const T x) noexcept
 	{
 		static_assert(std::is_integral<T>::value, "T must be an integral type.");
 		typedef typename std::make_unsigned<T>::type uT;
@@ -63,4 +68,4 @@ namespace afc
 	}
 }
 
-#endif /*AFC_MATH_UTILS_H_*/
+#endif /* AFC_MATH_UTILS_H_ */
