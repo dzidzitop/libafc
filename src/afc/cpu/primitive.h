@@ -1,5 +1,5 @@
 /* libafc - utils to facilitate C++ development.
-Copyright (C) 2010-2013 Dźmitry Laŭčuk
+Copyright (C) 2010-2014 Dźmitry Laŭčuk
 
 libafc is free software: you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by
@@ -37,6 +37,7 @@ namespace afc
 	#error "unsupported platform"
 #endif
 
+	// TODO make all operations constexpr
 	template<typename T, endianness o> class IntegerBase
 	{
 		static_assert(std::is_integral<T>::value, "T must be an integral type.");
@@ -50,7 +51,8 @@ namespace afc
 		/**
 		 * Preserves the order of bytes.
 		 */
-		operator T() const {return m_data.value;}
+		operator T() const { return value(); }
+		T value() const { return m_data.value; };
 
 		template<endianness dest> inline void toBytes(unsigned char out[]) const {toBytesImpl<unsigned char, dest>(out);}
 		template<endianness dest> inline void toBytes(char out[]) const {toBytesImpl<char, dest>(out);}
