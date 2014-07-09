@@ -44,7 +44,7 @@ namespace afc
 		FastStringBuffer(FastStringBuffer &&) = default;
 		FastStringBuffer &operator=(FastStringBuffer &&) = default;
 
-		FastStringBuffer() noexcept : m_buf(nullptr), m_bufEnd(nullptr), m_storageSize(0) {}
+		FastStringBuffer() noexcept : m_buf(nullptr), m_bufEnd(nullptr), m_capacity(0) {}
 
 		~FastStringBuffer()
 		{
@@ -57,7 +57,7 @@ namespace afc
 
 		void reserve(const std::size_t n)
 		{
-			if (m_storageSize <= n) {
+			if (m_capacity < n) {
 				expand(n);
 			}
 		}
@@ -67,7 +67,7 @@ namespace afc
 			// assert() can throw an exception, but this is fine with debug code.
 			assert(m_buf != nullptr);
 			assert(str != nullptr);
-			assert(size() + n < m_storageSize);
+			assert(size() + n <= m_capacity);
 
 			/* Cannot use std::memcpy() here since str can be the internal buffer itself
 			 * returned to the caller by ::c_str().
@@ -80,7 +80,7 @@ namespace afc
 		{
 			// assert() can throw an exception, but this is fine with debug code.
 			assert(m_buf != nullptr);
-			assert(size() + str.size() < m_storageSize);
+			assert(size() + str.size() <= m_capacity);
 
 			for (const char c : str) {
 				*m_bufEnd++ = c;
@@ -112,7 +112,7 @@ namespace afc
 		std::size_t capacity() const noexcept
 		{
 			// The last element is reserved for the terminating character.
-			return m_storageSize - 1;
+			return m_capacity;
 		}
 
 		std::size_t size() const noexcept
@@ -135,7 +135,7 @@ namespace afc
 		// If not nullptr then one character is reserved for the terminating character.
 		std::unique_ptr<CharType[]> m_buf;
 		CharType *m_bufEnd;
-		std::size_t m_storageSize;
+		std::size_t m_capacity;
 	};
 }
 
@@ -166,10 +166,11 @@ inline std::size_t afc::FastStringBuffer<CharType>::nextStorageSize(const std::s
 	/* Minimal next storage size is 2 (if n == 1) - one for the character requested,
 	 * the other for the terminating character.
 	 */
-	std::size_t newStorageSize = std::max(std::size_t(1), m_storageSize);
+	std::size_t currStorageSize = m_capacity + 1;
+	std::size_t newStorageSize = currStorageSize;
 	do {
 		newStorageSize *= 2;
-		if (newStorageSize <= m_storageSize || newStorageSize > maxStorageSize) {
+		if (newStorageSize <= currStorageSize || newStorageSize > maxStorageSize) {
 			// Overflow. Reducing storage size to max allowed.
 			return maxStorageSize;
 		}
@@ -203,7 +204,7 @@ void afc::FastStringBuffer<CharType>::expand(const std::size_t capacity)
 	}
 	m_bufEnd = &newBuf[size];
 	m_buf.reset(newBuf.release());
-	m_storageSize = newStorageSize;
+	m_capacity = newStorageSize - 1;
 }
 
 #endif /* AFC_FASTSTRINGBUFFER_HPP_ */
