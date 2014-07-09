@@ -13,7 +13,7 @@ GNU Lesser General Public License for more details.
 
 You should have received a copy of the GNU Lesser General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>. */
-#include "Int32Test.h"
+#include "Int32Test.hpp"
 #include <afc/cpu/primitive.h>
 
 const afc::endianness LE = afc::endianness::LE;
