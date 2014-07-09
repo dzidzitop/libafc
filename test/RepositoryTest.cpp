@@ -1,103 +1,113 @@
+/* libafc - utils to facilitate C++ development.
+Copyright (C) 2010-2014 Dźmitry Laŭčuk
+
+libafc is free software: you can redistribute it and/or modify it under
+the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include "RepositoryTest.h"
 #include <afc/Repository.h>
 #include <string>
+#include <cstddef>
 
 using std::string;
-
-afc::RepositoryTest::RepositoryTest()
-{
-	TEST_ADD(RepositoryTest::testIntRepository);
-	TEST_ADD(RepositoryTest::testStringRepository);
-	TEST_ADD(RepositoryTest::testCustomComparator);
-}
+using std::size_t;
 
 void afc::RepositoryTest::testIntRepository()
 {
 	Repository<int> rep;
 
-	TEST_ASSERT(rep.size() == 0);
-	TEST_ASSERT(rep.empty());
+	CPPUNIT_ASSERT_EQUAL(size_t(0), rep.size());
+	CPPUNIT_ASSERT(rep.empty());
 
 	const int &i = rep.get(5);
 
-	TEST_ASSERT(rep.size() == 1);
-	TEST_ASSERT(!rep.empty());
+	CPPUNIT_ASSERT_EQUAL(size_t(1), rep.size());
+	CPPUNIT_ASSERT(!rep.empty());
 
 	const int &j = rep.get(5);
 
-	TEST_ASSERT(rep.size() == 1);
+	CPPUNIT_ASSERT_EQUAL(size_t(1), rep.size());
 
 	const int &k = rep.get(6);
 	const int &l = rep.get(7);
 	const int &m = rep.get(6);
 	const int &n = rep.get(5);
 
-	TEST_ASSERT(rep.size() == 3);
-	TEST_ASSERT(!rep.empty());
-	TEST_ASSERT(i == 5);
-	TEST_ASSERT(j == 5);
-	TEST_ASSERT(&i == &j);
-	TEST_ASSERT(n == 5);
-	TEST_ASSERT(&n == &i);
-	TEST_ASSERT(k == 6);
-	TEST_ASSERT(m == 6);
-	TEST_ASSERT(&k == &m);
-	TEST_ASSERT(l == 7);
+	CPPUNIT_ASSERT_EQUAL(size_t(3), rep.size());
+	CPPUNIT_ASSERT(!rep.empty());
+	CPPUNIT_ASSERT_EQUAL(5, i);
+	CPPUNIT_ASSERT_EQUAL(5, j);
+	CPPUNIT_ASSERT_EQUAL(&j, &i);
+	CPPUNIT_ASSERT_EQUAL(5, n);
+	CPPUNIT_ASSERT_EQUAL(&i, &n);
+	CPPUNIT_ASSERT_EQUAL(6, k);
+	CPPUNIT_ASSERT_EQUAL(6, m);
+	CPPUNIT_ASSERT_EQUAL(&m, &k);
+	CPPUNIT_ASSERT_EQUAL(7, l);
 
 	rep.clear();
-	TEST_ASSERT(rep.size() == 0);
-	TEST_ASSERT(rep.empty());
+	CPPUNIT_ASSERT_EQUAL(size_t(0), rep.size());
+	CPPUNIT_ASSERT(rep.empty());
 }
 
 void afc::RepositoryTest::testStringRepository()
 {
 	Repository<string> rep;
 
-	TEST_ASSERT(rep.size() == 0);
-	TEST_ASSERT(rep.empty());
+	CPPUNIT_ASSERT_EQUAL(size_t(0), rep.size());
+	CPPUNIT_ASSERT(rep.empty());
 
 	const string &i = rep.get("hello");
 
-	TEST_ASSERT(rep.size() == 1);
-	TEST_ASSERT(!rep.empty());
+	CPPUNIT_ASSERT_EQUAL(size_t(1), rep.size());
+	CPPUNIT_ASSERT(!rep.empty());
 
 	const string &j = rep.get("hello");
 
-	TEST_ASSERT(rep.size() == 1);
+	CPPUNIT_ASSERT_EQUAL(size_t(1), rep.size());
 
 	const string &k = rep.get("");
 	const string &l = rep.get("world");
 	const string &m = rep.get("");
 	const string &n = rep.get("hello");
 
-	TEST_ASSERT(rep.size() == 3);
-	TEST_ASSERT(!rep.empty());
-	TEST_ASSERT(i == "hello");
-	TEST_ASSERT(j == "hello");
-	TEST_ASSERT(&i == &j);
-	TEST_ASSERT(n == "hello");
-	TEST_ASSERT(&n == &i);
-	TEST_ASSERT(k == "");
-	TEST_ASSERT(m == "");
-	TEST_ASSERT(&k == &m);
-	TEST_ASSERT(l == "world");
+	CPPUNIT_ASSERT_EQUAL(size_t(3), rep.size());
+	CPPUNIT_ASSERT(!rep.empty());
+	CPPUNIT_ASSERT_EQUAL(string("hello"), i);
+	CPPUNIT_ASSERT_EQUAL(string("hello"), j);
+	CPPUNIT_ASSERT_EQUAL(&j, &i);
+	CPPUNIT_ASSERT_EQUAL(string("hello"), n);
+	CPPUNIT_ASSERT_EQUAL(&i, &n);
+	CPPUNIT_ASSERT_EQUAL(string(), k);
+	CPPUNIT_ASSERT_EQUAL(string(), m);
+	CPPUNIT_ASSERT_EQUAL(&m, &k);
+	CPPUNIT_ASSERT_EQUAL(string("world"), l);
 
-	TEST_ASSERT(!rep.remove("World"));
-	TEST_ASSERT(rep.size() == 3);
-	TEST_ASSERT(!rep.empty());
+	CPPUNIT_ASSERT(!rep.remove("World"));
+	CPPUNIT_ASSERT_EQUAL(size_t(3), rep.size());
+	CPPUNIT_ASSERT(!rep.empty());
 
-	TEST_ASSERT(rep.remove("hello"));
-	TEST_ASSERT(rep.size() == 2);
-	TEST_ASSERT(!rep.empty());
-	TEST_ASSERT(rep.remove("world"));
-	TEST_ASSERT(rep.size() == 1);
-	TEST_ASSERT(!rep.empty());
-	TEST_ASSERT(rep.remove(""));
-	TEST_ASSERT(rep.size() == 0);
-	TEST_ASSERT(rep.empty());
-	TEST_ASSERT(!rep.remove("h"));
-	TEST_ASSERT(rep.size() == 0);
-	TEST_ASSERT(rep.empty());
+	CPPUNIT_ASSERT(rep.remove("hello"));
+	CPPUNIT_ASSERT_EQUAL(size_t(2), rep.size());
+	CPPUNIT_ASSERT(!rep.empty());
+	CPPUNIT_ASSERT(rep.remove("world"));
+	CPPUNIT_ASSERT_EQUAL(size_t(1), rep.size());
+	CPPUNIT_ASSERT(!rep.empty());
+	CPPUNIT_ASSERT(rep.remove(""));
+	CPPUNIT_ASSERT_EQUAL(size_t(0), rep.size());
+	CPPUNIT_ASSERT(rep.empty());
+	CPPUNIT_ASSERT(!rep.remove("h"));
+	CPPUNIT_ASSERT_EQUAL(size_t(0), rep.size());
+	CPPUNIT_ASSERT(rep.empty());
 }
 
 namespace
@@ -120,31 +130,31 @@ void afc::RepositoryTest::testCustomComparator()
 	const string &s6 = rep.get("");
 	const string &s7 = rep.get("world");
 
-	TEST_ASSERT(rep.size() == 4);
-	TEST_ASSERT(s1 == "hey");
-	TEST_ASSERT(s2 == "hey");
-	TEST_ASSERT(s3 == "mein");
-	TEST_ASSERT(s4 == "");
-	TEST_ASSERT(s5 == "mein");
-	TEST_ASSERT(s6 == "");
-	TEST_ASSERT(s7 == "world");
-	TEST_ASSERT(&s1 == &s2);
-	TEST_ASSERT(&s3 == &s5);
-	TEST_ASSERT(&s4 == &s6);
+	CPPUNIT_ASSERT_EQUAL(size_t(4), rep.size());
+	CPPUNIT_ASSERT_EQUAL(string("hey"), s1);
+	CPPUNIT_ASSERT_EQUAL(string("hey"), s2);
+	CPPUNIT_ASSERT_EQUAL(string("mein"), s3);
+	CPPUNIT_ASSERT_EQUAL(string(), s4);
+	CPPUNIT_ASSERT_EQUAL(string("mein"), s5);
+	CPPUNIT_ASSERT_EQUAL(string(), s6);
+	CPPUNIT_ASSERT_EQUAL(string("world"), s7);
+	CPPUNIT_ASSERT_EQUAL(&s2, &s1);
+	CPPUNIT_ASSERT_EQUAL(&s5, &s3);
+	CPPUNIT_ASSERT_EQUAL(&s6, &s4);
 
 	rep.remove("stop");
 
-	TEST_ASSERT(rep.size() == 3);
+	CPPUNIT_ASSERT_EQUAL(size_t(3), rep.size());
 
 	const string &s8 = rep.get("dawn");
 	const string &s9 = rep.get("oppo");
 
-	TEST_ASSERT(s8 == "dawn");
-	TEST_ASSERT(s9 == "dawn");
-	TEST_ASSERT(&s8 == &s9);
+	CPPUNIT_ASSERT_EQUAL(string("dawn"), s8);
+	CPPUNIT_ASSERT_EQUAL(string("dawn"), s9);
+	CPPUNIT_ASSERT_EQUAL(&s9, &s8);
 
 	const string &s10 = rep.get("   ");
 
-	TEST_ASSERT(s10 == "hey");
-	TEST_ASSERT(&s10 == &s1);
+	CPPUNIT_ASSERT_EQUAL(string("hey"), s10);
+	CPPUNIT_ASSERT_EQUAL(&s10, &s1);
 }
