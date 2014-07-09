@@ -20,6 +20,8 @@ const afc::endianness LE = afc::endianness::LE;
 const afc::endianness BE = afc::endianness::BE;
 typedef unsigned char uc;
 
+CPPUNIT_TEST_SUITE_REGISTRATION(afc::Int32Test);
+
 void afc::Int32Test::testInt32Conversions_PlatformEndianness()
 {
 	if (PLATFORM_BYTE_ORDER == LE) {

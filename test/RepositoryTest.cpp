@@ -21,6 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 using std::string;
 using std::size_t;
 
+CPPUNIT_TEST_SUITE_REGISTRATION(afc::RepositoryTest);
+
 void afc::RepositoryTest::testIntRepository()
 {
 	Repository<int> rep;

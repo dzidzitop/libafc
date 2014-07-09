@@ -20,6 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 using namespace std;
 using namespace afc;
 
+CPPUNIT_TEST_SUITE_REGISTRATION(afc::UTF16LEToStringTest);
+
 void afc::UTF16LEToStringTest::testEmptyString_toASCII()
 {
 	string s(utf16leToString(u16string(), "ascii"));

@@ -16,6 +16,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include "MathUtilsTest.h"
 #include <afc/math_utils.h>
 
+CPPUNIT_TEST_SUITE_REGISTRATION(afc::MathUtilsTest);
+
 void afc::MathUtilsTest::testSameSign()
 {
 	CPPUNIT_ASSERT(sameSign(0, 0));

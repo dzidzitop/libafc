@@ -18,6 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 using std::string;
 
+CPPUNIT_TEST_SUITE_REGISTRATION(afc::StringUtilTest);
+
 void afc::StringUtilTest::testStartsWith()
 {
 	CPPUNIT_ASSERT(startsWith(string("str"), string("s")));

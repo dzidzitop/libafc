@@ -21,6 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 using std::string;
 using std::wstring;
 
+CPPUNIT_TEST_SUITE_REGISTRATION(afc::TokeniserTest);
+
 void afc::TokeniserTest::testEmptyInputString()
 {
 	afc::Tokeniser<string> t("", '-');

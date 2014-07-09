@@ -18,6 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 using namespace std;
 
+CPPUNIT_TEST_SUITE_REGISTRATION(afc::NumberTest);
+
 void afc::NumberTest::testAppendToStringInt()
 {
 	{
