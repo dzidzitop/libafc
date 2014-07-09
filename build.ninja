@@ -4,8 +4,8 @@ buildDir=build
 cxxFlags=-Wall -fPIC -std=c++11 -O3 -march=native -DNDEBUG
 ccFlags=-Wall -fPIC -O3 -march=native -DNDEBUG
 ldFlags=
-cxxFlags_test=-I"../cpptest" -I"$srcDir" -I"$srcDir/algo" -I"$srcDir/cpu" -Wall -std=c++11 -g3 -O0
-ldFlags_test=-L"../cpptest/Debug" -L"$buildDir" $ldFlags
+cxxFlags_test=-I"$srcDir" -I"$srcDir/algo" -I"$srcDir/cpu" -Wall -std=c++11 -g3 -O0
+ldFlags_test=-L"$buildDir" $ldFlags
 
 rule cxx
   depfile=$out.d
@@ -98,8 +98,8 @@ build $buildDir/libafc_test: bin $
     $buildDir/TokeniserTest.o $
     $buildDir/UTF16LEToStringTest.o $
     $buildDir/cpu/Int32Test.o $
-    | $buildDir/libafc.so
-  libs=-lc -lz -lcpptest -lcppunit -lafc -lssl -Wl,--as-needed
+    | $buildDir/libafc.a
+  libs=-Wl,--as-needed -Wl,-Bstatic -lafc -Wl,-Bdynamic -lc -lz -lcppunit -lssl
 
 build sharedLib: phony $buildDir/libafc.so
 build staticLib: phony $buildDir/libafc.a
