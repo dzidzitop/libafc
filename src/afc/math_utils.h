@@ -52,8 +52,8 @@ namespace afc
 	template<typename T> constexpr bool isPow2(const T x) noexcept
 	{
 		static_assert(std::is_integral<T>::value, "T must be an integral type.");
-		static_assert(std::is_unsigned<T>::value, "T must be an unsigned type.");
-		return x != 0 && (x & (x - 1)) == 0;
+		typedef typename std::make_unsigned<T>::type uT;
+		return x > 0 && (uT(x) & (uT(x) - 1)) == 0;
 	}
 
 	// TODO using tables it could work faster

@@ -31,6 +31,8 @@ namespace afc
 		CPPUNIT_TEST(testMean_Unsigned);
 		CPPUNIT_TEST(testMean_SignedLong);
 		CPPUNIT_TEST(testMean_UnsignedLong);
+		CPPUNIT_TEST(testIsPow2_SignedInt);
+		CPPUNIT_TEST(testIsPow2_UnsignedInt);
 		CPPUNIT_TEST_SUITE_END();
 	public:
 		void testSameSign();
@@ -40,6 +42,8 @@ namespace afc
 		void testMean_Unsigned();
 		void testMean_SignedLong();
 		void testMean_UnsignedLong();
+		void testIsPow2_SignedInt();
+		void testIsPow2_UnsignedInt();
 	};
 }
 

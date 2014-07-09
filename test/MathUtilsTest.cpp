@@ -15,6 +15,9 @@ You should have received a copy of the GNU Lesser General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include "MathUtilsTest.hpp"
 #include <afc/math_utils.h>
+#include <limits>
+
+using std::numeric_limits;
 
 CPPUNIT_TEST_SUITE_REGISTRATION(afc::MathUtilsTest);
 
@@ -87,4 +90,56 @@ void afc::MathUtilsTest::testMean_UnsignedLong()
 	CPPUNIT_ASSERT_EQUAL(1ul, mean(0ul, 3ul));
 	CPPUNIT_ASSERT_EQUAL(0ul, mean(0ul, 0ul));
 	CPPUNIT_ASSERT_EQUAL(static_cast<unsigned long>(~0)-2, mean(~0ul, ~0ul-4ul));
+}
+
+void afc::MathUtilsTest::testIsPow2_SignedInt()
+{
+	CPPUNIT_ASSERT(!isPow2(int(0)));
+	CPPUNIT_ASSERT(isPow2(int(1)));
+	CPPUNIT_ASSERT(isPow2(int(2)));
+	CPPUNIT_ASSERT(!isPow2(int(3)));
+	CPPUNIT_ASSERT(isPow2(int(4)));
+	CPPUNIT_ASSERT(!isPow2(int(5)));
+	CPPUNIT_ASSERT(!isPow2(int(6)));
+	CPPUNIT_ASSERT(!isPow2(int(7)));
+	CPPUNIT_ASSERT(isPow2(int(8)));
+	CPPUNIT_ASSERT(!isPow2(int(9)));
+	CPPUNIT_ASSERT(!isPow2(int(10)));
+
+	CPPUNIT_ASSERT(!isPow2(int(-1)));
+	CPPUNIT_ASSERT(!isPow2(int(-2)));
+	CPPUNIT_ASSERT(!isPow2(int(-3)));
+	CPPUNIT_ASSERT(!isPow2(int(-4)));
+	CPPUNIT_ASSERT(!isPow2(int(-5)));
+	CPPUNIT_ASSERT(!isPow2(int(-6)));
+	CPPUNIT_ASSERT(!isPow2(int(-7)));
+	CPPUNIT_ASSERT(!isPow2(int(-8)));
+	CPPUNIT_ASSERT(!isPow2(int(-9)));
+	CPPUNIT_ASSERT(!isPow2(int(-10)));
+
+	CPPUNIT_ASSERT(!isPow2(numeric_limits<int>::max()));
+	CPPUNIT_ASSERT(!isPow2(numeric_limits<int>::max() / 2));
+	CPPUNIT_ASSERT(isPow2(numeric_limits<int>::max() / 2 + 1));
+	CPPUNIT_ASSERT(!isPow2(numeric_limits<int>::min()));
+	CPPUNIT_ASSERT(!isPow2(numeric_limits<int>::min() / 2));
+	CPPUNIT_ASSERT(isPow2(-(numeric_limits<int>::min() / 4)));
+}
+
+void afc::MathUtilsTest::testIsPow2_UnsignedInt()
+{
+	CPPUNIT_ASSERT(!isPow2(unsigned(0)));
+	CPPUNIT_ASSERT(isPow2(unsigned(1)));
+	CPPUNIT_ASSERT(isPow2(unsigned(2)));
+	CPPUNIT_ASSERT(!isPow2(unsigned(3)));
+	CPPUNIT_ASSERT(isPow2(unsigned(4)));
+	CPPUNIT_ASSERT(!isPow2(unsigned(5)));
+	CPPUNIT_ASSERT(!isPow2(unsigned(6)));
+	CPPUNIT_ASSERT(!isPow2(unsigned(7)));
+	CPPUNIT_ASSERT(isPow2(unsigned(8)));
+	CPPUNIT_ASSERT(!isPow2(unsigned(9)));
+	CPPUNIT_ASSERT(!isPow2(unsigned(10)));
+
+	CPPUNIT_ASSERT(!isPow2(numeric_limits<unsigned>::max()));
+	CPPUNIT_ASSERT(!isPow2(numeric_limits<unsigned>::max() / 2));
+	CPPUNIT_ASSERT(isPow2(numeric_limits<unsigned>::max() / 2 + 1));
 }
