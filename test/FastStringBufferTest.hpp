@@ -24,6 +24,8 @@ namespace afc
 	class FastStringBufferTest : public CppUnit::TestFixture
 	{
 		CPPUNIT_TEST_SUITE(FastStringBufferTest);
+		CPPUNIT_TEST(testNextStorageSize);
+
 		CPPUNIT_TEST(testChar_EmptyBuffer_SizeFirst);
 		CPPUNIT_TEST(testChar_EmptyBuffer_CapacityFirst);
 		CPPUNIT_TEST(testChar_EmptyBuffer_CStrFirst);
@@ -33,6 +35,8 @@ namespace afc
 		CPPUNIT_TEST(testChar_EmptyBuffer_ReserveSpace_ThenReserveSameSpace);
 		CPPUNIT_TEST_SUITE_END();
 	public:
+		void testNextStorageSize();
+
 		void testChar_EmptyBuffer_SizeFirst();
 		void testChar_EmptyBuffer_CapacityFirst();
 		void testChar_EmptyBuffer_CStrFirst();

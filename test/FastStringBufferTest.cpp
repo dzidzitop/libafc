@@ -22,6 +22,21 @@ using std::size_t;
 
 CPPUNIT_TEST_SUITE_REGISTRATION(afc::FastStringBufferTest);
 
+void afc::FastStringBufferTest::testNextStorageSize()
+{
+	FastStringBuffer<char> buf;
+
+	buf.m_capacity = 0;
+	CPPUNIT_ASSERT_EQUAL(size_t(2), buf.nextStorageSize(1));
+	CPPUNIT_ASSERT_EQUAL(size_t(4), buf.nextStorageSize(2));
+	CPPUNIT_ASSERT_EQUAL(size_t(4), buf.nextStorageSize(3));
+	CPPUNIT_ASSERT_EQUAL(size_t(8), buf.nextStorageSize(4));
+	CPPUNIT_ASSERT_EQUAL(size_t(8), buf.nextStorageSize(5));
+
+	CPPUNIT_ASSERT_EQUAL(buf.maxSize() + 1, buf.nextStorageSize(buf.maxSize()));
+	CPPUNIT_ASSERT_EQUAL(buf.maxSize() + 1, buf.nextStorageSize(buf.maxSize() - 1));
+}
+
 void afc::FastStringBufferTest::testChar_EmptyBuffer_SizeFirst()
 {
 	FastStringBuffer<char> buf;

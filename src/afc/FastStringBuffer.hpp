@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include <type_traits>
 #include <cstring>
 #include <algorithm>
+#include "math_utils.h"
 #ifdef AFC_EXCEPTIONS_ENABLED
 	#include "Exception.h"
 #else
@@ -37,6 +38,7 @@ namespace afc
 	template<typename CharType>
 	class FastStringBuffer
 	{
+		friend FastStringBufferTest;
 	private:
 		FastStringBuffer(const FastStringBuffer &) = delete;
 		FastStringBuffer &operator=(const FastStringBuffer &) = delete;
@@ -166,11 +168,22 @@ inline std::size_t afc::FastStringBuffer<CharType>::nextStorageSize(const std::s
 	/* Minimal next storage size is 2 (if n == 1) - one for the character requested,
 	 * the other for the terminating character.
 	 */
-	std::size_t currStorageSize = m_capacity + 1;
-	std::size_t newStorageSize = currStorageSize;
+	std::size_t newStorageSize = m_capacity + 1;
 	do {
+		assert(afc::isPow2(newStorageSize));
+
 		newStorageSize *= 2;
-		if (newStorageSize <= currStorageSize || newStorageSize > maxStorageSize) {
+
+		/* Since newStorageSize is always a power of two, the first value that
+		 * newStorageSize * 2 overflows with is (2^(n-1) * 2) mod 2^n = 0
+		 */
+		static_assert((std::numeric_limits<std::size_t>::max() / 2 + 1) * 2 == 0,
+				"Wrong assumption on overflow rules.");
+
+		/* TODO since maxSize is limited by the max value of ptrdiff_t then the check
+		 * newStorageSize == 0 is not needed. Think of replacing it with static asserts.
+		 */
+		if (newStorageSize == 0 || newStorageSize > maxStorageSize) {
 			// Overflow. Reducing storage size to max allowed.
 			return maxStorageSize;
 		}
