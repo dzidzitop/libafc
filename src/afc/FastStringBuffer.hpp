@@ -194,6 +194,7 @@ inline std::size_t afc::FastStringBuffer<CharType>::nextStorageSize(const std::s
 		newStorageSize *= 2;
 	} while (newStorageSize < requestedStorageSize);
 
+	// Limiting new storage size to max storage size, if the latter is exceeded.
 	return std::min(newStorageSize, maxStorageSize);
 }
 
