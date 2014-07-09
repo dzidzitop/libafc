@@ -1,73 +1,77 @@
+/* libafc - utils to facilitate C++ development.
+Copyright (C) 2010-2014 Dźmitry Laŭčuk
+
+libafc is free software: you can redistribute it and/or modify it under
+the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include "Int32Test.h"
 #include <afc/cpu/primitive.h>
 
 const afc::endianness LE = afc::endianness::LE;
 const afc::endianness BE = afc::endianness::BE;
-
-afc::Int32Test::Int32Test()
-{
-	TEST_ADD(Int32Test::testInt32Conversions_PlatformEndianness);
-	TEST_ADD(Int32Test::testInt32Conversions_LittleEndian);
-	TEST_ADD(Int32Test::testInt32Conversions_BigEndian);
-	TEST_ADD(Int32Test::testConversionToBytes_PlatformEndianness);
-	TEST_ADD(Int32Test::testConversionToBytes_LittleEndian);
-	TEST_ADD(Int32Test::testConversionToBytes_BigEndian);
-	TEST_ADD(Int32Test::testInt32LE);
-	TEST_ADD(Int32Test::testInt32BE);
-}
+typedef unsigned char uc;
 
 void afc::Int32Test::testInt32Conversions_PlatformEndianness()
 {
 	if (PLATFORM_BYTE_ORDER == LE) {
-		TEST_ASSERT(Int32<>(0x12345678) == 0x12345678);
-		TEST_ASSERT(Int32<>(0x12345678, LE) == 0x12345678);
-		TEST_ASSERT(Int32<>(0x12345678, BE) == 0x78563412);
+		CPPUNIT_ASSERT_EQUAL(int32_t(0x12345678), Int32<>(0x12345678).value());
+		CPPUNIT_ASSERT_EQUAL(int32_t(0x12345678), Int32<>(0x12345678, LE).value());
+		CPPUNIT_ASSERT_EQUAL(int32_t(0x78563412), Int32<>(0x12345678, BE).value());
 	} else {
-		TEST_ASSERT(Int32<>(0x12345678) == 0x12345678);
-		TEST_ASSERT(Int32<>(0x12345678, LE) == 0x78563412);
-		TEST_ASSERT(Int32<>(0x12345678, BE) == 0x12345678);
+		CPPUNIT_ASSERT_EQUAL(int32_t(0x12345678), Int32<>(0x12345678).value());
+		CPPUNIT_ASSERT_EQUAL(int32_t(0x78563412), Int32<>(0x12345678, LE).value());
+		CPPUNIT_ASSERT_EQUAL(int32_t(0x12345678), Int32<>(0x12345678, BE).value());
 	}
 }
 
 void afc::Int32Test::testInt32Conversions_LittleEndian()
 {
 	if (PLATFORM_BYTE_ORDER == LE) {
-		TEST_ASSERT(Int32<LE>(0x12345678) == 0x12345678);
-		TEST_ASSERT(Int32<LE>(0x12345678, LE) == 0x12345678);
-		TEST_ASSERT(Int32<LE>(0x12345678, BE) == 0x78563412);
+		CPPUNIT_ASSERT_EQUAL(int32_t(0x12345678), Int32<LE>(0x12345678).value());
+		CPPUNIT_ASSERT_EQUAL(int32_t(0x12345678), Int32<LE>(0x12345678, LE).value());
+		CPPUNIT_ASSERT_EQUAL(int32_t(0x78563412), Int32<LE>(0x12345678, BE).value());
 	} else {
-		TEST_ASSERT(Int32<LE>(0x12345678) == 0x78563412);
-		TEST_ASSERT(Int32<LE>(0x12345678, LE) == 0x12345678);
-		TEST_ASSERT(Int32<LE>(0x12345678, BE) == 0x78563412);
+		CPPUNIT_ASSERT_EQUAL(int32_t(0x78563412), Int32<LE>(0x12345678).value());
+		CPPUNIT_ASSERT_EQUAL(int32_t(0x12345678), Int32<LE>(0x12345678, LE).value());
+		CPPUNIT_ASSERT_EQUAL(int32_t(0x78563412), Int32<LE>(0x12345678, BE).value());
 	}
 }
 
 void afc::Int32Test::testInt32Conversions_BigEndian()
 {
 	if (PLATFORM_BYTE_ORDER == LE) {
-		TEST_ASSERT(Int32<BE>(0x12345678) == 0x78563412);
-		TEST_ASSERT(Int32<BE>(0x12345678, LE) == 0x78563412);
-		TEST_ASSERT(Int32<BE>(0x12345678, BE) == 0x12345678);
+		CPPUNIT_ASSERT_EQUAL(int32_t(0x78563412), Int32<BE>(0x12345678).value());
+		CPPUNIT_ASSERT_EQUAL(int32_t(0x78563412), Int32<BE>(0x12345678, LE).value());
+		CPPUNIT_ASSERT_EQUAL(int32_t(0x12345678), Int32<BE>(0x12345678, BE).value());
 	} else {
-		TEST_ASSERT(Int32<BE>(0x12345678) == 0x12345678);
-		TEST_ASSERT(Int32<BE>(0x12345678, LE) == 0x78563412);
-		TEST_ASSERT(Int32<BE>(0x12345678, BE) == 0x12345678);
+		CPPUNIT_ASSERT_EQUAL(int32_t(0x12345678), Int32<BE>(0x12345678).value());
+		CPPUNIT_ASSERT_EQUAL(int32_t(0x78563412), Int32<BE>(0x12345678, LE).value());
+		CPPUNIT_ASSERT_EQUAL(int32_t(0x12345678), Int32<BE>(0x12345678, BE).value());
 	}
 }
 
 void afc::Int32Test::testConversionToBytes_PlatformEndianness()
 {
-	TEST_FAIL("implement me");
+	CPPUNIT_FAIL("implement me");
 }
 
 void afc::Int32Test::testConversionToBytes_LittleEndian()
 {
-	TEST_FAIL("implement me");
+	CPPUNIT_FAIL("implement me");
 }
 
 void afc::Int32Test::testConversionToBytes_BigEndian()
 {
-	TEST_FAIL("implement me");
+	CPPUNIT_FAIL("implement me");
 }
 
 void afc::Int32Test::testInt32LE()
@@ -79,18 +83,18 @@ void afc::Int32Test::testInt32LE()
 			unsigned char out[4];
 
 			i.toBytes<LE>(out);
-			TEST_ASSERT(out[0] == 0x78);
-			TEST_ASSERT(out[1] == 0x56);
-			TEST_ASSERT(out[2] == 0x34);
-			TEST_ASSERT(out[3] == 0x12);
+			CPPUNIT_ASSERT_EQUAL(uc(0x78), out[0]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x56), out[1]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x34), out[2]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x12), out[3]);
 
 			i.toBytes<BE>(out);
-			TEST_ASSERT(out[0] == 0x12);
-			TEST_ASSERT(out[1] == 0x34);
-			TEST_ASSERT(out[2] == 0x56);
-			TEST_ASSERT(out[3] == 0x78);
+			CPPUNIT_ASSERT_EQUAL(uc(0x12), out[0]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x34), out[1]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x56), out[2]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x78), out[3]);
 
-			TEST_ASSERT(static_cast<int32_t>(i) == 0x12345678);
+			CPPUNIT_ASSERT_EQUAL(int32_t(0x12345678), static_cast<int32_t>(i));
 		}
 		{
 			const Int32<LE> i(0x12345678, LE);
@@ -98,36 +102,36 @@ void afc::Int32Test::testInt32LE()
 			unsigned char out[4];
 
 			i.toBytes<LE>(out);
-			TEST_ASSERT(out[0] == 0x78);
-			TEST_ASSERT(out[1] == 0x56);
-			TEST_ASSERT(out[2] == 0x34);
-			TEST_ASSERT(out[3] == 0x12);
+			CPPUNIT_ASSERT_EQUAL(uc(0x78), out[0]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x56), out[1]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x34), out[2]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x12), out[3]);
 
 			i.toBytes<BE>(out);
-			TEST_ASSERT(out[0] == 0x12);
-			TEST_ASSERT(out[1] == 0x34);
-			TEST_ASSERT(out[2] == 0x56);
-			TEST_ASSERT(out[3] == 0x78);
+			CPPUNIT_ASSERT_EQUAL(uc(0x12), out[0]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x34), out[1]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x56), out[2]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x78), out[3]);
 
-			TEST_ASSERT(static_cast<int32_t>(i) == 0x12345678);
+			CPPUNIT_ASSERT_EQUAL(int32_t(0x12345678), static_cast<int32_t>(i));
 		}
 		{
 			const Int32<LE> i(0x12345678, BE);
 			unsigned char out[4];
 
 			i.toBytes<LE>(out);
-			TEST_ASSERT(out[0] == 0x12);
-			TEST_ASSERT(out[1] == 0x34);
-			TEST_ASSERT(out[2] == 0x56);
-			TEST_ASSERT(out[3] == 0x78);
+			CPPUNIT_ASSERT_EQUAL(uc(0x12), out[0]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x34), out[1]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x56), out[2]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x78), out[3]);
 
 			i.toBytes<BE>(out);
-			TEST_ASSERT(out[0] == 0x78);
-			TEST_ASSERT(out[1] == 0x56);
-			TEST_ASSERT(out[2] == 0x34);
-			TEST_ASSERT(out[3] == 0x12);
+			CPPUNIT_ASSERT_EQUAL(uc(0x78), out[0]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x56), out[1]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x34), out[2]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x12), out[3]);
 
-			TEST_ASSERT(static_cast<int32_t>(i) == 0x78563412);
+			CPPUNIT_ASSERT_EQUAL(int32_t(0x78563412), static_cast<int32_t>(i));
 		}
 		{
 			const unsigned char in[4] = {0x12, 0x34, 0x56, 0x78};
@@ -135,18 +139,18 @@ void afc::Int32Test::testInt32LE()
 			unsigned char out[4];
 
 			i.toBytes<LE>(out);
-			TEST_ASSERT(out[0] == 0x12);
-			TEST_ASSERT(out[1] == 0x34);
-			TEST_ASSERT(out[2] == 0x56);
-			TEST_ASSERT(out[3] == 0x78);
+			CPPUNIT_ASSERT_EQUAL(uc(0x12), out[0]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x34), out[1]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x56), out[2]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x78), out[3]);
 
 			i.toBytes<BE>(out);
-			TEST_ASSERT(out[0] == 0x78);
-			TEST_ASSERT(out[1] == 0x56);
-			TEST_ASSERT(out[2] == 0x34);
-			TEST_ASSERT(out[3] == 0x12);
+			CPPUNIT_ASSERT_EQUAL(uc(0x78), out[0]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x56), out[1]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x34), out[2]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x12), out[3]);
 
-			TEST_ASSERT(static_cast<int32_t>(i) == 0x78563412);
+			CPPUNIT_ASSERT_EQUAL(int32_t(0x78563412), static_cast<int32_t>(i));
 		}
 		{
 			const unsigned char in[4] = {0x12, 0x34, 0x56, 0x78};
@@ -154,18 +158,18 @@ void afc::Int32Test::testInt32LE()
 			unsigned char out[4];
 
 			i.toBytes<LE>(out);
-			TEST_ASSERT(out[0] == 0x78);
-			TEST_ASSERT(out[1] == 0x56);
-			TEST_ASSERT(out[2] == 0x34);
-			TEST_ASSERT(out[3] == 0x12);
+			CPPUNIT_ASSERT_EQUAL(uc(0x78), out[0]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x56), out[1]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x34), out[2]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x12), out[3]);
 
 			i.toBytes<BE>(out);
-			TEST_ASSERT(out[0] == 0x12);
-			TEST_ASSERT(out[1] == 0x34);
-			TEST_ASSERT(out[2] == 0x56);
-			TEST_ASSERT(out[3] == 0x78);
+			CPPUNIT_ASSERT_EQUAL(uc(0x12), out[0]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x34), out[1]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x56), out[2]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x78), out[3]);
 
-			TEST_ASSERT(static_cast<int32_t>(i) == 0x12345678);
+			CPPUNIT_ASSERT_EQUAL(int32_t(0x12345678), static_cast<int32_t>(i));
 		}
 	} else {
 		// TODO
@@ -181,18 +185,18 @@ void afc::Int32Test::testInt32BE()
 			unsigned char out[4];
 
 			i.toBytes<LE>(out);
-			TEST_ASSERT(out[0] == 0x78);
-			TEST_ASSERT(out[1] == 0x56);
-			TEST_ASSERT(out[2] == 0x34);
-			TEST_ASSERT(out[3] == 0x12);
+			CPPUNIT_ASSERT_EQUAL(uc(0x78), out[0]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x56), out[1]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x34), out[2]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x12), out[3]);
 
 			i.toBytes<BE>(out);
-			TEST_ASSERT(out[0] == 0x12);
-			TEST_ASSERT(out[1] == 0x34);
-			TEST_ASSERT(out[2] == 0x56);
-			TEST_ASSERT(out[3] == 0x78);
+			CPPUNIT_ASSERT_EQUAL(uc(0x12), out[0]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x34), out[1]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x56), out[2]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x78), out[3]);
 
-			TEST_ASSERT(static_cast<int32_t>(i) == 0x78563412);
+			CPPUNIT_ASSERT_EQUAL(int32_t(0x78563412), static_cast<int32_t>(i));
 		}
 		{
 			const Int32<BE> i(0x12345678, LE);
@@ -200,36 +204,36 @@ void afc::Int32Test::testInt32BE()
 			unsigned char out[4];
 
 			i.toBytes<LE>(out);
-			TEST_ASSERT(out[0] == 0x78);
-			TEST_ASSERT(out[1] == 0x56);
-			TEST_ASSERT(out[2] == 0x34);
-			TEST_ASSERT(out[3] == 0x12);
+			CPPUNIT_ASSERT_EQUAL(uc(0x78), out[0]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x56), out[1]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x34), out[2]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x12), out[3]);
 
 			i.toBytes<BE>(out);
-			TEST_ASSERT(out[0] == 0x12);
-			TEST_ASSERT(out[1] == 0x34);
-			TEST_ASSERT(out[2] == 0x56);
-			TEST_ASSERT(out[3] == 0x78);
+			CPPUNIT_ASSERT_EQUAL(uc(0x12), out[0]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x34), out[1]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x56), out[2]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x78), out[3]);
 
-			TEST_ASSERT(static_cast<int32_t>(i) == 0x78563412);
+			CPPUNIT_ASSERT_EQUAL(int32_t(0x78563412), static_cast<int32_t>(i));
 		}
 		{
 			const Int32<BE> i(0x12345678, BE);
 			unsigned char out[4];
 
 			i.toBytes<LE>(out);
-			TEST_ASSERT(out[0] == 0x12);
-			TEST_ASSERT(out[1] == 0x34);
-			TEST_ASSERT(out[2] == 0x56);
-			TEST_ASSERT(out[3] == 0x78);
+			CPPUNIT_ASSERT_EQUAL(uc(0x12), out[0]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x34), out[1]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x56), out[2]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x78), out[3]);
 
 			i.toBytes<BE>(out);
-			TEST_ASSERT(out[0] == 0x78);
-			TEST_ASSERT(out[1] == 0x56);
-			TEST_ASSERT(out[2] == 0x34);
-			TEST_ASSERT(out[3] == 0x12);
+			CPPUNIT_ASSERT_EQUAL(uc(0x78), out[0]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x56), out[1]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x34), out[2]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x12), out[3]);
 
-			TEST_ASSERT(static_cast<int32_t>(i) == 0x12345678);
+			CPPUNIT_ASSERT_EQUAL(int32_t(0x12345678), static_cast<int32_t>(i));
 		}
 		{
 			const unsigned char in[4] = {0x12, 0x34, 0x56, 0x78};
@@ -237,18 +241,18 @@ void afc::Int32Test::testInt32BE()
 			unsigned char out[4];
 
 			i.toBytes<LE>(out);
-			TEST_ASSERT(out[0] == 0x12);
-			TEST_ASSERT(out[1] == 0x34);
-			TEST_ASSERT(out[2] == 0x56);
-			TEST_ASSERT(out[3] == 0x78);
+			CPPUNIT_ASSERT_EQUAL(uc(0x12), out[0]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x34), out[1]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x56), out[2]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x78), out[3]);
 
 			i.toBytes<BE>(out);
-			TEST_ASSERT(out[0] == 0x78);
-			TEST_ASSERT(out[1] == 0x56);
-			TEST_ASSERT(out[2] == 0x34);
-			TEST_ASSERT(out[3] == 0x12);
+			CPPUNIT_ASSERT_EQUAL(uc(0x78), out[0]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x56), out[1]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x34), out[2]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x12), out[3]);
 
-			TEST_ASSERT(static_cast<int32_t>(i) == 0x12345678);
+			CPPUNIT_ASSERT_EQUAL(int32_t(0x12345678), static_cast<int32_t>(i));
 		}
 		{
 			const unsigned char in[4] = {0x12, 0x34, 0x56, 0x78};
@@ -256,18 +260,18 @@ void afc::Int32Test::testInt32BE()
 			unsigned char out[4];
 
 			i.toBytes<LE>(out);
-			TEST_ASSERT(out[0] == 0x78);
-			TEST_ASSERT(out[1] == 0x56);
-			TEST_ASSERT(out[2] == 0x34);
-			TEST_ASSERT(out[3] == 0x12);
+			CPPUNIT_ASSERT_EQUAL(uc(0x78), out[0]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x56), out[1]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x34), out[2]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x12), out[3]);
 
 			i.toBytes<BE>(out);
-			TEST_ASSERT(out[0] == 0x12);
-			TEST_ASSERT(out[1] == 0x34);
-			TEST_ASSERT(out[2] == 0x56);
-			TEST_ASSERT(out[3] == 0x78);
+			CPPUNIT_ASSERT_EQUAL(uc(0x12), out[0]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x34), out[1]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x56), out[2]);
+			CPPUNIT_ASSERT_EQUAL(uc(0x78), out[3]);
 
-			TEST_ASSERT(static_cast<int32_t>(i) == 0x78563412);
+			CPPUNIT_ASSERT_EQUAL(int32_t(0x78563412), static_cast<int32_t>(i));
 		}
 	} else {
 		// TODO
