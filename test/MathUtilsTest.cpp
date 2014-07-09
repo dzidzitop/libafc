@@ -74,11 +74,11 @@ void afc::MathUtilsTest::testMean_Unsigned()
 void afc::MathUtilsTest::testMean_SignedLong()
 {
 	CPPUNIT_ASSERT_EQUAL(4l, mean(3l, 5l));
-	CPPUNIT_ASSERT_EQUAL(4l, mean(0l, 3l));
-	CPPUNIT_ASSERT_EQUAL(4l, mean(0l, 0l));
-	CPPUNIT_ASSERT_EQUAL(4l, mean(-3l, -5l));
-	CPPUNIT_ASSERT_EQUAL(4l, mean(-3l, 5l));
-	CPPUNIT_ASSERT_EQUAL(4l, mean(~0l, ~0l-4l));
+	CPPUNIT_ASSERT_EQUAL(1l, mean(0l, 3l));
+	CPPUNIT_ASSERT_EQUAL(0l, mean(0l, 0l));
+	CPPUNIT_ASSERT_EQUAL(-4l, mean(-3l, -5l));
+	CPPUNIT_ASSERT_EQUAL(1l, mean(-3l, 5l));
+	CPPUNIT_ASSERT_EQUAL(~0-2l, mean(~0l, ~0l-4l));
 }
 
 void afc::MathUtilsTest::testMean_UnsignedLong()

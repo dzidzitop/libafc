@@ -103,6 +103,6 @@ void afc::TokeniserTest::testInputIsNotRvalue()
 	CPPUNIT_ASSERT_EQUAL(string("all"), t.next());
 	CPPUNIT_ASSERT(t.hasNext());
 	CPPUNIT_ASSERT_EQUAL(string("right"), t.next());
-	CPPUNIT_ASSERT(t.hasNext());
+	CPPUNIT_ASSERT(!t.hasNext());
 	CPPUNIT_ASSERT_THROW(t.next(), afc::IllegalStateException);
 }
