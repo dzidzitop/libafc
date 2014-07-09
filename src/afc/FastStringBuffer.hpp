@@ -25,7 +25,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include <type_traits>
 #include <cstring>
 #include <algorithm>
-#include "math_utils.h"
 #ifdef AFC_EXCEPTIONS_ENABLED
 	#include "Exception.h"
 #else
@@ -123,14 +122,16 @@ namespace afc
 			return m_bufEnd - std::addressof(m_buf[0]);
 		}
 
-		constexpr std::size_t maxSize() const noexcept
-		{
-			// The element m_buf[maxSize()] is reserved for the terminating character.
-			return std::numeric_limits<decltype(m_bufEnd - std::addressof(m_buf[0]))>::max() - 1;
-		}
+		constexpr std::size_t maxSize() const noexcept { return maxCapacity(); }
 	private:
 		void expand(std::size_t capacity);
 		inline std::size_t nextStorageSize(std::size_t capacity);
+
+		static constexpr std::ptrdiff_t maxCapacity() noexcept
+		{
+			// The element m_buf[maxSize()] is reserved for the terminating character.
+			return std::numeric_limits<std::ptrdiff_t>::max() - 1;
+		}
 
 		static const CharType empty[1];
 
@@ -150,7 +151,7 @@ inline std::size_t afc::FastStringBuffer<CharType>::nextStorageSize(const std::s
 	// FastStringBuffer::reserve() does not expand storage if capacity == 0.
 	assert(capacity > 0);
 
-	const std::size_t maxSize = this->maxSize();
+	constexpr std::size_t maxSize = maxCapacity();
 	/* To prevent overflows, checking (without arithmetic operations) that
 	 * the capacity requested fits hard limits of this FastStringBuffer.
 	 */
@@ -162,33 +163,38 @@ inline std::size_t afc::FastStringBuffer<CharType>::nextStorageSize(const std::s
 #endif
 	}
 
-	const std::size_t maxStorageSize = maxSize + 1;
+	constexpr std::size_t maxStorageSize = maxSize + 1;
 	const std::size_t requestedStorageSize = capacity + 1;
+
+	/* 1. Current storage size is less than the requested storage size.
+	 * 2. The requested storage size is less than or equal to max storage size.
+	 * 3. In addition, the doubled max storage size less than or equal to the max value
+	 *    of std::size_t.
+	 * 4. This means that no overflow of newStorageSize is possible during the first
+	 *    iteration of the loop below.
+	 * 5. If newStorageSize gets greater than max storage size after the first iteration
+	 *    then there is no second iteration, because:
+	 *        newStorageSize > max storage size >= requested storage size
+	 * 6. Therefore the when the loop ends newStorageSize did not suffer from integer
+	 *    overflow. However, it can be greater than max storage size. In the latter case
+	 *    it needs just be assigned with max storage size.
+	 */
+	assert(m_capacity + 1 < requestedStorageSize);
+	assert(requestedStorageSize <= maxStorageSize);
+	static_assert(maxStorageSize <= std::numeric_limits<std::size_t>::max() / 2, "Overflow is possible.");
 
 	/* Minimal next storage size is 2 (if n == 1) - one for the character requested,
 	 * the other for the terminating character.
 	 */
 	std::size_t newStorageSize = m_capacity + 1;
 	do {
-		assert(afc::isPow2(newStorageSize));
+		// Ensuring no overflow is possible.
+		assert(newStorageSize * 2 > newStorageSize);
 
 		newStorageSize *= 2;
-
-		/* Since newStorageSize is always a power of two, the first value that
-		 * newStorageSize * 2 overflows with is (2^(n-1) * 2) mod 2^n = 0
-		 */
-		static_assert((std::numeric_limits<std::size_t>::max() / 2 + 1) * 2 == 0,
-				"Wrong assumption on overflow rules.");
-
-		/* TODO since maxSize is limited by the max value of ptrdiff_t then the check
-		 * newStorageSize == 0 is not needed. Think of replacing it with static asserts.
-		 */
-		if (newStorageSize == 0 || newStorageSize > maxStorageSize) {
-			// Overflow. Reducing storage size to max allowed.
-			return maxStorageSize;
-		}
 	} while (newStorageSize < requestedStorageSize);
-	return newStorageSize;
+
+	return std::min(newStorageSize, maxStorageSize);
 }
 
 template<typename CharType>
