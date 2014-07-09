@@ -13,23 +13,34 @@ GNU Lesser General Public License for more details.
 
 You should have received a copy of the GNU Lesser General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>. */
-#ifndef AFC_FASTDIVISIONTEST_H_
-#define AFC_FASTDIVISIONTEST_H_
+#ifndef AFC_MATHUTILSTEST_HPP_
+#define AFC_MATHUTILSTEST_HPP_
 
 #include <cppunit/TestFixture.h>
 #include <cppunit/extensions/HelperMacros.h>
 
 namespace afc
 {
-	// TODO add more tests
-	class FastDivisionTest : public CppUnit::TestFixture
+	class MathUtilsTest : public CppUnit::TestFixture
 	{
-		CPPUNIT_TEST_SUITE(FastDivisionTest);
-		CPPUNIT_TEST(testDivideBy10);
+		CPPUNIT_TEST_SUITE(MathUtilsTest);
+		CPPUNIT_TEST(testSameSign);
+		CPPUNIT_TEST(testIsEven);
+		CPPUNIT_TEST(testIsOdd);
+		CPPUNIT_TEST(testMean_Signed);
+		CPPUNIT_TEST(testMean_Unsigned);
+		CPPUNIT_TEST(testMean_SignedLong);
+		CPPUNIT_TEST(testMean_UnsignedLong);
 		CPPUNIT_TEST_SUITE_END();
 	public:
-		void testDivideBy10();
+		void testSameSign();
+		void testIsEven();
+		void testIsOdd();
+		void testMean_Signed();
+		void testMean_Unsigned();
+		void testMean_SignedLong();
+		void testMean_UnsignedLong();
 	};
 }
 
-#endif /*AFC_FASTDIVISIONTEST_H_*/
+#endif /* AFC_MATHUTILSTEST_HPP_ */

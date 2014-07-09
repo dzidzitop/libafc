@@ -13,8 +13,8 @@ GNU Lesser General Public License for more details.
 
 You should have received a copy of the GNU Lesser General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>. */
-#ifndef AFC_NUMBERTEST_H_
-#define AFC_NUMBERTEST_H_
+#ifndef AFC_NUMBERTEST_HPP_
+#define AFC_NUMBERTEST_HPP_
 
 #include <cppunit/TestFixture.h>
 #include <cppunit/extensions/HelperMacros.h>
@@ -31,4 +31,4 @@ namespace afc
 	};
 }
 
-#endif /*AFC_NUMBERTEST_H_*/
+#endif /* AFC_NUMBERTEST_HPP_ */

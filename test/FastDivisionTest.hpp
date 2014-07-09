@@ -1,5 +1,5 @@
 /* libafc - utils to facilitate C++ development.
-Copyright (C) 2013-2014 Dźmitry Laŭčuk
+Copyright (C) 2010-2014 Dźmitry Laŭčuk
 
 libafc is free software: you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by
@@ -13,34 +13,23 @@ GNU Lesser General Public License for more details.
 
 You should have received a copy of the GNU Lesser General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>. */
-#ifndef AFC_TOKENISERTEST_H_
-#define AFC_TOKENISERTEST_H_
+#ifndef AFC_FASTDIVISIONTEST_HPP_
+#define AFC_FASTDIVISIONTEST_HPP_
 
 #include <cppunit/TestFixture.h>
 #include <cppunit/extensions/HelperMacros.h>
 
 namespace afc
 {
-	class TokeniserTest : public CppUnit::TestFixture
+	// TODO add more tests
+	class FastDivisionTest : public CppUnit::TestFixture
 	{
-		CPPUNIT_TEST_SUITE(TokeniserTest);
-		CPPUNIT_TEST(testEmptyInputString);
-		CPPUNIT_TEST(testSingleToken);
-		CPPUNIT_TEST(testMultipleTokens);
-		CPPUNIT_TEST(testMultipleTokensWithEmptyToken);
-		CPPUNIT_TEST(testOnlyEmptyTokens);
-		CPPUNIT_TEST(testWideStringMultipleTokens);
-		CPPUNIT_TEST(testInputIsNotRvalue);
+		CPPUNIT_TEST_SUITE(FastDivisionTest);
+		CPPUNIT_TEST(testDivideBy10);
 		CPPUNIT_TEST_SUITE_END();
 	public:
-		void testEmptyInputString();
-		void testSingleToken();
-		void testMultipleTokens();
-		void testMultipleTokensWithEmptyToken();
-		void testOnlyEmptyTokens();
-		void testWideStringMultipleTokens();
-		void testInputIsNotRvalue();
+		void testDivideBy10();
 	};
 }
 
-#endif /*AFC_TOKENISERTEST_H_*/
+#endif /* AFC_FASTDIVISIONTEST_HPP_ */

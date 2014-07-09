@@ -13,28 +13,26 @@ GNU Lesser General Public License for more details.
 
 You should have received a copy of the GNU Lesser General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>. */
-#ifndef AFC_COMPILETIMEMATHTEST_H_
-#define AFC_COMPILETIMEMATHTEST_H_
+#ifndef AFC_REPOSITORYTEST_HPP_
+#define AFC_REPOSITORYTEST_HPP_
 
 #include <cppunit/TestFixture.h>
 #include <cppunit/extensions/HelperMacros.h>
 
 namespace afc
 {
-	class CompileTimeMathTest : public CppUnit::TestFixture
+	class RepositoryTest : public CppUnit::TestFixture
 	{
-		CPPUNIT_TEST_SUITE(CompileTimeMathTest);
-		CPPUNIT_TEST(testBitCount);
-		CPPUNIT_TEST(testOnesCount);
-		CPPUNIT_TEST(testLeadZeroCount);
-		CPPUNIT_TEST(testLog2);
+		CPPUNIT_TEST_SUITE(RepositoryTest);
+		CPPUNIT_TEST(testIntRepository);
+		CPPUNIT_TEST(testStringRepository);
+		CPPUNIT_TEST(testCustomComparator);
 		CPPUNIT_TEST_SUITE_END();
 	public:
-		void testBitCount();
-		void testOnesCount();
-		void testLeadZeroCount();
-		void testLog2();
+		void testIntRepository();
+		void testStringRepository();
+		void testCustomComparator();
 	};
 }
 
-#endif /*AFC_COMPILETIMEMATHTEST_H_*/
+#endif /* AFC_REPOSITORYTEST_HPP_ */

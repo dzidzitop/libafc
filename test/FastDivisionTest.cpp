@@ -13,7 +13,7 @@ GNU Lesser General Public License for more details.
 
 You should have received a copy of the GNU Lesser General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>. */
-#include "FastDivisionTest.h"
+#include "FastDivisionTest.hpp"
 #include <afc/fast_division.h>
 #include <climits>
 

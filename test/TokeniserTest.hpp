@@ -13,34 +13,34 @@ GNU Lesser General Public License for more details.
 
 You should have received a copy of the GNU Lesser General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>. */
-#ifndef AFC_UTF16LETOSTRINGTEST_H_
-#define AFC_UTF16LETOSTRINGTEST_H_
+#ifndef AFC_TOKENISERTEST_HPP_
+#define AFC_TOKENISERTEST_HPP_
 
 #include <cppunit/TestFixture.h>
 #include <cppunit/extensions/HelperMacros.h>
 
 namespace afc
 {
-	// TODO add tests with surrogate pairs
-	// TODO add tests for error cases
-	class UTF16LEToStringTest : public CppUnit::TestFixture
+	class TokeniserTest : public CppUnit::TestFixture
 	{
-		CPPUNIT_TEST_SUITE(UTF16LEToStringTest);
-		CPPUNIT_TEST(testEmptyString_toASCII);
-		CPPUNIT_TEST(testNonEmptyString_toASCII);
-		CPPUNIT_TEST(testMultiByteNonEmptyString_toASCII_withTransliteration);
-		CPPUNIT_TEST(testEmptyString_toUTF8);
-		CPPUNIT_TEST(testSimpleNonEmptyString_toUTF8);
-		CPPUNIT_TEST(testMultiByteNonEmptyString_toUTF8);
+		CPPUNIT_TEST_SUITE(TokeniserTest);
+		CPPUNIT_TEST(testEmptyInputString);
+		CPPUNIT_TEST(testSingleToken);
+		CPPUNIT_TEST(testMultipleTokens);
+		CPPUNIT_TEST(testMultipleTokensWithEmptyToken);
+		CPPUNIT_TEST(testOnlyEmptyTokens);
+		CPPUNIT_TEST(testWideStringMultipleTokens);
+		CPPUNIT_TEST(testInputIsNotRvalue);
 		CPPUNIT_TEST_SUITE_END();
 	public:
-		void testEmptyString_toASCII();
-		void testNonEmptyString_toASCII();
-		void testMultiByteNonEmptyString_toASCII_withTransliteration();
-		void testEmptyString_toUTF8();
-		void testSimpleNonEmptyString_toUTF8();
-		void testMultiByteNonEmptyString_toUTF8();
+		void testEmptyInputString();
+		void testSingleToken();
+		void testMultipleTokens();
+		void testMultipleTokensWithEmptyToken();
+		void testOnlyEmptyTokens();
+		void testWideStringMultipleTokens();
+		void testInputIsNotRvalue();
 	};
 }
 
-#endif /* AFC_UTF16LETOSTRINGTEST_H_ */
+#endif /* AFC_TOKENISERTEST_HPP_ */
