@@ -1,5 +1,5 @@
 /* libafc - utils to facilitate C++ development.
-Copyright (C) 2010-2013 Dźmitry Laŭčuk
+Copyright (C) 2010-2014 Dźmitry Laŭčuk
 
 libafc is free software: you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by
@@ -47,6 +47,13 @@ namespace afc
 	{
 		static_assert(std::is_integral<T>::value, "T must be an integral type.");
 		return (x>>1) + (y>>1) + (x&y&1);
+	}
+
+	template<typename T> constexpr bool isPow2(const T x) noexcept
+	{
+		static_assert(std::is_integral<T>::value, "T must be an integral type.");
+		static_assert(std::is_unsigned<T>::value, "T must be an unsigned type.");
+		return x != 0 && (x & (x - 1)) == 0;
 	}
 
 	// TODO using tables it could work faster
