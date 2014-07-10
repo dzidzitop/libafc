@@ -177,6 +177,33 @@ void afc::FastStringBufferTest::testChar_EmptyBuffer_ReserveSpace_TryToReduceCap
 	CPPUNIT_ASSERT_EQUAL('\0', str[0]);
 }
 
+void afc::FastStringBufferTest::testChar_EmptyBuffer_ReserveSpace_TryToReduceCapacityToZero()
+{
+	FastStringBuffer<char> buf;
+
+	CPPUNIT_ASSERT_EQUAL(size_t(0), buf.size());
+	CPPUNIT_ASSERT_EQUAL(size_t(0), buf.capacity());
+
+	buf.reserve(3);
+
+	CPPUNIT_ASSERT_EQUAL(size_t(0), buf.size());
+	CPPUNIT_ASSERT_EQUAL(size_t(3), buf.capacity());
+
+	const char * const str = buf.c_str();
+	CPPUNIT_ASSERT(str != nullptr);
+	CPPUNIT_ASSERT_EQUAL('\0', str[0]);
+	CPPUNIT_ASSERT_EQUAL(str, buf.c_str());
+
+	buf.reserve(0);
+
+	CPPUNIT_ASSERT_EQUAL(size_t(0), buf.size());
+	CPPUNIT_ASSERT_EQUAL(size_t(3), buf.capacity());
+
+	// Ensuring that the buffer is neither re-allocated nor modified.
+	CPPUNIT_ASSERT_EQUAL(str, buf.c_str());
+	CPPUNIT_ASSERT_EQUAL('\0', str[0]);
+}
+
 void afc::FastStringBufferTest::testChar_EmptyBuffer_ReserveSpace_ThenReserveSameSpace()
 {
 	FastStringBuffer<char> buf;
@@ -432,5 +459,4 @@ void afc::FastStringBufferTest::testChar_AppendCharArray_MultipleAppends_WithTer
 	// Ensuring ::c_str() influences neither size nor capacity.
 	CPPUNIT_ASSERT_EQUAL(size_t(expectedSize), buf.size());
 	CPPUNIT_ASSERT_EQUAL(size_t(31), buf.capacity());
-
 }

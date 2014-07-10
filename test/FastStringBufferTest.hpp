@@ -32,6 +32,7 @@ namespace afc
 		CPPUNIT_TEST(testChar_EmptyBuffer_ReserveEmptySpace);
 		CPPUNIT_TEST(testChar_EmptyBuffer_ReserveNonEmptySpace);
 		CPPUNIT_TEST(testChar_EmptyBuffer_ReserveSpace_TryToReduceCapacity);
+		CPPUNIT_TEST(testChar_EmptyBuffer_ReserveSpace_TryToReduceCapacityToZero);
 		CPPUNIT_TEST(testChar_EmptyBuffer_ReserveSpace_ThenReserveSameSpace);
 
 		CPPUNIT_TEST(testChar_AppendCharArray_SingleAppend_EmptyArray);
@@ -49,6 +50,7 @@ namespace afc
 		void testChar_EmptyBuffer_ReserveEmptySpace();
 		void testChar_EmptyBuffer_ReserveNonEmptySpace();
 		void testChar_EmptyBuffer_ReserveSpace_TryToReduceCapacity();
+		void testChar_EmptyBuffer_ReserveSpace_TryToReduceCapacityToZero();
 		void testChar_EmptyBuffer_ReserveSpace_ThenReserveSameSpace();
 
 		void testChar_AppendCharArray_SingleAppend_EmptyArray();
