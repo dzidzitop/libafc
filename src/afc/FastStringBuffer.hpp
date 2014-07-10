@@ -125,6 +125,7 @@ namespace afc
 		constexpr std::size_t maxSize() const noexcept { return maxCapacity(); }
 	private:
 		void expand(std::size_t capacity);
+		// The expected new capacity is passed in, not the current capacity.
 		inline std::size_t nextStorageSize(std::size_t capacity);
 
 		static constexpr std::ptrdiff_t maxCapacity() noexcept
