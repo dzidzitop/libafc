@@ -52,7 +52,7 @@ namespace afc
 			if (std::is_pod<CharType>::value) {
 				// Nothing to do. POD structures do not need to be destructed.
 			} else {
-				std::for_each(std::addressof(m_buf[0]), m_bufEnd, [=](CharType &p) { p.~CharType(); });
+				std::for_each(std::addressof(m_buf[0]), m_bufEnd, [](CharType &p) { p.~CharType(); });
 			}
 		}
 
