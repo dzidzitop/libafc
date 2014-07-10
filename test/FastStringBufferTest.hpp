@@ -33,6 +33,11 @@ namespace afc
 		CPPUNIT_TEST(testChar_EmptyBuffer_ReserveNonEmptySpace);
 		CPPUNIT_TEST(testChar_EmptyBuffer_ReserveSpace_TryToReduceCapacity);
 		CPPUNIT_TEST(testChar_EmptyBuffer_ReserveSpace_ThenReserveSameSpace);
+
+		CPPUNIT_TEST(testChar_AppendCharArray_SingleAppend_EmptyArray);
+		CPPUNIT_TEST(testChar_AppendCharArray_SingleAppend_NonEmptyArray);
+		CPPUNIT_TEST(testChar_AppendCharArray_MultipleAppends);
+		CPPUNIT_TEST(testChar_AppendCharArray_MultipleAppends_WithEmptyArray);
 		CPPUNIT_TEST_SUITE_END();
 	public:
 		void testNextStorageSize();
@@ -44,6 +49,11 @@ namespace afc
 		void testChar_EmptyBuffer_ReserveNonEmptySpace();
 		void testChar_EmptyBuffer_ReserveSpace_TryToReduceCapacity();
 		void testChar_EmptyBuffer_ReserveSpace_ThenReserveSameSpace();
+
+		void testChar_AppendCharArray_SingleAppend_EmptyArray();
+		void testChar_AppendCharArray_SingleAppend_NonEmptyArray();
+		void testChar_AppendCharArray_MultipleAppends();
+		void testChar_AppendCharArray_MultipleAppends_WithEmptyArray();
 	};
 }
 
