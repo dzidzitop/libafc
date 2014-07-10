@@ -38,6 +38,7 @@ namespace afc
 		CPPUNIT_TEST(testChar_AppendCharArray_SingleAppend_NonEmptyArray);
 		CPPUNIT_TEST(testChar_AppendCharArray_MultipleAppends);
 		CPPUNIT_TEST(testChar_AppendCharArray_MultipleAppends_WithEmptyArray);
+		CPPUNIT_TEST(testChar_AppendCharArray_MultipleAppends_WithTerminatingChars);
 		CPPUNIT_TEST_SUITE_END();
 	public:
 		void testNextStorageSize();
@@ -54,6 +55,7 @@ namespace afc
 		void testChar_AppendCharArray_SingleAppend_NonEmptyArray();
 		void testChar_AppendCharArray_MultipleAppends();
 		void testChar_AppendCharArray_MultipleAppends_WithEmptyArray();
+		void testChar_AppendCharArray_MultipleAppends_WithTerminatingChars();
 	};
 }
 

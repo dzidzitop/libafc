@@ -380,3 +380,57 @@ void afc::FastStringBufferTest::testChar_AppendCharArray_MultipleAppends_WithEmp
 	CPPUNIT_ASSERT_EQUAL(str4, buf.c_str());
 	CPPUNIT_ASSERT_EQUAL(str3, str4); // Ensuring no re-allocation happens.
 }
+
+void afc::FastStringBufferTest::testChar_AppendCharArray_MultipleAppends_WithTerminatingChars()
+{
+	FastStringBuffer<char> buf;
+	buf.reserve(4);
+
+	buf.append("B\0m", 3);
+
+	CPPUNIT_ASSERT_EQUAL(size_t(3), buf.size());
+	CPPUNIT_ASSERT_EQUAL(size_t(7), buf.capacity());
+
+	const char * const str = buf.c_str();
+	CPPUNIT_ASSERT(str != nullptr);
+	CPPUNIT_ASSERT_EQUAL(string("B\0m", 3), string(str, 3));
+	CPPUNIT_ASSERT_EQUAL('\0', str[3]);
+	CPPUNIT_ASSERT_EQUAL(str, buf.c_str());
+
+	buf.reserve(30);
+
+	buf.append("Bib\0m\0", 6);
+
+	CPPUNIT_ASSERT_EQUAL(size_t(9), buf.size());
+	CPPUNIT_ASSERT_EQUAL(size_t(31), buf.capacity());
+
+	const char * const str2 = buf.c_str();
+	CPPUNIT_ASSERT(str2 != nullptr);
+	CPPUNIT_ASSERT_EQUAL(string("B\0mBib\0m\0", 9), string(str2, 9));
+	CPPUNIT_ASSERT_EQUAL('\0', str2[9]);
+	CPPUNIT_ASSERT_EQUAL(str2, buf.c_str());
+	CPPUNIT_ASSERT(str2 != str); // Ensuring re-allocation happens.
+
+	// Ensuring ::c_str() influences neither size nor capacity.
+	CPPUNIT_ASSERT_EQUAL(size_t(9), buf.size());
+	CPPUNIT_ASSERT_EQUAL(size_t(31), buf.capacity());
+
+	buf.append(" is good! Really.", " is good!"_s.size());
+
+	constexpr size_t expectedSize = "B\0mBib\0m\0 is good!"_s.size();
+
+	CPPUNIT_ASSERT_EQUAL(expectedSize, buf.size());
+	CPPUNIT_ASSERT_EQUAL(size_t(31), buf.capacity());
+
+	const char * const str3 = buf.c_str();
+	CPPUNIT_ASSERT(str3 != nullptr);
+	CPPUNIT_ASSERT_EQUAL(string("B\0mBib\0m\0 is good!", expectedSize), string(str3, expectedSize));
+	CPPUNIT_ASSERT_EQUAL('\0', str2[expectedSize]);
+	CPPUNIT_ASSERT_EQUAL(str3, buf.c_str());
+	CPPUNIT_ASSERT_EQUAL(str2, str3); // Ensuring no re-allocation happens.
+
+	// Ensuring ::c_str() influences neither size nor capacity.
+	CPPUNIT_ASSERT_EQUAL(size_t(expectedSize), buf.size());
+	CPPUNIT_ASSERT_EQUAL(size_t(31), buf.capacity());
+
+}
