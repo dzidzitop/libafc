@@ -88,6 +88,20 @@ namespace afc
 			}
 		}
 
+		template<typename Iterator>
+		FastStringBuffer &append(Iterator from, Iterator to) noexcept
+		{
+			// assert() can throw an exception, but this is fine with debug code.
+			assert(m_buf != nullptr);
+			assert(size() + (to - from) <= m_capacity);
+
+			/* Cannot use std::memcpy() here since str can be the internal buffer itself
+			 * returned to the caller by ::c_str().
+			 */
+			m_bufEnd = std::copy(from, to, m_bufEnd);
+			return *this;
+		}
+
 		FastStringBuffer &append(const CharType * const str, const std::size_t n) noexcept
 		{
 			// assert() can throw an exception, but this is fine with debug code.
