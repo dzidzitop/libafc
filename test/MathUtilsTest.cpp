@@ -21,6 +21,56 @@ using std::numeric_limits;
 
 CPPUNIT_TEST_SUITE_REGISTRATION(afc::MathUtilsTest);
 
+void afc::MathUtilsTest::testMin()
+{
+	CPPUNIT_ASSERT_EQUAL(1u, afc::math::min<const unsigned>(1u, 1u));
+	CPPUNIT_ASSERT_EQUAL(1u, afc::math::min<const unsigned>(1u, 2u));
+	CPPUNIT_ASSERT_EQUAL(1u, afc::math::min<const unsigned>(1u, 3u));
+	CPPUNIT_ASSERT_EQUAL(1u, afc::math::min<const unsigned>(2u, 1u));
+	CPPUNIT_ASSERT_EQUAL(1u, afc::math::min<const unsigned>(3u, 1u));
+
+	CPPUNIT_ASSERT_EQUAL(0u, afc::math::min<const unsigned>(std::numeric_limits<unsigned>::max(), 0u));
+	CPPUNIT_ASSERT_EQUAL(1u, afc::math::min<const unsigned>(std::numeric_limits<unsigned>::max(), 1u));
+	CPPUNIT_ASSERT_EQUAL(0u, afc::math::min<const unsigned>(0u, std::numeric_limits<unsigned>::max()));
+	CPPUNIT_ASSERT_EQUAL(1u, afc::math::min<const unsigned>(1u, std::numeric_limits<unsigned>::max()));
+
+	// Checking that the reference of the correct type is returned.
+	int x = 5, y = 4;
+	int &z = afc::math::min(x, y);
+	CPPUNIT_ASSERT_EQUAL(4, z);
+
+	const int a = 2, b = 3;
+	const int &c = afc::math::min(a, b);
+	CPPUNIT_ASSERT_EQUAL(2, c);
+}
+
+void afc::MathUtilsTest::testMax()
+{
+	CPPUNIT_ASSERT_EQUAL(1u, afc::math::max<const unsigned>(1u, 1u));
+	CPPUNIT_ASSERT_EQUAL(2u, afc::math::max<const unsigned>(1u, 2u));
+	CPPUNIT_ASSERT_EQUAL(3u, afc::math::max<const unsigned>(1u, 3u));
+	CPPUNIT_ASSERT_EQUAL(2u, afc::math::max<const unsigned>(2u, 1u));
+	CPPUNIT_ASSERT_EQUAL(3u, afc::math::max<const unsigned>(3u, 1u));
+
+	CPPUNIT_ASSERT_EQUAL(std::numeric_limits<unsigned>::max(),
+			afc::math::max<const unsigned>(std::numeric_limits<unsigned>::max(), 0u));
+	CPPUNIT_ASSERT_EQUAL(std::numeric_limits<unsigned>::max(),
+			afc::math::max<const unsigned>(std::numeric_limits<unsigned>::max(), 1u));
+	CPPUNIT_ASSERT_EQUAL(std::numeric_limits<unsigned>::max(),
+			afc::math::max<const unsigned>(0u, std::numeric_limits<unsigned>::max()));
+	CPPUNIT_ASSERT_EQUAL(std::numeric_limits<unsigned>::max(),
+			afc::math::max<const unsigned>(1u, std::numeric_limits<unsigned>::max()));
+
+	// Checking that the reference of the correct type is returned.
+	int x = 5, y = 4;
+	int &z = afc::math::max(x, y);
+	CPPUNIT_ASSERT_EQUAL(5, z);
+
+	const int a = 2, b = 3;
+	const int &c = afc::math::max(a, b);
+	CPPUNIT_ASSERT_EQUAL(3, c);
+}
+
 void afc::MathUtilsTest::testSameSign()
 {
 	CPPUNIT_ASSERT(sameSign(0, 0));

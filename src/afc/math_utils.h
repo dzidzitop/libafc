@@ -22,6 +22,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 namespace afc
 {
+	namespace math {
+		template<typename T>
+		constexpr T &min(T &a, T &b) { return a < b ? a : b; }
+
+		template<typename T>
+		constexpr T &max(T &a, T &b) { return a < b ? b : a; }
+	}
+
 	const unsigned INT_SIGN_BIT_MASK = ~0 ^ INT_MAX;
 
 	inline constexpr bool sameSign(const int i, const int j) throw()

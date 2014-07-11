@@ -24,6 +24,8 @@ namespace afc
 	class MathUtilsTest : public CppUnit::TestFixture
 	{
 		CPPUNIT_TEST_SUITE(MathUtilsTest);
+		CPPUNIT_TEST(testMin);
+		CPPUNIT_TEST(testMax);
 		CPPUNIT_TEST(testSameSign);
 		CPPUNIT_TEST(testIsEven);
 		CPPUNIT_TEST(testIsOdd);
@@ -35,6 +37,8 @@ namespace afc
 		CPPUNIT_TEST(testIsPow2_UnsignedInt);
 		CPPUNIT_TEST_SUITE_END();
 	public:
+		void testMin();
+		void testMax();
 		void testSameSign();
 		void testIsEven();
 		void testIsOdd();
