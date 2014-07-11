@@ -18,11 +18,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include <cstddef>
 #include <string>
 #include <afc/StringRef.hpp>
+#include <limits>
+#include <algorithm>
 
 using afc::FastStringBuffer;
+using std::min;
+using std::ptrdiff_t;
 using std::size_t;
 using std::string;
 using afc::operator"" _s;
+using std::numeric_limits;
 
 CPPUNIT_TEST_SUITE_REGISTRATION(afc::FastStringBufferTest);
 
@@ -39,6 +44,30 @@ void afc::FastStringBufferTest::testNextStorageSize()
 
 	CPPUNIT_ASSERT_EQUAL(buf.maxSize() + 1, buf.nextStorageSize(buf.maxSize()));
 	CPPUNIT_ASSERT_EQUAL(buf.maxSize() + 1, buf.nextStorageSize(buf.maxSize() - 1));
+}
+
+namespace
+{
+}
+
+void afc::FastStringBufferTest::testMaxSize()
+{
+	struct S
+	{
+		char c;
+		short s;
+	};
+
+	// sizeof(char) == 1 -> max size is max value of ptrsize_t. (The last character is reserved by '\0').
+	const size_t expectedCharMaxSize = size_t(numeric_limits<ptrdiff_t>::max());
+	const size_t expectedIntMaxSize = min(numeric_limits<size_t>::max() / sizeof(int) - 1,
+			size_t(numeric_limits<ptrdiff_t>::max()));
+	const size_t expectedStructMaxSize = min(numeric_limits<size_t>::max() / sizeof(S) - 1,
+			size_t(numeric_limits<ptrdiff_t>::max()));
+
+	CPPUNIT_ASSERT_EQUAL(expectedCharMaxSize, FastStringBuffer<char>().maxSize());
+	CPPUNIT_ASSERT_EQUAL(expectedIntMaxSize, FastStringBuffer<int>().maxSize());
+	CPPUNIT_ASSERT_EQUAL(expectedStructMaxSize, FastStringBuffer<S>().maxSize());
 }
 
 void afc::FastStringBufferTest::testChar_EmptyBuffer_SizeFirst()

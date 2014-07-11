@@ -25,6 +25,7 @@ namespace afc
 	{
 		CPPUNIT_TEST_SUITE(FastStringBufferTest);
 		CPPUNIT_TEST(testNextStorageSize);
+		CPPUNIT_TEST(testMaxSize);
 
 		CPPUNIT_TEST(testChar_EmptyBuffer_SizeFirst);
 		CPPUNIT_TEST(testChar_EmptyBuffer_CapacityFirst);
@@ -43,6 +44,7 @@ namespace afc
 		CPPUNIT_TEST_SUITE_END();
 	public:
 		void testNextStorageSize();
+		void testMaxSize();
 
 		void testChar_EmptyBuffer_SizeFirst();
 		void testChar_EmptyBuffer_CapacityFirst();
