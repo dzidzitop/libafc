@@ -198,9 +198,6 @@ inline std::size_t afc::FastStringBuffer<CharType>::nextStorageSize(const std::s
 		static_assert((std::numeric_limits<std::size_t>::max() / 2 + 1) * 2 == 0,
 				"Wrong assumption on overflow rules.");
 
-		/* TODO since maxSize is limited by the max value of ptrdiff_t then the check
-		* newStorageSize == 0 is not needed. Think of replacing it with static asserts.
-		*/
 		if (newStorageSize == 0 || newStorageSize >= maxStorageSize) {
 			// Overflow. Reducing storage size to max allowed.
 			return maxStorageSize;
