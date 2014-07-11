@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include <afc/StringRef.hpp>
 #include <limits>
 #include <algorithm>
+#include <utility>
 
 using afc::FastStringBuffer;
 using std::min;
@@ -46,10 +47,6 @@ void afc::FastStringBufferTest::testNextStorageSize()
 	CPPUNIT_ASSERT_EQUAL(buf.maxSize() + 1, buf.nextStorageSize(buf.maxSize() - 1));
 }
 
-namespace
-{
-}
-
 void afc::FastStringBufferTest::testMaxSize()
 {
 	struct S
@@ -68,6 +65,257 @@ void afc::FastStringBufferTest::testMaxSize()
 	CPPUNIT_ASSERT_EQUAL(expectedCharMaxSize, FastStringBuffer<char>().maxSize());
 	CPPUNIT_ASSERT_EQUAL(expectedIntMaxSize, FastStringBuffer<int>().maxSize());
 	CPPUNIT_ASSERT_EQUAL(expectedStructMaxSize, FastStringBuffer<S>().maxSize());
+}
+
+void afc::FastStringBufferTest::testMoveConstructor_EmptyBuffer()
+{
+	FastStringBuffer<char> from;
+
+	CPPUNIT_ASSERT_EQUAL(size_t(0), from.capacity());
+	CPPUNIT_ASSERT_EQUAL(size_t(0), from.size());
+
+	const char * const str = from.c_str();
+	CPPUNIT_ASSERT(str != nullptr);
+	CPPUNIT_ASSERT_EQUAL('\0', str[0]);
+	CPPUNIT_ASSERT_EQUAL(str, from.c_str());
+
+	FastStringBuffer<char> to(std::move(from));
+
+	CPPUNIT_ASSERT_EQUAL(size_t(0), to.capacity());
+	CPPUNIT_ASSERT_EQUAL(size_t(0), to.size());
+
+	const char * const str2 = to.c_str();
+	CPPUNIT_ASSERT(str2 != nullptr);
+	CPPUNIT_ASSERT_EQUAL('\0', str2[0]);
+	CPPUNIT_ASSERT_EQUAL(str2, to.c_str());
+
+	CPPUNIT_ASSERT_EQUAL(size_t(0), from.capacity());
+	CPPUNIT_ASSERT_EQUAL(size_t(0), from.size());
+
+	const char * const str3 = from.c_str();
+	CPPUNIT_ASSERT(str3 != nullptr);
+	CPPUNIT_ASSERT_EQUAL('\0', str3[0]);
+	CPPUNIT_ASSERT_EQUAL(str3, from.c_str());
+
+	from.reserve(1);
+
+	CPPUNIT_ASSERT_EQUAL(size_t(1), from.capacity());
+	CPPUNIT_ASSERT_EQUAL(size_t(0), from.size());
+
+	const char * const str4 = from.c_str();
+	CPPUNIT_ASSERT(str4 != nullptr);
+	CPPUNIT_ASSERT_EQUAL('\0', str4[0]);
+	CPPUNIT_ASSERT_EQUAL(str4, from.c_str());
+	// Ensuring new buffer is allocated.
+	CPPUNIT_ASSERT(str4 != str3);
+
+	// Ensuring from is to are detached objects.
+	CPPUNIT_ASSERT(str4 != to.c_str());
+	CPPUNIT_ASSERT_EQUAL(str2, to.c_str());
+	CPPUNIT_ASSERT_EQUAL(size_t(0), to.capacity());
+	CPPUNIT_ASSERT_EQUAL(size_t(0), to.size());
+
+	to.reserve(2);
+	to.append("a", 1);
+
+	CPPUNIT_ASSERT_EQUAL(size_t(3), to.capacity());
+	CPPUNIT_ASSERT_EQUAL(size_t(1), to.size());
+
+	const char * const str5 = to.c_str();
+	CPPUNIT_ASSERT(str5 != nullptr);
+	CPPUNIT_ASSERT_EQUAL(string("a"), string(str5));
+	CPPUNIT_ASSERT_EQUAL(str5, to.c_str());
+
+	// Ensuring from is to are detached objects.
+	CPPUNIT_ASSERT(str5 != from.c_str());
+	CPPUNIT_ASSERT_EQUAL(str4, from.c_str());
+	CPPUNIT_ASSERT_EQUAL(size_t(1), from.capacity());
+	CPPUNIT_ASSERT_EQUAL(size_t(0), from.size());
+}
+
+void afc::FastStringBufferTest::testMoveConstructor_NonEmptyBuffer()
+{
+	FastStringBuffer<char> from;
+
+	from.reserve(4);
+	from.append("abc", 3);
+
+	CPPUNIT_ASSERT_EQUAL(size_t(7), from.capacity());
+	CPPUNIT_ASSERT_EQUAL(size_t(3), from.size());
+
+	const char * const str = from.c_str();
+	CPPUNIT_ASSERT(str != nullptr);
+	CPPUNIT_ASSERT_EQUAL(string("abc"), string(str));
+	CPPUNIT_ASSERT_EQUAL(str, from.c_str());
+
+	FastStringBuffer<char> to(std::move(from));
+
+	CPPUNIT_ASSERT_EQUAL(size_t(7), to.capacity());
+	CPPUNIT_ASSERT_EQUAL(size_t(3), to.size());
+
+	const char * const str2 = to.c_str();
+	CPPUNIT_ASSERT(str2 != nullptr);
+	CPPUNIT_ASSERT_EQUAL(string("abc"), string(str2));
+	CPPUNIT_ASSERT_EQUAL(str2, to.c_str());
+
+	CPPUNIT_ASSERT_EQUAL(size_t(0), from.capacity());
+	CPPUNIT_ASSERT_EQUAL(size_t(0), from.size());
+
+	const char * const str3 = from.c_str();
+	CPPUNIT_ASSERT(str3 != nullptr);
+	CPPUNIT_ASSERT_EQUAL('\0', str3[0]);
+	CPPUNIT_ASSERT_EQUAL(str3, from.c_str());
+}
+
+void afc::FastStringBufferTest::testMoveAssignment_FromEmptyToEmpty()
+{
+	FastStringBuffer<char> from, to;
+
+	to = std::move(from);
+
+	CPPUNIT_ASSERT_EQUAL(size_t(0), from.capacity());
+	CPPUNIT_ASSERT_EQUAL(size_t(0), from.size());
+
+	const char * const str3 = from.c_str();
+	CPPUNIT_ASSERT(str3 != nullptr);
+	CPPUNIT_ASSERT_EQUAL('\0', str3[0]);
+	CPPUNIT_ASSERT_EQUAL(str3, from.c_str());
+
+	CPPUNIT_ASSERT_EQUAL(size_t(0), to.capacity());
+	CPPUNIT_ASSERT_EQUAL(size_t(0), to.size());
+
+	const char * const str2 = to.c_str();
+	CPPUNIT_ASSERT(str2 != nullptr);
+	CPPUNIT_ASSERT_EQUAL('\0', str2[0]);
+	CPPUNIT_ASSERT_EQUAL(str2, to.c_str());
+
+	from.reserve(1);
+
+	CPPUNIT_ASSERT_EQUAL(size_t(1), from.capacity());
+	CPPUNIT_ASSERT_EQUAL(size_t(0), from.size());
+
+	const char * const str4 = from.c_str();
+	CPPUNIT_ASSERT(str4 != nullptr);
+	CPPUNIT_ASSERT_EQUAL('\0', str4[0]);
+	CPPUNIT_ASSERT_EQUAL(str4, from.c_str());
+	// Ensuring new buffer is allocated.
+	CPPUNIT_ASSERT(str4 != str3);
+
+	// Ensuring from is to are detached objects.
+	CPPUNIT_ASSERT(str4 != to.c_str());
+	CPPUNIT_ASSERT_EQUAL(str2, to.c_str());
+	CPPUNIT_ASSERT_EQUAL(size_t(0), to.capacity());
+	CPPUNIT_ASSERT_EQUAL(size_t(0), to.size());
+
+	to.reserve(2);
+	to.append("a", 1);
+
+	CPPUNIT_ASSERT_EQUAL(size_t(3), to.capacity());
+	CPPUNIT_ASSERT_EQUAL(size_t(1), to.size());
+
+	const char * const str5 = to.c_str();
+	CPPUNIT_ASSERT(str5 != nullptr);
+	CPPUNIT_ASSERT_EQUAL(string("a"), string(str5));
+	CPPUNIT_ASSERT_EQUAL(str5, to.c_str());
+
+	// Ensuring from is to are detached objects.
+	CPPUNIT_ASSERT(str5 != from.c_str());
+	CPPUNIT_ASSERT_EQUAL(str4, from.c_str());
+	CPPUNIT_ASSERT_EQUAL(size_t(1), from.capacity());
+	CPPUNIT_ASSERT_EQUAL(size_t(0), from.size());
+}
+
+void afc::FastStringBufferTest::testMoveAssignment_FromNonEmptyToEmpty()
+{
+	FastStringBuffer<char> from, to;
+
+	from.reserve(4);
+	from.append("abc", 3);
+
+	const char * const fromBuf = from.c_str();
+
+	to = std::move(from);
+
+	CPPUNIT_ASSERT_EQUAL(size_t(7), to.capacity());
+	CPPUNIT_ASSERT_EQUAL(size_t(3), to.size());
+
+	const char * const str = to.c_str();
+	CPPUNIT_ASSERT(str != nullptr);
+	CPPUNIT_ASSERT_EQUAL(string("abc"), string(str));
+	CPPUNIT_ASSERT_EQUAL(str, to.c_str());
+	// Ensuring no re-allocation happened.
+	CPPUNIT_ASSERT_EQUAL(str, fromBuf);
+
+	CPPUNIT_ASSERT_EQUAL(size_t(0), from.capacity());
+	CPPUNIT_ASSERT_EQUAL(size_t(0), from.size());
+
+	const char * const str2 = from.c_str();
+	CPPUNIT_ASSERT(str2 != nullptr);
+	CPPUNIT_ASSERT_EQUAL('\0', str2[0]);
+	CPPUNIT_ASSERT_EQUAL(str2, from.c_str());
+}
+
+void afc::FastStringBufferTest::testMoveAssignment_FromEmptyToNonEmpty()
+{
+	FastStringBuffer<char> from, to;
+
+	to.reserve(4);
+	to.append("abc", 3);
+
+	const char * const toBuf = to.c_str();
+
+	to = std::move(from);
+
+	CPPUNIT_ASSERT_EQUAL(size_t(7), from.capacity());
+	CPPUNIT_ASSERT_EQUAL(size_t(3), from.size());
+
+	const char * const str = from.c_str();
+	CPPUNIT_ASSERT(str != nullptr);
+	CPPUNIT_ASSERT_EQUAL(string("abc"), string(str));
+	CPPUNIT_ASSERT_EQUAL(str, from.c_str());
+	// Ensuring no re-allocation happened.
+	CPPUNIT_ASSERT_EQUAL(str, toBuf);
+
+	CPPUNIT_ASSERT_EQUAL(size_t(0), to.capacity());
+	CPPUNIT_ASSERT_EQUAL(size_t(0), to.size());
+
+	const char * const str2 = to.c_str();
+	CPPUNIT_ASSERT(str2 != nullptr);
+	CPPUNIT_ASSERT_EQUAL('\0', str2[0]);
+	CPPUNIT_ASSERT_EQUAL(str2, to.c_str());
+}
+
+void afc::FastStringBufferTest::testMoveAssignment_FromNonEmptyToNonEmpty()
+{
+	FastStringBuffer<char> from, to;
+
+	from.reserve(4);
+	from.append("abc", 3);
+
+	to.reserve(2);
+	to.append("me", 2);
+
+	const char * const fromBuf = from.c_str();
+	const char * const toBuf = to.c_str();
+
+	to = std::move(from);
+
+	CPPUNIT_ASSERT_EQUAL(size_t(7), to.capacity());
+	CPPUNIT_ASSERT_EQUAL(size_t(3), to.size());
+
+	const char * const str = to.c_str();
+	CPPUNIT_ASSERT(str != nullptr);
+	CPPUNIT_ASSERT_EQUAL(string("abc"), string(str));
+	CPPUNIT_ASSERT_EQUAL(str, to.c_str());
+	// Ensuring no re-allocation happened.
+	CPPUNIT_ASSERT_EQUAL(str, fromBuf);
+
+	const char * const str2 = from.c_str();
+	CPPUNIT_ASSERT(str2 != nullptr);
+	CPPUNIT_ASSERT_EQUAL(string("me"), string(str2));
+	CPPUNIT_ASSERT_EQUAL(str2, from.c_str());
+	// Ensuring no re-allocation happened.
+	CPPUNIT_ASSERT_EQUAL(str2, toBuf);
 }
 
 void afc::FastStringBufferTest::testChar_EmptyBuffer_SizeFirst()

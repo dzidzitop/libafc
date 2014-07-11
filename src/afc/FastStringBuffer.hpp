@@ -23,6 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include <memory>
 #include <new>
 #include <type_traits>
+#include <utility>
 #include <cstring>
 #include <algorithm>
 #include "math_utils.h"
@@ -52,10 +53,24 @@ namespace afc
 		FastStringBuffer(const FastStringBuffer &) = delete;
 		FastStringBuffer &operator=(const FastStringBuffer &) = delete;
 	public:
-		FastStringBuffer(FastStringBuffer &&) = default;
-		FastStringBuffer &operator=(FastStringBuffer &&) = default;
-
 		FastStringBuffer() noexcept : m_buf(nullptr), m_bufEnd(nullptr), m_capacity(0) {}
+
+		// Moves content from o to this FastStringBuffer and resets the state of o.
+		FastStringBuffer(FastStringBuffer &&o) noexcept : m_buf(o.m_buf.release()),
+				m_bufEnd(o.m_bufEnd), m_capacity(o.m_capacity)
+		{
+			o.m_bufEnd = nullptr;
+			o.m_capacity = 0;
+		}
+
+		// Swaps these two buffers.
+		FastStringBuffer &operator=(FastStringBuffer &&o) noexcept
+		{
+			m_buf.swap(o.m_buf);
+			std::swap(m_bufEnd, o.m_bufEnd);
+			std::swap(m_capacity, o.m_capacity);
+			return *this;
+		}
 
 		~FastStringBuffer()
 		{

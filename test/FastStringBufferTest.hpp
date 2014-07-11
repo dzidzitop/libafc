@@ -27,6 +27,13 @@ namespace afc
 		CPPUNIT_TEST(testNextStorageSize);
 		CPPUNIT_TEST(testMaxSize);
 
+		CPPUNIT_TEST(testMoveConstructor_EmptyBuffer);
+		CPPUNIT_TEST(testMoveConstructor_NonEmptyBuffer);
+		CPPUNIT_TEST(testMoveAssignment_FromEmptyToEmpty);
+		CPPUNIT_TEST(testMoveAssignment_FromNonEmptyToEmpty);
+		CPPUNIT_TEST(testMoveAssignment_FromEmptyToNonEmpty);
+		CPPUNIT_TEST(testMoveAssignment_FromNonEmptyToNonEmpty);
+
 		CPPUNIT_TEST(testChar_EmptyBuffer_SizeFirst);
 		CPPUNIT_TEST(testChar_EmptyBuffer_CapacityFirst);
 		CPPUNIT_TEST(testChar_EmptyBuffer_CStrFirst);
@@ -45,6 +52,13 @@ namespace afc
 	public:
 		void testNextStorageSize();
 		void testMaxSize();
+
+		void testMoveConstructor_EmptyBuffer();
+		void testMoveConstructor_NonEmptyBuffer();
+		void testMoveAssignment_FromEmptyToEmpty();
+		void testMoveAssignment_FromNonEmptyToEmpty();
+		void testMoveAssignment_FromEmptyToNonEmpty();
+		void testMoveAssignment_FromNonEmptyToNonEmpty();
 
 		void testChar_EmptyBuffer_SizeFirst();
 		void testChar_EmptyBuffer_CapacityFirst();
