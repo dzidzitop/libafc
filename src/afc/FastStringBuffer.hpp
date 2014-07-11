@@ -38,6 +38,15 @@ namespace afc
 	template<typename CharType>
 	class FastStringBuffer
 	{
+		/* There is no (known) way to destroy a fixed-size array explicitly. A fixed-size array
+		 * can be wrapped into a structure with a destructor that is used as inner storage
+		 * elements. This shall allow for having instances of CharType = [some fixed-size array].
+		 * However, such instances are unlikely to have any use in real practice. So, to keep
+		 * code simple and provide readable compilation errors, forbidding such instantiations
+		 * explicitly.
+		 */
+		static_assert(!std::is_array<CharType>::value, "Fixed-size arrays are not supported as CharType.");
+
 		friend class FastStringBufferTest;
 	private:
 		FastStringBuffer(const FastStringBuffer &) = delete;
