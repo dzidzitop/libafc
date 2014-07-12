@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include <cassert>
 #include <initializer_list>
 #include <limits>
+#include <memory>
 #include <new>
 #include <type_traits>
 #include <utility>
@@ -115,15 +116,13 @@ namespace afc
 			return *this;
 		}
 
-		FastStringBuffer &append(const std::initializer_list<const CharType> str) noexcept
+		FastStringBuffer &append(const std::initializer_list<const CharType> values) noexcept
 		{
 			// assert() can throw an exception, but this is fine with debug code.
 			assert(m_buf != nullptr);
-			assert(size() + str.size() <= m_capacity);
+			assert(size() + values.size() <= m_capacity);
 
-			for (const char c : str) {
-				*m_bufEnd++ = c;
-			}
+			m_bufEnd = std::copy_n(values.begin(), values.size(), m_bufEnd);
 			return *this;
 		}
 
