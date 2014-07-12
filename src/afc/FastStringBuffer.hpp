@@ -89,7 +89,7 @@ namespace afc
 		}
 
 		template<typename Iterator>
-		FastStringBuffer &append(Iterator from, Iterator to) noexcept
+		FastStringBuffer &append(const Iterator from, const Iterator to) noexcept
 		{
 			// assert() can throw an exception, but this is fine with debug code.
 			assert(m_buf != nullptr);
@@ -128,7 +128,7 @@ namespace afc
 			return *this;
 		}
 
-		FastStringBuffer &operator+=(const CharType c) noexcept
+		FastStringBuffer &append(const CharType c) noexcept
 		{
 			// assert() can throw an exception, but this is fine with debug code.
 			assert(m_buf != nullptr);
