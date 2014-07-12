@@ -20,7 +20,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include <cassert>
 #include <initializer_list>
 #include <limits>
-#include <memory>
 #include <new>
 #include <type_traits>
 #include <utility>
@@ -62,9 +61,10 @@ namespace afc
 		FastStringBuffer() noexcept : m_buf(nullptr), m_bufEnd(nullptr), m_capacity(0) {}
 
 		// Moves content from o to this FastStringBuffer and resets the state of o.
-		FastStringBuffer(FastStringBuffer &&o) noexcept : m_buf(o.m_buf.release()),
-				m_bufEnd(o.m_bufEnd), m_capacity(o.m_capacity)
+		FastStringBuffer(FastStringBuffer &&o) noexcept : m_buf(o.m_buf), m_bufEnd(o.m_bufEnd),
+				m_capacity(o.m_capacity)
 		{
+			o.m_buf = nullptr;
 			o.m_bufEnd = nullptr;
 			o.m_capacity = 0;
 		}
@@ -72,16 +72,13 @@ namespace afc
 		// Swaps these two buffers.
 		FastStringBuffer &operator=(FastStringBuffer &&o) noexcept
 		{
-			m_buf.swap(o.m_buf);
+			std::swap(m_buf, o.m_buf);
 			std::swap(m_bufEnd, o.m_bufEnd);
 			std::swap(m_capacity, o.m_capacity);
 			return *this;
 		}
 
-		/* Nothing to do other than default. POD structures do not need to be destructed,
-		 * and the inner storage is freed by std::unique_ptr that wraps it.
-		 */
-		~FastStringBuffer() = default;
+		~FastStringBuffer() { delete m_buf; };
 
 		void reserve(const std::size_t n)
 		{
@@ -134,7 +131,7 @@ namespace afc
 		{
 			// assert() can throw an exception, but this is fine with debug code.
 			assert(m_buf != nullptr);
-			assert(m_buf.get() + capacity() > m_bufEnd);
+			assert(m_buf + capacity() > m_bufEnd);
 
 			*m_bufEnd++ = c;
 			return *this;
@@ -147,7 +144,7 @@ namespace afc
 			} else {
 				// Terminating the string with the null character.
 				*m_bufEnd = CharType(0);
-				return m_buf.get();
+				return m_buf;
 			}
 		}
 
@@ -160,7 +157,7 @@ namespace afc
 		std::size_t size() const noexcept
 		{
 			// Works fine even if both are null pointers.
-			return m_bufEnd - m_buf.get();
+			return m_bufEnd - m_buf;
 		}
 
 		std::size_t maxSize() const noexcept { return maxCapacity(); }
@@ -185,7 +182,7 @@ namespace afc
 
 		// If not nullptr then one character is reserved for the terminating character.
 		// Non-[] deleter is specified since placement allocation is used.
-		std::unique_ptr<CharType> m_buf;
+		CharType *m_buf;
 		CharType *m_bufEnd;
 		std::size_t m_capacity;
 	};
@@ -249,14 +246,19 @@ void afc::FastStringBuffer<CharType>::expand(const std::size_t capacity)
 	 * remains unmodified.
 	 */
 	// Alignment of the block allocated is suitable for CharType elements.
-	std::unique_ptr<CharType> newBuf(static_cast<CharType *>(::operator new(newStorageSize * sizeof(CharType))));
-	const std::size_t size = this->size();
-	if (size != 0) {
+	CharType * const newBuf = static_cast<CharType *>(::operator new(newStorageSize * sizeof(CharType)));
+
+	if (m_buf != nullptr) {
+		const std::size_t size = this->size();
 		// POD values are copied by std::memcpy, which is efficient for all compilers/runtimes.
-		std::memcpy(newBuf.get(), m_buf.get(), size * sizeof(CharType));
+		std::memcpy(newBuf, m_buf, size * sizeof(CharType));
+		// No exception is thrown after newBuf is allocated.
+		delete m_buf;
+		m_bufEnd = newBuf + size;
+	} else {
+		m_bufEnd = newBuf;
 	}
-	m_bufEnd = newBuf.get() + size;
-	m_buf.reset(newBuf.release());
+	m_buf = newBuf;
 	m_capacity = newStorageSize - 1;
 }
 
