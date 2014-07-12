@@ -196,19 +196,7 @@ inline std::size_t afc::FastStringBuffer<CharType>::nextStorageSize(const std::s
 	// FastStringBuffer::reserve() does not expand storage if capacity == 0.
 	assert(capacity > 0);
 
-	constexpr std::size_t maxSize = maxCapacity();
-	/* To prevent overflows, checking (without arithmetic operations) that
-	 * the capacity requested fits hard limits of this FastStringBuffer.
-	 */
-	if (capacity > maxSize) {
-#ifdef AFC_EXCEPTIONS_ENABLED
-		throwException<OverflowException>("Capacity to reserve exceeds max size allowed.");
-#else
-		std::terminate();
-#endif
-	}
-
-	constexpr std::size_t maxStorageSize = maxSize + 1;
+	constexpr std::size_t maxStorageSize = maxCapacity() + 1;
 	const std::size_t requestedStorageSize = capacity + 1;
 
 	/* Since newStorageSize is always a power of two, the first value that
@@ -224,6 +212,14 @@ inline std::size_t afc::FastStringBuffer<CharType>::nextStorageSize(const std::s
 
 	if (newStorageSize == 0 || newStorageSize >= maxStorageSize) {
 		// Overflow. Reducing storage size to max allowed.
+		if (capacity > maxCapacity()) {
+			// The capacity requested is greater than max size of this FastStringBuffer.
+#ifdef AFC_EXCEPTIONS_ENABLED
+			throwException<OverflowException>("Capacity to reserve exceeds max size allowed.");
+#else
+			std::terminate();
+#endif
+		}
 		return maxStorageSize;
 	}
 
