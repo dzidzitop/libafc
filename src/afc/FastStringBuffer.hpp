@@ -39,6 +39,14 @@ namespace afc
 	template<typename CharType>
 	class FastStringBuffer
 	{
+		/* Supporting consistent and still efficient implementation for non-POD types is
+		 * impossible due to the fact non-POD values must be destructed accurately,
+		 * including the C-string terminator that is created by FastStringBuffer by
+		 * request for the sake of performance. Once created, it must be shifted to
+		 * the end of the buffer for each ::append() invocation, which is expensive.
+		 */
+		static_assert(std::is_pod<CharType>::value, "Non-POD types are not supported as CharType.");
+
 		/* Copying/passing/destroying arrays is implemented differently in C++ than
 		 * for * other types (e.g. the array-decay rule). In addition, it is difficult
 		 * to imagine a case when a buffer of arrays is created, so they are not supported
@@ -70,14 +78,10 @@ namespace afc
 			return *this;
 		}
 
-		~FastStringBuffer()
-		{
-			if (std::is_pod<CharType>::value) {
-				// Nothing to do. POD structures do not need to be destructed.
-			} else {
-				std::for_each(std::addressof(m_buf[0]), m_bufEnd, [](CharType &p) { p.~CharType(); });
-			}
-		}
+		/* Nothing to do other than default. POD structures do not need to be destructed,
+		 * and the inner storage is freed by std::unique_ptr that wraps it.
+		 */
+		~FastStringBuffer() = default;
 
 		void reserve(const std::size_t n)
 		{
@@ -130,7 +134,7 @@ namespace afc
 		{
 			// assert() can throw an exception, but this is fine with debug code.
 			assert(m_buf != nullptr);
-			assert(std::addressof(m_buf[0]) + capacity() > m_bufEnd);
+			assert(m_buf.get() + capacity() > m_bufEnd);
 
 			*m_bufEnd++ = c;
 			return *this;
@@ -156,7 +160,7 @@ namespace afc
 		std::size_t size() const noexcept
 		{
 			// Works fine even if both are null pointers.
-			return m_bufEnd - std::addressof(m_buf[0]);
+			return m_bufEnd - m_buf.get();
 		}
 
 		std::size_t maxSize() const noexcept { return maxCapacity(); }
@@ -180,7 +184,8 @@ namespace afc
 		static const CharType empty[1];
 
 		// If not nullptr then one character is reserved for the terminating character.
-		std::unique_ptr<CharType[]> m_buf;
+		// Non-[] deleter is specified since placement allocation is used.
+		std::unique_ptr<CharType> m_buf;
 		CharType *m_bufEnd;
 		std::size_t m_capacity;
 	};
@@ -244,21 +249,13 @@ void afc::FastStringBuffer<CharType>::expand(const std::size_t capacity)
 	 * remains unmodified.
 	 */
 	// Alignment of the block allocated is suitable for CharType elements.
-	std::unique_ptr<CharType[]> newBuf(static_cast<CharType *>(::operator new(newStorageSize * sizeof(CharType))));
+	std::unique_ptr<CharType> newBuf(static_cast<CharType *>(::operator new(newStorageSize * sizeof(CharType))));
 	const std::size_t size = this->size();
 	if (size != 0) {
-		if (std::is_pod<CharType>::value) {
-			// POD values are copied by std::memcpy, which is efficient for all compilers/runtimes.
-			std::memcpy(std::addressof(newBuf[0]), std::addressof(m_buf[0]), size * sizeof(CharType));
-		} else {
-			// TODO optimise this loop so that is takes advantage from move semantics, loop unrolling, etc.
-			for (CharType *src = std::addressof(m_buf[0]), *dest = std::addressof(newBuf[0]);
-					src != m_bufEnd; ++src, ++dest) {
-				new (dest) CharType(*src);
-			}
-		}
+		// POD values are copied by std::memcpy, which is efficient for all compilers/runtimes.
+		std::memcpy(newBuf.get(), m_buf.get(), size * sizeof(CharType));
 	}
-	m_bufEnd = &newBuf[size];
+	m_bufEnd = newBuf.get() + size;
 	m_buf.reset(newBuf.release());
 	m_capacity = newStorageSize - 1;
 }
