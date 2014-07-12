@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 #include <cmath>
 #include <climits>
+#include <limits>
 #include <type_traits>
 
 namespace afc
@@ -28,6 +29,18 @@ namespace afc
 
 		template<typename T>
 		constexpr T &max(T &a, T &b) { return a < b ? b : a; }
+
+		template<typename T>
+		T ceilPow2(const T a)
+		{
+			static_assert(std::is_integral<T>::value, "T must be an integral type.");
+			static_assert(std::is_unsigned<T>::value, "T must be an unsigned type.");
+			T x = a - 1;
+			for (unsigned i = 1; i <= std::numeric_limits<T>::digits / 2; i *= 2) {
+				x |= (x >> i);
+			}
+			return x + 1;
+		}
 	}
 
 	const unsigned INT_SIGN_BIT_MASK = ~0 ^ INT_MAX;
