@@ -25,15 +25,18 @@ using namespace afc;
 
 void afc::DateUtilTest::setUp()
 {
-	m_timeZoneBackup = getenv("TZ");
+	const char * const tz = getenv("TZ");
+	if (tz != nullptr) {
+		m_timeZoneBackup.reset(new string(tz));
+	}
 	// This time zone is set to ensure that conversion is performed via UTC.
 	setenv("TZ", "ABC-12:30", true);
 }
 
 void afc::DateUtilTest::tearDown()
 {
-	if (m_timeZoneBackup == nullptr) {
-		setenv("TZ", m_timeZoneBackup, true);
+	if (m_timeZoneBackup != nullptr) {
+		setenv("TZ", m_timeZoneBackup->c_str(), true);
 	} else {
 		unsetenv("TZ");
 	}

@@ -19,6 +19,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include <cppunit/TestFixture.h>
 #include <cppunit/extensions/HelperMacros.h>
 
+#include <memory>
+#include <string>
+
 namespace afc
 {
 	class DateUtilTest : public CppUnit::TestFixture
@@ -35,7 +38,7 @@ namespace afc
 		CPPUNIT_TEST(testParseValidISODateTime_DateTime_NegativeNonUTCTimeZone);
 		CPPUNIT_TEST_SUITE_END();
 
-		const char *m_timeZoneBackup;
+		std::unique_ptr<std::string> m_timeZoneBackup;
 	public:
 		void setUp() override;
 		void tearDown() override;
