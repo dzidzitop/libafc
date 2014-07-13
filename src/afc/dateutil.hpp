@@ -89,6 +89,9 @@ namespace afc
 	// a utf-8 string is expected
 	bool parseISODateTime(const std::string &str, std::time_t &dest);
 
+	// a utf-8 string is expected
+	bool parseISODateTime(const std::string &str, DateTime &dest);
+
 	inline long long currentUTCTimeSeconds()
 	{
 		/* This implementation works only for POSIX-compatible systems that store time in

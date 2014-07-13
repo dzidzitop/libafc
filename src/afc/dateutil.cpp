@@ -1,5 +1,5 @@
 /* libafc - utils to facilitate C++ development.
-Copyright (C) 2013 Dźmitry Laŭčuk
+Copyright (C) 2013-2014 Dźmitry Laŭčuk
 
 libafc is free software: you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by
@@ -46,5 +46,26 @@ bool afc::parseISODateTime(const string &str, time_t &dest)
 	dateTime.tm_gmtoff = -timezone;
 
 	dest = mktime(&dateTime);
+	return true;
+}
+
+bool afc::parseISODateTime(const string &str, afc::DateTime &dest)
+{
+	tm dateTime;
+	// The input string is converted to the system default encoding to be interpreted correctly.
+	const char * const parseResult =
+			strptime(convertFromUtf8(str, systemCharset().c_str()).c_str(), "%FT%T%z", &dateTime);
+	/* strptime() does not assign the field tm_isdst. If it appears to be negative
+	 * then strftime with %z discards the time zone as non-determined. To avoid
+	 * this effect, assigning it explicitly.
+	 */
+	dateTime.tm_isdst = 0;
+
+	if (parseResult == nullptr || *parseResult != 0) {
+		return false;
+	}
+
+	dest = dateTime;
+
 	return true;
 }

@@ -114,3 +114,75 @@ void afc::DateUtilTest::testParseValidISODateTime_NegativeNonUTCTimeZone()
 	CPPUNIT_ASSERT(count != 0);
 	CPPUNIT_ASSERT_EQUAL(string("2013-10-16T21:32:26+0000"), string(buf));
 }
+
+void DateUtilTest::testParseValidISODateTime_DateTime_PositiveUTCTimeZone()
+{
+	string input("2013-10-16T20:02:26+0000");
+	DateTime dest;
+
+	const bool result = parseISODateTime(input, dest);
+
+	CPPUNIT_ASSERT(result);
+
+	tm dateTime = static_cast<tm>(dest);
+
+	char buf[100];
+	const size_t count = std::strftime(buf, 100, "%Y-%m-%dT%H:%M:%S%z", &dateTime);
+
+	CPPUNIT_ASSERT(count != 0);
+	CPPUNIT_ASSERT_EQUAL(string("2013-10-16T20:02:26+0000"), string(buf));
+}
+
+void DateUtilTest::testParseValidISODateTime_DateTime_NegativeUTCTimeZone()
+{
+	string input("2013-10-16T20:02:26-0000");
+	DateTime dest;
+
+	const bool result = parseISODateTime(input, dest);
+
+	CPPUNIT_ASSERT(result);
+
+	tm dateTime = static_cast<tm>(dest);
+
+	char buf[100];
+	const size_t count = std::strftime(buf, 100, "%Y-%m-%dT%H:%M:%S%z", &dateTime);
+
+	CPPUNIT_ASSERT(count != 0);
+	CPPUNIT_ASSERT_EQUAL(string("2013-10-16T20:02:26+0000"), string(buf));
+}
+
+void DateUtilTest::testParseValidISODateTime_DateTime_PositiveNonUTCTimeZone()
+{
+	string input("2013-10-16T20:02:26+0300");
+	DateTime dest;
+
+	const bool result = parseISODateTime(input, dest);
+
+	CPPUNIT_ASSERT(result);
+
+	tm dateTime = static_cast<tm>(dest);
+
+	char buf[100];
+	const size_t count = std::strftime(buf, 100, "%Y-%m-%dT%H:%M:%S%z", &dateTime);
+
+	CPPUNIT_ASSERT(count != 0);
+	CPPUNIT_ASSERT_EQUAL(string("2013-10-16T20:02:26+0300"), string(buf));
+}
+
+void DateUtilTest::testParseValidISODateTime_DateTime_NegativeNonUTCTimeZone()
+{
+	string input("2013-10-16T20:02:26-0130");
+	DateTime dest;
+
+	const bool result = parseISODateTime(input, dest);
+
+	CPPUNIT_ASSERT(result);
+
+	tm dateTime = static_cast<tm>(dest);
+
+	char buf[100];
+	const size_t count = std::strftime(buf, 100, "%Y-%m-%dT%H:%M:%S%z", &dateTime);
+
+	CPPUNIT_ASSERT(count != 0);
+	CPPUNIT_ASSERT_EQUAL(string("2013-10-16T20:02:26-0130"), string(buf));
+}
