@@ -19,17 +19,38 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 using namespace std;
 
+namespace
+{
+	bool parseDateTime(const string &str, tm &dateTime)
+	{
+		// The input string is converted to the system default encoding to be interpreted correctly.
+		const string strConverted(afc::convertFromUtf8(str, afc::systemCharset().c_str()));
+		const char * const parseResult = strptime(strConverted.c_str(), "%FT%T%z", &dateTime);
+
+		// parseResult points to data managed by strConverted so the latter must be alive here.
+		if (parseResult == nullptr || *parseResult != 0) {
+			// Either parse error or not the whole string is processed.
+			return false;
+		}
+
+		/* strptime() does not assign the field tm_isdst. If it appears to be negative
+		 * then strftime with %z discards the time zone as non-determined. To avoid
+		 * this effect, assigning it explicitly.
+		 */
+		dateTime.tm_isdst = 0;
+
+		return true;
+	}
+}
+
 bool afc::parseISODateTime(const string &str, time_t &dest)
 {
 	// Initialises the system time zone data.
 	tzset();
 
 	tm dateTime;
-	// The input string is converted to the system default encoding to be interpreted correctly.
-	const char * const parseResult =
-			strptime(convertFromUtf8(str, systemCharset().c_str()).c_str(), "%FT%T%z", &dateTime);
 
-	if (parseResult == nullptr || *parseResult != 0) {
+	if (!parseDateTime(str, dateTime)) {
 		return false;
 	}
 
@@ -52,16 +73,8 @@ bool afc::parseISODateTime(const string &str, time_t &dest)
 bool afc::parseISODateTime(const string &str, afc::DateTime &dest)
 {
 	tm dateTime;
-	// The input string is converted to the system default encoding to be interpreted correctly.
-	const char * const parseResult =
-			strptime(convertFromUtf8(str, systemCharset().c_str()).c_str(), "%FT%T%z", &dateTime);
-	/* strptime() does not assign the field tm_isdst. If it appears to be negative
-	 * then strftime with %z discards the time zone as non-determined. To avoid
-	 * this effect, assigning it explicitly.
-	 */
-	dateTime.tm_isdst = 0;
 
-	if (parseResult == nullptr || *parseResult != 0) {
+	if (!parseDateTime(str, dateTime)) {
 		return false;
 	}
 
