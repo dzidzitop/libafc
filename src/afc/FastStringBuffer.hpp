@@ -32,6 +32,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #else
 	#include <exception>
 #endif
+#ifdef AFC_FASTSTRINGBUFFER_DEBUG
+	#include <iterator>
+#endif
 
 namespace afc
 {
@@ -162,6 +165,41 @@ namespace afc
 		}
 
 		std::size_t maxSize() const noexcept { return maxCapacity(); }
+
+#ifdef AFC_FASTSTRINGBUFFER_DEBUG
+		class Tail;
+		friend class Tail;
+
+		class Tail : public std::iterator<std::output_iterator_tag, CharType>
+		{
+			friend class FastStringBuffer;
+
+			Tail(CharType *ptr);
+		public:
+			Tail(const Tail &o);
+			~Tail();
+
+			Tail &operator=(const Tail &o);
+
+			const CharType &operator *() const noexcept { assert(!m_returned); return *m_ptr; }
+			CharType &operator *() noexcept { assert(!m_returned); return *m_ptr; }
+
+			Tail &operator++() { assert(!m_returned); ++m_ptr; return *this; }
+			Tail operator++(int) { assert(!m_returned); Tail result(*this); ++m_ptr; return result; }
+		private:
+			CharType *m_ptr;
+			std::shared_ptr<long> m_copyCount;
+			mutable bool m_returned;
+		};
+
+		Tail borrowTail() noexcept { return Tail(m_bufEnd); };
+		void returnTail(const Tail &tail) noexcept { tail.m_returned = true; m_bufEnd = tail.m_ptr; };
+#else
+		typedef CharType * Tail;
+
+		Tail borrowTail() noexcept { return m_bufEnd; };
+		void returnTail(const Tail tail) noexcept { m_bufEnd = tail; };
+#endif
 	private:
 		void expand(std::size_t capacity);
 		// The expected new capacity is passed in, not the current capacity.
@@ -253,5 +291,44 @@ void afc::FastStringBuffer<CharType>::expand(const std::size_t capacity)
 	m_buf = newBuf;
 	m_capacity = newStorageSize - 1;
 }
+
+#ifdef AFC_FASTSTRINGBUFFER_DEBUG
+template<typename CharType>
+afc::FastStringBuffer<CharType>::Tail::Tail(CharType *ptr)
+		: m_ptr(ptr), m_copyCount(new long(1L)), m_returned(false)
+{
+	assert(ptr != nullptr);
+}
+
+template<typename CharType>
+afc::FastStringBuffer<CharType>::Tail::Tail(const Tail &o)
+		: m_ptr(o.m_ptr), m_copyCount(o.m_copyCount), m_returned(false)
+{
+	assert(!o.m_returned);
+	++(*m_copyCount);
+}
+
+template<typename CharType>
+afc::FastStringBuffer<CharType>::Tail::~Tail()
+{
+	if (--(*m_copyCount) == 0) {
+		assert(m_returned);
+	} else {
+		assert(!m_returned);
+	}
+}
+
+template<typename CharType>
+typename afc::FastStringBuffer<CharType>::Tail &afc::FastStringBuffer<CharType>::Tail::operator=(const Tail &o)
+{
+	assert(!o.m_returned);
+	assert(!o.m_returned);
+	--(*m_copyCount);
+	m_copyCount = o.m_copyCount;
+	++(*m_copyCount);
+	m_ptr = o.m_ptr;
+	return *this;
+}
+#endif
 
 #endif /* AFC_FASTSTRINGBUFFER_HPP_ */
