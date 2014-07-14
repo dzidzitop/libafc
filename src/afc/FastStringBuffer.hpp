@@ -136,7 +136,9 @@ namespace afc
 			return *this;
 		}
 
-		const CharType *c_str() const noexcept
+		const CharType *data() const noexcept { return m_buf == nullptr ? empty : m_buf; }
+
+		const CharType *c_str() const noexcept(noexcept(CharType(0)))
 		{
 			if (m_buf == nullptr) {
 				return empty;
