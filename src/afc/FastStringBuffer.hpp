@@ -211,7 +211,7 @@ namespace afc
 		typedef CharType * Tail;
 
 		Tail borrowTail() noexcept { return m_bufEnd; };
-		void returnTail(const Tail tail) noexcept { m_bufEnd = tail; };
+		void returnTail(const Tail tail) noexcept { assert(tail - m_buf <= m_capacity); m_bufEnd = tail; };
 #endif
 	private:
 		void expand(std::size_t capacity);
