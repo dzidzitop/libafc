@@ -24,10 +24,10 @@ namespace afc
 	class NumberTest : public CppUnit::TestFixture
 	{
 		CPPUNIT_TEST_SUITE(NumberTest);
-		CPPUNIT_TEST(testAppendToStringInt);
+		CPPUNIT_TEST(testPrintNumber_Int);
 		CPPUNIT_TEST_SUITE_END();
 	public:
-		void testAppendToStringInt();
+		void testPrintNumber_Int();
 	};
 }
 

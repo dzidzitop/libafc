@@ -39,34 +39,52 @@ namespace afc
 			 'u', 'v', 'w', 'x', 'y', 'z'};
 	}
 
-	// TODO support efficient decimal base
-	// TODO test this for all types
-	template<typename T> void appendToString(const T value, const unsigned char base, std::string &out);
-	template<typename T> void appendToString(const T value, std::string &out)
-			{ appendToString(value, static_cast<unsigned char>(10), out); }
+	template<typename T, unsigned char base, typename OutputIterator>
+	OutputIterator printNumber(const T value, OutputIterator dest);
+
+	// TODO test this for all types and bases
+	// TODO optimise performance
+	template<typename T, unsigned char base = 10>
+	void printNumber(const T value, std::string &out)
+	{
+		typedef typename std::make_unsigned<T>::type UnsignedT;
+		// One character for sign.
+		constexpr std::size_t maxSize = std::is_signed<T>::value ?
+				std::numeric_limits<UnsignedT>::digits + 1 :
+				std::numeric_limits<UnsignedT>::digits;
+
+		char buf[maxSize];
+
+		char * const begin = &buf[0];
+		char * const end = printNumber<T, base, char *>(value, begin);
+		out.append(begin, end);
+	}
 }
 
-// TODO support efficient implementation of binary bases
-template<typename T> void afc::appendToString(const T value, const unsigned char base, string &out)
+#include <iostream>
+using namespace std;
+template<typename T, unsigned char base, typename OutputIterator>
+OutputIterator afc::printNumber(const T value, const OutputIterator dest)
 {
 	static_assert(std::is_integral<T>::value, "Integral types are supported only.");
+	static_assert(base >= afc::number_limits::MIN_BASE && base <= afc::number_limits::MAX_BASE, "Unsupported base.");
 
 	typedef typename std::make_unsigned<T>::type UnsignedT;
 	using std::numeric_limits;
-	using namespace afc::number_limits;
 	using namespace afc::_impl;
 
-	if (base < 2 || base > MAX_BASE) {
-		// TODO Merge this with void throwInvalidBaseException() in number.cpp.
-		throw InvalidArgumentException("Base must be between 2 and 36.");
-	}
-
 	unsigned count = 0;
-	UnsignedT val = std::is_signed<T>::value && value < 0 ? -value : value;
+	UnsignedT val = value < 0 ? -value : value;
 
 	// TODO use direct order and bulk append.
+	// TODO calculate size using base.
 	// The buffer that contains digits in the reverse order.
-	char digits[numeric_limits<UnsignedT>::digits];
+	static_assert(numeric_limits<UnsignedT>::digits - 1 == numeric_limits<typename std::make_signed<T>::type>::digits,
+			"Unsupported number representation.");
+
+	// The two's complement representation can take that even for signed values for the min value for base == 2.
+	constexpr std::size_t maxDigitCount = numeric_limits<UnsignedT>::digits;
+	char digits[maxDigitCount];
 
 	while (val >= base) {
 		const UnsignedT nextVal = val / base;
@@ -74,14 +92,18 @@ template<typename T> void afc::appendToString(const T value, const unsigned char
 		val = nextVal;
 	}
 	digits[count++] = digitToChar[val];
-	assert(count <= static_cast<unsigned>(numeric_limits<UnsignedT>::digits));
-	out.reserve(out.size() + count);
-	if (std::is_signed<T>::value && value < 0) {
-		out += '-';
+
+	assert(count <= maxDigitCount);
+
+	OutputIterator end = dest;
+	if (value < 0) {
+		*end++ = '-';
 	}
 	do {
-		out += digits[--count];
+		*end++ = digits[--count];
 	} while (count != 0);
+
+	return end;
 }
 
 #endif /*AFC_NUMBER_H_*/

@@ -20,54 +20,43 @@ using namespace std;
 
 CPPUNIT_TEST_SUITE_REGISTRATION(afc::NumberTest);
 
-void afc::NumberTest::testAppendToStringInt()
+void afc::NumberTest::testPrintNumber_Int()
 {
 	{
 		string result;
-		appendToString<int>(123, 10, result);
+		printNumber<int, 10>(123, result);
 		CPPUNIT_ASSERT_EQUAL(string("123"), result);
-		appendToString<int>(-456, 10, result);
+		printNumber<int, 10>(-456, result);
 		CPPUNIT_ASSERT_EQUAL(string("123-456"), result);
 	}
 	{
 		string result;
-		appendToString<int>(123, result);
+		printNumber<int>(123, result);
 		CPPUNIT_ASSERT_EQUAL(string("123"), result);
-		appendToString<int>(-456, result);
+		printNumber<int>(-456, result);
 		CPPUNIT_ASSERT_EQUAL(string("123-456"), result);
-		appendToString<int>(0, result);
+		printNumber<int>(0, result);
 		CPPUNIT_ASSERT_EQUAL(string("123-4560"), result);
 	}
 	{
 		string result("aaa");
-		appendToString<int>(411787, 10, result);
+		printNumber<int, 10>(411787, result);
 		CPPUNIT_ASSERT_EQUAL(string("aaa411787"), result);
-		appendToString<int>(411787, 27, result);
+		printNumber<int, 27>(411787, result);
 		CPPUNIT_ASSERT_EQUAL(string("aaa411787kona"), result);
-		appendToString<int>(45896, 36, result);
+		printNumber<int, 36>(45896, result);
 		CPPUNIT_ASSERT_EQUAL(string("aaa411787konazew"), result);
-		appendToString<int>(45896, 35, result);
+		printNumber<int, 35>(45896, result);
 		CPPUNIT_ASSERT_EQUAL(string("aaa411787konazew12gb"), result);
 	}
 	{
-		string result("aaa");
-		CPPUNIT_ASSERT_THROW(appendToString<int>(234, 1, result), InvalidArgumentException);
-		CPPUNIT_ASSERT_EQUAL(string("aaa"), result);
-		CPPUNIT_ASSERT_THROW(appendToString<int>(234, 0, result), InvalidArgumentException);
-		CPPUNIT_ASSERT_EQUAL(string("aaa"), result);
-		CPPUNIT_ASSERT_THROW(appendToString<int>(234, 37, result), InvalidArgumentException);
-		CPPUNIT_ASSERT_EQUAL(string("aaa"), result);
-		CPPUNIT_ASSERT_THROW(appendToString<int>(234, 255, result), InvalidArgumentException);
-		CPPUNIT_ASSERT_EQUAL(string("aaa"), result);
-	}
-	{
 		string result;
-		appendToString<int>(static_cast<int>(-0x80000000), 2, result);
+		printNumber<int, 2>(static_cast<int>(-0x80000000), result);
 		CPPUNIT_ASSERT_EQUAL(string("-10000000000000000000000000000000"), result);
 	}
 	{
 		string result;
-		appendToString(-20, result);
+		printNumber(-20, result);
 		CPPUNIT_ASSERT_EQUAL(string("-20"), result);
 	}
 }
