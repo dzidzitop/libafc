@@ -39,6 +39,9 @@ namespace afc
 			 'u', 'v', 'w', 'x', 'y', 'z'};
 	}
 
+	/* TODO check thoroughly if this table can provide better performance
+	 * against bit manipulations on real load (cache miss effects).
+	 */
 	static const char octetToHexTable[256][2] = {
 			{'0', '0'}, {'0', '1'}, {'0', '2'}, {'0', '3'}, {'0', '4'}, {'0', '5'}, {'0', '6'}, {'0', '7'},
 			{'0', '8'}, {'0', '9'}, {'0', 'a'}, {'0', 'b'}, {'0', 'c'}, {'0', 'd'}, {'0', 'e'}, {'0', 'f'},
