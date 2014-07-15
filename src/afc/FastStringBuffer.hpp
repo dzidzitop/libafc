@@ -63,6 +63,19 @@ namespace afc
 		FastStringBuffer &operator=(const FastStringBuffer &) = delete;
 	public:
 		FastStringBuffer() noexcept : m_buf(nullptr), m_bufEnd(nullptr), m_capacity(0) {}
+		explicit FastStringBuffer(const std::size_t initialCapacity)
+		{
+			if (initialCapacity > 0) {
+				const std::size_t storageSize = nextStorageSize(initialCapacity);
+				m_capacity = storageSize - 1;
+				// Alignment of the block allocated is suitable for CharType elements.
+				m_buf = static_cast<CharType *>(::operator new(storageSize * sizeof(CharType)));
+				m_bufEnd = m_buf;
+			} else {
+				m_buf = m_bufEnd = nullptr;
+				m_capacity = 0;
+			}
+		}
 
 		// Moves content from o to this FastStringBuffer and resets the state of o.
 		FastStringBuffer(FastStringBuffer &&o) noexcept : m_buf(o.m_buf), m_bufEnd(o.m_bufEnd),
