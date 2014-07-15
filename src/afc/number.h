@@ -16,11 +16,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #ifndef AFC_NUMBER_H_
 #define AFC_NUMBER_H_
 
-#include <string>
-#include "Exception.h"
-#include <type_traits>
-#include <limits>
 #include <cassert>
+#include <cstddef>
+#include <limits>
+#include <string>
+#include <type_traits>
 
 namespace afc
 {
@@ -39,6 +39,18 @@ namespace afc
 			 'u', 'v', 'w', 'x', 'y', 'z'};
 	}
 
+	// TODO take advantage of using base.
+	template<typename T, unsigned char base>
+	constexpr std::size_t maxPrintedSize() noexcept
+	{
+		typedef typename std::make_unsigned<T>::type UnsignedT;
+		return std::is_signed<T>::value ?
+				// One character for sign.
+				std::numeric_limits<UnsignedT>::digits + 1 :
+				std::numeric_limits<UnsignedT>::digits;
+	}
+
+	// TODO think of defining conditional noexcept.
 	template<typename T, unsigned char base, typename OutputIterator>
 	OutputIterator printNumber(const T value, OutputIterator dest);
 
@@ -47,13 +59,7 @@ namespace afc
 	template<typename T, unsigned char base = 10>
 	void printNumber(const T value, std::string &out)
 	{
-		typedef typename std::make_unsigned<T>::type UnsignedT;
-		// One character for sign.
-		constexpr std::size_t maxSize = std::is_signed<T>::value ?
-				std::numeric_limits<UnsignedT>::digits + 1 :
-				std::numeric_limits<UnsignedT>::digits;
-
-		char buf[maxSize];
+		char buf[maxPrintedSize<T, base>()];
 
 		char * const begin = &buf[0];
 		char * const end = printNumber<T, base, char *>(value, begin);
@@ -61,8 +67,6 @@ namespace afc
 	}
 }
 
-#include <iostream>
-using namespace std;
 template<typename T, unsigned char base, typename OutputIterator>
 OutputIterator afc::printNumber(const T value, const OutputIterator dest)
 {
