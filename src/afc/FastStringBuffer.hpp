@@ -193,7 +193,7 @@ namespace afc
 		};
 
 		Tail borrowTail() noexcept { return Tail(m_bufEnd); };
-		void returnTail(const Tail &tail) noexcept { tail.m_returned = true; m_bufEnd = tail.m_ptr; };
+		void returnTail(const Tail &tail) noexcept;
 #else
 		typedef CharType * Tail;
 
@@ -329,6 +329,15 @@ typename afc::FastStringBuffer<CharType>::Tail &afc::FastStringBuffer<CharType>:
 	m_ptr = o.m_ptr;
 	return *this;
 }
+
+template<typename CharType>
+void afc::FastStringBuffer<CharType>::returnTail(const Tail &tail) noexcept
+{
+	// Asserts a tail can be returned only once.
+	assert(!tail.m_returned);
+	tail.m_returned = true;
+	m_bufEnd = tail.m_ptr;
+};
 #endif
 
 #endif /* AFC_FASTSTRINGBUFFER_HPP_ */
