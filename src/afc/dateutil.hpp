@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
  * Each POSIX implementation must have unistd.h available.
  */
 #include <unistd.h>
+#include <time.h>
 
 namespace afc
 {
@@ -37,12 +38,12 @@ namespace afc
 
 	struct DateTime
 	{
-		DateTime() : gmtOffset(0), year(0), month(0), day(0), hour(0), minute(0), second(0), millisecond(0),
+		DateTime() noexcept : gmtOffset(0), year(0), month(0), day(0), hour(0), minute(0), second(0), millisecond(0),
 				isDst(-1) {}
 
-		DateTime(const std::tm &dateTime) { *this = dateTime; }
+		DateTime(const std::tm &dateTime) noexcept { *this = dateTime; }
 
-		DateTime &operator=(const std::time_t timestamp)
+		DateTime &operator=(const std::time_t timestamp) noexcept
 		{
 			std::tm dateTime;
 
@@ -55,7 +56,7 @@ namespace afc
 			return *this = dateTime;
 		}
 
-		DateTime &operator=(const std::tm &dateTime)
+		DateTime &operator=(const std::tm &dateTime) noexcept
 		{
 			gmtOffset = dateTime.tm_gmtoff; // Note: tm_gmtoff is not a part of the standard C++11.
 			year = dateTime.tm_year;
@@ -69,7 +70,7 @@ namespace afc
 			return *this;
 		}
 
-		explicit operator std::tm() const
+		explicit operator std::tm() const noexcept
 		{
 			std::tm result;
 			result.tm_gmtoff = gmtOffset; // Note: tm_gmtoff is not a part of the standard C++11.
@@ -81,6 +82,15 @@ namespace afc
 			result.tm_sec = second;
 			result.tm_isdst = isDst;
 			return result;
+		}
+
+		Timestamp timestamp() const noexcept
+		{
+			std::tm t = operator std::tm();
+			/* This implementation works only for POSIX-compatible systems that store time in
+			 * std::time_t as the number of seconds since epoch.
+			 */
+			return Timestamp(::mktime(&t));
 		}
 
 		// In seconds.
