@@ -90,7 +90,7 @@ namespace afc
 			/* This implementation works only for POSIX-compatible systems that store time in
 			 * std::time_t as the number of seconds since epoch.
 			 */
-			return Timestamp(::mktime(&t));
+			return Timestamp(::mktime(&t) * 1000);
 		}
 
 		// In seconds.
