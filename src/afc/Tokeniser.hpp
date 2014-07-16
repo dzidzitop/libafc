@@ -48,9 +48,9 @@ namespace afc
 				: m_inputCopy(str), m_str(m_inputCopy), m_delimiter(delimiter), m_begin(0) {}
 
 		bool hasNext() const noexcept {return m_begin != String::npos;}
-		inline String next();
-		inline void next(CharIterator &start, CharIterator &end);
-		inline void skip();
+		String next();
+		void next(CharIterator &start, CharIterator &end);
+		void skip();
 		void skip(std::size_t n) { for (std::size_t i = n; i > 0; --i) { skip(); } }
 	private:
 		/* m_inputCopy is used only with temporary strings because they die early.
@@ -63,7 +63,7 @@ namespace afc
 }
 
 template<typename String>
-String afc::Tokeniser<String>::next()
+inline String afc::Tokeniser<String>::next()
 {
 #ifdef AFC_EXCEPTIONS_ENABLED
 	if (m_begin == String::npos) {
@@ -84,7 +84,7 @@ String afc::Tokeniser<String>::next()
 }
 
 template<typename String>
-void afc::Tokeniser<String>::next(CharIterator &start, CharIterator &end)
+inline void afc::Tokeniser<String>::next(CharIterator &start, CharIterator &end)
 {
 #ifdef AFC_EXCEPTIONS_ENABLED
 	if (m_begin == String::npos) {
@@ -104,7 +104,7 @@ void afc::Tokeniser<String>::next(CharIterator &start, CharIterator &end)
 }
 
 template<typename String>
-void afc::Tokeniser<String>::skip()
+inline void afc::Tokeniser<String>::skip()
 {
 #ifdef AFC_EXCEPTIONS_ENABLED
 	if (m_begin == String::npos) {
