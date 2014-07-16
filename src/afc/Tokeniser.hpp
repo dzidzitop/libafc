@@ -48,8 +48,10 @@ namespace afc
 				: m_inputCopy(str), m_str(m_inputCopy), m_delimiter(delimiter), m_begin(0) {}
 
 		bool hasNext() const noexcept {return m_begin != String::npos;}
-		String next();
-		void next(CharIterator &start, CharIterator &end);
+		inline String next();
+		inline void next(CharIterator &start, CharIterator &end);
+		inline void skip();
+		void skip(std::size_t n) { for (std::size_t i = n; i > 0; --i) { skip(); } }
 	private:
 		/* m_inputCopy is used only with temporary strings because they die early.
 		   In other cases no copying of the input string is used. */
@@ -99,6 +101,19 @@ void afc::Tokeniser<String>::next(CharIterator &start, CharIterator &end)
 		end = m_str.begin() + endIdx;
 		m_begin = endIdx + 1;
 	}
+}
+
+template<typename String>
+void afc::Tokeniser<String>::skip()
+{
+#ifdef AFC_EXCEPTIONS_ENABLED
+	if (m_begin == String::npos) {
+		throwException<IllegalStateException>("Tokeniser::skip is called when it has not more tokens");
+	}
+#endif
+
+	const size_t end = m_str.find(m_delimiter, m_begin);
+	m_begin = end == String::npos ? String::npos : m_begin = end + 1;
 }
 
 #endif /* AFC_TOKENISER_HPP_ */
