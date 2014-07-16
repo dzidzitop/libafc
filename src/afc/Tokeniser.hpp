@@ -51,7 +51,7 @@ namespace afc
 		String next();
 		void next(CharIterator &start, CharIterator &end);
 		void skip();
-		void skip(std::size_t n) { for (std::size_t i = n; i > 0; --i) { skip(); } }
+		void skip(const std::size_t n) { for (std::size_t i = n; i > 0; --i) { skip(); } }
 	private:
 		/* m_inputCopy is used only with temporary strings because they die early.
 		   In other cases no copying of the input string is used. */
