@@ -25,6 +25,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 namespace afc
 {
+	class Timestamp
+	{
+	public:
+		explicit Timestamp(const long millis) : m_millis(millis) {}
+
+		long millis() { return m_millis; }
+	private:
+		long m_millis;
+	};
+
 	struct DateTime
 	{
 		DateTime() : gmtOffset(0), year(0), month(0), day(0), hour(0), minute(0), second(0), millisecond(0),
@@ -92,12 +102,12 @@ namespace afc
 	// a utf-8 string is expected
 	bool parseISODateTime(const std::string &str, DateTime &dest);
 
-	inline long long currentUTCTimeSeconds()
+	inline Timestamp now()
 	{
 		/* This implementation works only for POSIX-compatible systems that store time in
 		 * std::time_t as the number of seconds since epoch.
 		 */
-		return static_cast<long long>(std::time(nullptr));
+		return Timestamp(::time(nullptr) * 1000);
 	}
 }
 
