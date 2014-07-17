@@ -107,7 +107,7 @@ namespace afc
 	// TODO test this for all types and bases
 	// TODO optimise performance (especially for binary bases)
 	template<typename T, unsigned char base = 10>
-	void printNumber(const T value, std::string &out)
+	inline void printNumber(const T value, std::string &out)
 	{
 		char buf[maxPrintedSize<T, base>()];
 
