@@ -113,7 +113,7 @@ inline void afc::Tokeniser<String>::skip()
 #endif
 
 	const size_t end = m_str.find(m_delimiter, m_begin);
-	m_begin = end == String::npos ? String::npos : m_begin = end + 1;
+	m_begin = end == String::npos ? String::npos : end + 1;
 }
 
 #endif /* AFC_TOKENISER_HPP_ */
