@@ -32,7 +32,7 @@ namespace afc
 
 	namespace _impl
 	{
-		static const char digitToChar[number_limits::MAX_BASE] =
+		static constexpr char digitChars[number_limits::MAX_BASE] =
 			{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
 			 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
 			 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
@@ -100,6 +100,14 @@ namespace afc
 				std::numeric_limits<UnsignedT>::digits;
 	}
 
+	template<unsigned char base = 10>
+	char digitToChar(const unsigned char digit)
+	{
+		static_assert(base >= afc::number_limits::MIN_BASE && base <= afc::number_limits::MAX_BASE, "Unsupported base.");
+		assert(digit < base);
+		return _impl::digitChars[digit];
+	};
+
 	// TODO think of defining conditional noexcept.
 	template<typename T, unsigned char base, typename OutputIterator>
 	OutputIterator printNumber(const T value, OutputIterator dest);
@@ -142,10 +150,10 @@ OutputIterator afc::printNumber(const T value, const OutputIterator dest)
 
 	while (val >= base) {
 		const UnsignedT nextVal = val / base;
-		digits[count++] = digitToChar[val - nextVal*base];
+		digits[count++] = digitChars[val - nextVal*base];
 		val = nextVal;
 	}
-	digits[count++] = digitToChar[val];
+	digits[count++] = digitChars[val];
 
 	assert(count <= maxDigitCount);
 
