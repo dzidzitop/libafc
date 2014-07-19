@@ -39,8 +39,9 @@ namespace afc
 		time_type m_millis;
 	};
 
-	struct DateTime
+	class DateTime
 	{
+	public:
 		DateTime() noexcept : gmtOffset(0), year(0), month(0), day(0), hour(0), minute(0), second(0), millisecond(0),
 				isDst(-1) {}
 
@@ -96,6 +97,16 @@ namespace afc
 			return Timestamp(static_cast<Timestamp::time_type>(::mktime(&t)) * 1000);
 		}
 
+		long getYear() const noexcept { return year; }
+		unsigned getMonth() const noexcept { return month; }
+		unsigned getDay() const noexcept { return day; }
+		unsigned getHour() const noexcept { return hour; }
+		unsigned getMinute() const noexcept { return minute; }
+		unsigned getSecond() const noexcept { return second; }
+		unsigned getMillisecond() const noexcept { return millisecond; }
+
+		long getGmtOffet() const noexcept { return gmtOffset; }
+	private:
 		// In seconds.
 		long gmtOffset;
 
