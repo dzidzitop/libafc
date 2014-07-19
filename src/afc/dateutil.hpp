@@ -42,82 +42,84 @@ namespace afc
 	class DateTime
 	{
 	public:
-		DateTime() noexcept : gmtOffset(0), year(0), month(0), day(0), hour(0), minute(0), second(0), millisecond(0),
-				isDst(-1) {}
+		DateTime() noexcept
+		{
+			m_tm.tm_year = 0;
+			m_tm.tm_mon = 0; // The first month.
+			m_tm.tm_mday = 0;
+			m_tm.tm_hour = 0;
+			m_tm.tm_min = 0;
+			m_tm.tm_sec = 0;
+			m_tm.tm_isdst = -1; // Let environment to determine if this time is DST.
+			m_millisecond = 0;
+		}
 
-		DateTime(const std::tm &dateTime) noexcept { *this = dateTime; }
+		DateTime(const std::tm &dateTime) noexcept : m_tm(dateTime) {}
 
 		DateTime &operator=(const std::time_t timestamp) noexcept
 		{
-			std::tm dateTime;
-
 			/* Initialises the system time zone data. According to POSIX.1-2004, localtime() is required
 			 * to behave as though tzset(3) was called, while localtime_r() does not have this requirement.
 			 */
 			::tzset();
-			::localtime_r(&timestamp, &dateTime);
+			::localtime_r(&timestamp, &m_tm);
 
-			return *this = dateTime;
+			return *this;
 		}
 
 		DateTime &operator=(const std::tm &dateTime) noexcept
 		{
-			gmtOffset = dateTime.tm_gmtoff; // Note: tm_gmtoff is not a part of the standard C++11.
-			year = dateTime.tm_year;
-			month = dateTime.tm_mon + 1;
-			day = dateTime.tm_mday;
-			hour = dateTime.tm_hour;
-			minute = dateTime.tm_min;
-			second = dateTime.tm_sec;
-			millisecond = 0;
-			isDst = dateTime.tm_isdst;
+			m_tm = dateTime;
 			return *this;
 		}
 
 		explicit operator std::tm() const noexcept
 		{
-			std::tm result;
-			result.tm_gmtoff = gmtOffset; // Note: tm_gmtoff is not a part of the standard C++11.
-			result.tm_year = year;
-			result.tm_mon = month - 1;
-			result.tm_mday = day;
-			result.tm_hour = hour;
-			result.tm_min = minute;
-			result.tm_sec = second;
-			result.tm_isdst = isDst;
-			return result;
+			return m_tm;
 		}
 
 		Timestamp timestamp() const noexcept
 		{
-			std::tm t = operator std::tm();
+			std::tm t = m_tm; // must make a copy of tm since mktime potentially modifies its argument.
+
 			/* This implementation works only for POSIX-compatible systems that store time in
 			 * std::time_t as the number of seconds since epoch.
 			 */
 			return Timestamp(static_cast<Timestamp::time_type>(::mktime(&t)) * 1000);
 		}
 
-		long getYear() const noexcept { return year; }
-		unsigned getMonth() const noexcept { return month; }
-		unsigned getDay() const noexcept { return day; }
-		unsigned getHour() const noexcept { return hour; }
-		unsigned getMinute() const noexcept { return minute; }
-		unsigned getSecond() const noexcept { return second; }
-		unsigned getMillisecond() const noexcept { return millisecond; }
+		void setYear(const long year) noexcept { m_tm.tm_year = year; }
+		long getYear() const noexcept { return m_tm.tm_year; }
+		// The first month is 1.
+		void setMonth(const unsigned month) noexcept { m_tm.tm_mon = month - 1; }
+		unsigned getMonth() const noexcept { return m_tm.tm_mon + 1; }
+		void setDay(const unsigned day) noexcept { m_tm.tm_mday = day; }
+		unsigned getDay() const noexcept { return m_tm.tm_mday; }
+		void setHour(const unsigned hour) noexcept { m_tm.tm_hour = hour; }
+		unsigned getHour() const noexcept { return m_tm.tm_hour; }
+		void setMinute(const unsigned minute) noexcept { m_tm.tm_min = minute; }
+		unsigned getMinute() const noexcept { return m_tm.tm_min; }
+		void setSecond(const unsigned second) noexcept { m_tm.tm_sec = second; }
+		unsigned getSecond() const noexcept { return m_tm.tm_sec; }
+		void setMillisecond(const unsigned millisecond) noexcept { m_millisecond = millisecond; }
+		unsigned getMillisecond() const noexcept { return m_millisecond; }
 
-		long getGmtOffet() const noexcept { return gmtOffset; }
-	private:
 		// In seconds.
-		long gmtOffset;
+		void setGmtOffet(const unsigned gmtOffset) noexcept
+		{
+			// Note: tm_gmtoff is not a part of the standard C++11.
+			m_tm.tm_gmtoff = gmtOffset;
+		}
+		long getGmtOffet() const noexcept
+		{
+			// Note: tm_gmtoff is not a part of the standard C++11.
+			return m_tm.tm_gmtoff;
+		}
+	private:
+		// Note: tm_gmtoff is not a part of the standard C++11.
+		std::tm m_tm;
 
-		long year;
-		unsigned month;
-		unsigned day;
-		unsigned hour;
-		unsigned minute;
-		unsigned second;
-		unsigned millisecond;
-		int isDst;
+		unsigned m_millisecond;
 	};
 
 	// a utf-8 string is expected
