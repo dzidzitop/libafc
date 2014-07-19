@@ -17,6 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #define AFCDATEUTIL_HPP_
 #include <ctime>
 #include <string>
+#include <cstdint>
 
 /* getCurrentUTCTimeSeconds() relies upon posix-compatible format of std::time_t.
  * Each POSIX implementation must have unistd.h available.
@@ -29,7 +30,7 @@ namespace afc
 	class Timestamp
 	{
 	public:
-		typedef long time_type;
+		typedef std::int_fast64_t time_type;
 
 		explicit Timestamp(const time_type millis) : m_millis(millis) {}
 
