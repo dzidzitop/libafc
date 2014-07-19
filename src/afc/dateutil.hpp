@@ -29,11 +29,13 @@ namespace afc
 	class Timestamp
 	{
 	public:
-		explicit Timestamp(const long millis) : m_millis(millis) {}
+		typedef long time_type;
 
-		long millis() { return m_millis; }
+		explicit Timestamp(const time_type millis) : m_millis(millis) {}
+
+		time_type millis() { return m_millis; }
 	private:
-		long m_millis;
+		time_type m_millis;
 	};
 
 	struct DateTime
@@ -90,7 +92,7 @@ namespace afc
 			/* This implementation works only for POSIX-compatible systems that store time in
 			 * std::time_t as the number of seconds since epoch.
 			 */
-			return Timestamp(::mktime(&t) * 1000);
+			return Timestamp(static_cast<Timestamp::time_type>(::mktime(&t)) * 1000);
 		}
 
 		// In seconds.
@@ -117,7 +119,7 @@ namespace afc
 		/* This implementation works only for POSIX-compatible systems that store time in
 		 * std::time_t as the number of seconds since epoch.
 		 */
-		return Timestamp(::time(nullptr) * 1000);
+		return Timestamp(static_cast<Timestamp::time_type>(::time(nullptr)) * 1000);
 	}
 }
 
