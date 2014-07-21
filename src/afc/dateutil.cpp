@@ -15,7 +15,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include "dateutil.hpp"
 #include <time.h>
-#include "utils.h"
+#include "ensure_ascii.hpp"
 
 using namespace std;
 
@@ -23,9 +23,10 @@ namespace
 {
 	bool parseDateTime(const string &str, tm &dateTime)
 	{
-		// The input string is converted to the system default encoding to be interpreted correctly.
-		const string strConverted(afc::convertFromUtf8(str, afc::systemCharset().c_str()));
-		const char * const parseResult = strptime(strConverted.c_str(), "%FT%T%z", &dateTime);
+		/* The ASCII-compatible encodings are supported only. The pattern used depends only
+		 * on the ASCII subset of UTF-8 so no additional conversion is needed to parse the date.
+		 */
+		const char * const parseResult = strptime(str.c_str(), "%FT%T%z", &dateTime);
 
 		// parseResult points to data managed by strConverted so the latter must be alive here.
 		if (parseResult == nullptr || *parseResult != 0) {
