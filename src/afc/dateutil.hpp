@@ -72,18 +72,18 @@ namespace afc
 		{
 			::time_t t = static_cast< ::time_t >(*this);
 			::tm dateTime;
-			/* Initialises the system time zone data. According to POSIX.1-2004, localtime() is required
-			 * to behave as though tzset(3) was called, while localtime_r() does not have this requirement.
-			 */
-			::gmtime_r(&t, &dateTime);
 
-			/* Flushing time to UTC and normalising it as local time. Setting the correct
-			 * time zone afterwards.
-			 * It is unclear completely why it works, but it is.
+			::gmtime_r(&t, &dateTime);
+			/* 1) The time zone of the ::tm structure is ignored by ::mktime(). It considers
+			 *    it already local despite of the time zone set.
+			 * 2) Making the fake local time adjusted by the value of GMT offset of this
+			 *    TimestampTZ before normalising it.
+			 * 3) The value obtained is normalised by ::mktime(), which forces the timezone be
+			 *    set as the negated UTC offset.
+			 * 4) Forcing the time zone be set as the time zone of this TimestampTZ.
 			 */
 			dateTime.tm_sec += m_gmtOffset;
-			dateTime.tm_gmtoff = 0;
-			mktime(&dateTime);
+			::mktime(&dateTime);
 
 			dateTime.tm_gmtoff = m_gmtOffset;
 
