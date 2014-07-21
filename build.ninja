@@ -1,8 +1,8 @@
 srcDir=src
 testDir=test
 buildDir=build
-cxxFlags=-Wall -fPIC -std=c++11 -O3 -march=native -DNDEBUG
-ccFlags=-Wall -fPIC -O3 -march=native -DNDEBUG
+cxxFlags=-Wall -fPIC -std=c++11 -O3 -march=native -ffunction-sections -fdata-sections -DNDEBUG
+ccFlags=-Wall -fPIC -O3 -march=native -ffunction-sections -fdata-sections -DNDEBUG
 ldFlags=
 cxxFlags_test=-I"$srcDir" -I"$srcDir/algo" -I"$srcDir/cpu" -Wall -std=c++11 -g3 -O0
 ldFlags_test=-L"$buildDir" $ldFlags
