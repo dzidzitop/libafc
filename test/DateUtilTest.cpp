@@ -199,7 +199,7 @@ void afc::DateUtilTest::testParseValidISODateTime_TimestampTZ_PositiveUTCTimeZon
 
 	CPPUNIT_ASSERT(result);
 
-	CPPUNIT_ASSERT_EQUAL(0, dest.getGmtOffset());
+	CPPUNIT_ASSERT_EQUAL(0L, dest.getGmtOffset());
 
 	time_t t = static_cast<time_t>(dest);
 	tm dateTime;
@@ -221,7 +221,7 @@ void afc::DateUtilTest::testParseValidISODateTime_TimestampTZ_NegativeUTCTimeZon
 
 	CPPUNIT_ASSERT(result);
 
-	CPPUNIT_ASSERT_EQUAL(0, dest.getGmtOffset());
+	CPPUNIT_ASSERT_EQUAL(0L, dest.getGmtOffset());
 
 	time_t t = static_cast<time_t>(dest);
 	tm dateTime;
@@ -243,7 +243,7 @@ void afc::DateUtilTest::testParseValidISODateTime_TimestampTZ_PositiveNonUTCTime
 
 	CPPUNIT_ASSERT(result);
 
-	CPPUNIT_ASSERT_EQUAL(180 * 60, dest.getGmtOffset());
+	CPPUNIT_ASSERT_EQUAL(180L * 60, dest.getGmtOffset());
 
 	time_t t = static_cast<time_t>(dest);
 	tm dateTime;
@@ -265,7 +265,7 @@ void afc::DateUtilTest::testParseValidISODateTime_TimestampTZ_NegativeNonUTCTime
 
 	CPPUNIT_ASSERT(result);
 
-	CPPUNIT_ASSERT_EQUAL(-90 * 60, dest.getGmtOffset());
+	CPPUNIT_ASSERT_EQUAL(-90L * 60, dest.getGmtOffset());
 
 	time_t t = static_cast<time_t>(dest);
 	tm dateTime;
@@ -276,4 +276,26 @@ void afc::DateUtilTest::testParseValidISODateTime_TimestampTZ_NegativeNonUTCTime
 
 	CPPUNIT_ASSERT(count != 0);
 	CPPUNIT_ASSERT_EQUAL(string("2013-10-16T21:32:26+0000"), string(buf));
+}
+
+void afc::DateUtilTest::test_TimestampTZ_CastToTm()
+{
+	string input("2013-10-16T20:02:26-0230");
+	TimestampTZ ts;
+
+	const bool parseResult = parseISODateTime(input, ts);
+
+	CPPUNIT_ASSERT(parseResult);
+
+	CPPUNIT_ASSERT_EQUAL(-150L * 60, ts.getGmtOffset());
+
+	::tm result = static_cast< ::tm >(ts);
+
+	CPPUNIT_ASSERT_EQUAL(2013 - 1900, result.tm_year);
+	CPPUNIT_ASSERT_EQUAL(10 - 1, result.tm_mon);
+	CPPUNIT_ASSERT_EQUAL(16, result.tm_mday);
+	CPPUNIT_ASSERT_EQUAL(20, result.tm_hour);
+	CPPUNIT_ASSERT_EQUAL(2, result.tm_min);
+	CPPUNIT_ASSERT_EQUAL(26, result.tm_sec);
+	CPPUNIT_ASSERT_EQUAL(-150L * 60, result.tm_gmtoff);
 }

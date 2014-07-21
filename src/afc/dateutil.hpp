@@ -68,11 +68,33 @@ namespace afc
 			return *this;
 		}
 
+		explicit operator std::tm() const noexcept
+		{
+			::time_t t = static_cast< ::time_t >(*this);
+			::tm dateTime;
+			/* Initialises the system time zone data. According to POSIX.1-2004, localtime() is required
+			 * to behave as though tzset(3) was called, while localtime_r() does not have this requirement.
+			 */
+			::gmtime_r(&t, &dateTime);
+
+			/* Flushing time to UTC and normalising it as local time. Setting the correct
+			 * time zone afterwards.
+			 * It is unclear completely why it works, but it is.
+			 */
+			dateTime.tm_sec += m_gmtOffset;
+			dateTime.tm_gmtoff = 0;
+			mktime(&dateTime);
+
+			dateTime.tm_gmtoff = m_gmtOffset;
+
+			return dateTime;
+		}
+
 		// In seconds.
-		void setGmtOffset(const int gmtOffset) noexcept { m_gmtOffset = gmtOffset; }
-		int getGmtOffset() const noexcept { return m_gmtOffset; }
+		void setGmtOffset(const long gmtOffset) noexcept { m_gmtOffset = gmtOffset; }
+		long getGmtOffset() const noexcept { return m_gmtOffset; }
 	private:
-		int m_gmtOffset;
+		long m_gmtOffset;
 	};
 
 	class DateTime
@@ -141,13 +163,13 @@ namespace afc
 		unsigned getMillisecond() const noexcept { return m_millisecond; }
 
 		// In seconds.
-		void setGmtOffet(const int gmtOffset) noexcept
+		void setGmtOffet(const long gmtOffset) noexcept
 		{
 			// Note: tm_gmtoff is not a part of the standard C++11.
 			m_tm.tm_gmtoff = gmtOffset;
 		}
 
-		int getGmtOffet() const noexcept
+		long getGmtOffet() const noexcept
 		{
 			// Note: tm_gmtoff is not a part of the standard C++11.
 			return m_tm.tm_gmtoff;
