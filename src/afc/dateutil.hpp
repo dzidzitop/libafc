@@ -37,7 +37,13 @@ namespace afc
 
 		explicit Timestamp(const time_type millis) : m_millis(millis) {}
 
-		explicit operator std::time_t() const noexcept { return static_cast<std::time_t>(m_millis / 1000); }
+		Timestamp &operator=(const ::time_t timestamp) noexcept
+		{
+			m_millis = static_cast<time_type>(timestamp) * 1000;
+			return *this;
+		}
+
+		explicit operator ::time_t() const noexcept { return static_cast<std::time_t>(m_millis / 1000); }
 
 		void setMillis(const time_type millis) noexcept { m_millis = millis; }
 		time_type millis() const noexcept { return m_millis; }
@@ -50,6 +56,17 @@ namespace afc
 	public:
 		// Creates a Timestamp in an undefined state.
 		explicit TimestampTZ() {}
+
+		TimestampTZ &operator=(const ::time_t timestamp) noexcept
+		{
+			// Resetting the time zone to the system default one.
+			// ::timezone is defined for POSIX systems. Non-POSIX systems are not supported.
+			::tzset();
+			m_gmtOffset = ::timezone;
+
+			Timestamp::operator=(timestamp);
+			return *this;
+		}
 
 		// In seconds.
 		void setGmtOffset(const int gmtOffset) noexcept { m_gmtOffset = gmtOffset; }
