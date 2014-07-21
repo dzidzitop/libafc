@@ -36,7 +36,6 @@ build $buildDir/convertCharset.o: cxx $srcDir/afc/convertCharset.cpp
 build $buildDir/dateutil.o: cxx $srcDir/afc/dateutil.cpp
 build $buildDir/Exception.o: cxx $srcDir/afc/Exception.cpp
 build $buildDir/libintl.o: cc $srcDir/afc/libintl.c
-build $buildDir/md5.o: cxx $srcDir/afc/md5.cpp
 build $buildDir/StackTrace.o: cxx $srcDir/afc/StackTrace.cpp
 build $buildDir/stream.o: cxx $srcDir/afc/stream.cpp
 build $buildDir/string_util.o: cxx $srcDir/afc/string_util.cpp
@@ -65,7 +64,6 @@ build $buildDir/libafc.so: linkDynamic $
     $buildDir/dateutil.o $
     $buildDir/Exception.o $
     $buildDir/libintl.o $
-    $buildDir/md5.o $
     $buildDir/StackTrace.o $
     $buildDir/stream.o $
     $buildDir/string_util.o $
