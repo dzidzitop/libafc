@@ -23,13 +23,35 @@ CPPUNIT_TEST_SUITE_REGISTRATION(afc::DateUtilTest);
 using namespace std;
 using namespace afc;
 
+namespace
+{
+	time_t utcTime(const int year, const int month, const int day, const int hour, const int minute, const int second)
+	{
+		time_t t;
+		time(&t);
+
+		tm * const dateTime = gmtime(&t);
+		dateTime->tm_year = year - 1900;
+		dateTime->tm_mon = month - 1;
+		dateTime->tm_mday = day;
+		dateTime->tm_hour = hour;
+		dateTime->tm_min = minute;
+		dateTime->tm_sec = second;
+		dateTime->tm_isdst = -1;
+
+		return timegm(dateTime);
+	}
+}
+
 void afc::DateUtilTest::setUp()
 {
 	const char * const tz = getenv("TZ");
 	if (tz != nullptr) {
 		m_timeZoneBackup.reset(new string(tz));
 	}
-	// This time zone is set to ensure that conversion is performed via UTC.
+	/* This time zone is set to ensure that conversion is performed via UTC.
+	 * It is the negated GMT offset. So in GMT terms it is GMT+12:30.
+	 */
 	setenv("TZ", "ABC-12:30", true);
 }
 
@@ -278,10 +300,32 @@ void afc::DateUtilTest::testParseValidISODateTime_TimestampTZ_NegativeNonUTCTime
 	CPPUNIT_ASSERT_EQUAL(string("2013-10-16T21:32:26+0000"), string(buf));
 }
 
+void afc::DateUtilTest::test_TimestampTZ_AssignTimeT()
+{
+	// The negated GMT offset.
+	setenv("TZ", "ABC-1:30", true);
+
+	afc::TimestampTZ ts;
+	ts = utcTime(2000, 1, 1, 23, 12, 33);
+
+	CPPUNIT_ASSERT_EQUAL(946768353000L, ts.millis());
+	CPPUNIT_ASSERT_EQUAL(90L * 60, ts.getGmtOffset());
+
+	::tm result = static_cast< ::tm >(ts);
+
+	CPPUNIT_ASSERT_EQUAL(2000 - 1900, result.tm_year);
+	CPPUNIT_ASSERT_EQUAL(1 - 1, result.tm_mon);
+	CPPUNIT_ASSERT_EQUAL(2, result.tm_mday);
+	CPPUNIT_ASSERT_EQUAL(0, result.tm_hour);
+	CPPUNIT_ASSERT_EQUAL(42, result.tm_min);
+	CPPUNIT_ASSERT_EQUAL(33, result.tm_sec);
+	CPPUNIT_ASSERT_EQUAL(90L * 60, result.tm_gmtoff);
+}
+
 void afc::DateUtilTest::test_TimestampTZ_CastToTm()
 {
 	string input("2013-10-16T20:02:26-0230");
-	TimestampTZ ts;
+	afc::TimestampTZ ts;
 
 	const bool parseResult = parseISODateTime(input, ts);
 

@@ -59,10 +59,13 @@ namespace afc
 
 		TimestampTZ &operator=(const ::time_t timestamp) noexcept
 		{
-			// Resetting the time zone to the system default one.
 			// ::timezone is defined for POSIX systems. Non-POSIX systems are not supported.
-			::tzset();
-			m_gmtOffset = ::timezone;
+			::tzset(); // Initialises ::timezone.
+			/* Resetting the time zone to the system default one.
+			 *
+			 * ::timezone contains the negated GMT offset.
+			 */
+			m_gmtOffset = -::timezone;
 
 			Timestamp::operator=(timestamp);
 			return *this;
