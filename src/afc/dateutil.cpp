@@ -55,7 +55,7 @@ bool afc::parseISODateTime(const string &str, time_t &dest)
 	}
 
 	/* 1. Flush time zone offset into seconds to make a UTC time.
-	 * 2. Make a local value out the tm structure with the UTC time. It is shifted towards future by
+	 * 2. Make a local value out of the tm structure with the UTC time. It is shifted towards future by
 	 *    amount of negated ::timezone.
 	 * 3. Make a time_t value out of the tm structure with the local time.
 	 *
@@ -80,5 +80,34 @@ bool afc::parseISODateTime(const string &str, afc::DateTime &dest)
 
 	dest = dateTime;
 
+	return true;
+}
+
+bool afc::parseISODateTime(const string &str, TimestampTZ &dest)
+{
+	// Initialises the system time zone data.
+	tzset();
+
+	tm dateTime;
+
+	if (!parseDateTime(str, dateTime)) {
+		return false;
+	}
+
+	/* 1. Flush time zone offset into seconds to make a UTC time.
+	 * 2. Make a local value out of the tm structure with the UTC time. It is shifted towards future by
+	 *    amount of negated ::timezone.
+	 * 3. Make a time_t value out of the tm structure with the local time.
+	 *
+	 * Unfortunately, this code is not portable. It compiles in Debian Wheezy with GCC 4.7.
+	 * In addition, this code cannot tolerate the system time zone changed in the middle of processing.
+	 */
+	const int gmtOffset = dateTime.tm_gmtoff;
+	dateTime.tm_sec -= gmtOffset;
+	dateTime.tm_sec -= timezone;
+	dateTime.tm_gmtoff = -timezone;
+
+	dest.setMillis(static_cast<Timestamp::time_type>(mktime(&dateTime)) * 1000);
+	dest.setGmtOffset(gmtOffset);
 	return true;
 }

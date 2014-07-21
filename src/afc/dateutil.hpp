@@ -32,11 +32,30 @@ namespace afc
 	public:
 		typedef std::int_fast64_t time_type;
 
+		// Creates a Timestamp in an undefined state.
+		explicit Timestamp() {}
+
 		explicit Timestamp(const time_type millis) : m_millis(millis) {}
 
-		time_type millis() { return m_millis; }
+		explicit operator std::time_t() const noexcept { return static_cast<std::time_t>(m_millis / 1000); }
+
+		void setMillis(const time_type millis) noexcept { m_millis = millis; }
+		time_type millis() const noexcept { return m_millis; }
 	private:
 		time_type m_millis;
+	};
+
+	class TimestampTZ : public Timestamp
+	{
+	public:
+		// Creates a Timestamp in an undefined state.
+		explicit TimestampTZ() {}
+
+		// In seconds.
+		void setGmtOffset(const int gmtOffset) noexcept { m_gmtOffset = gmtOffset; }
+		int getGmtOffset() const noexcept { return m_gmtOffset; }
+	private:
+		int m_gmtOffset;
 	};
 
 	class DateTime
@@ -80,7 +99,7 @@ namespace afc
 
 		Timestamp timestamp() const noexcept
 		{
-			std::tm t = m_tm; // must make a copy of tm since mktime potentially modifies its argument.
+			::tm t = m_tm; // must make a copy of tm since mktime potentially modifies its argument.
 
 			/* This implementation works only for POSIX-compatible systems that store time in
 			 * std::time_t as the number of seconds since epoch.
@@ -105,19 +124,20 @@ namespace afc
 		unsigned getMillisecond() const noexcept { return m_millisecond; }
 
 		// In seconds.
-		void setGmtOffet(const unsigned gmtOffset) noexcept
+		void setGmtOffet(const int gmtOffset) noexcept
 		{
 			// Note: tm_gmtoff is not a part of the standard C++11.
 			m_tm.tm_gmtoff = gmtOffset;
 		}
-		long getGmtOffet() const noexcept
+
+		int getGmtOffet() const noexcept
 		{
 			// Note: tm_gmtoff is not a part of the standard C++11.
 			return m_tm.tm_gmtoff;
 		}
 	private:
 		// Note: tm_gmtoff is not a part of the standard C++11.
-		std::tm m_tm;
+		::tm m_tm;
 
 		unsigned m_millisecond;
 	};
@@ -127,6 +147,9 @@ namespace afc
 
 	// a utf-8 string is expected
 	bool parseISODateTime(const std::string &str, DateTime &dest);
+
+	// a utf-8 string is expected
+	bool parseISODateTime(const std::string &str, TimestampTZ &dest);
 
 	inline Timestamp now()
 	{

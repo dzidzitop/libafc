@@ -36,6 +36,11 @@ namespace afc
 		CPPUNIT_TEST(testParseValidISODateTime_DateTime_NegativeUTCTimeZone);
 		CPPUNIT_TEST(testParseValidISODateTime_DateTime_PositiveNonUTCTimeZone);
 		CPPUNIT_TEST(testParseValidISODateTime_DateTime_NegativeNonUTCTimeZone);
+
+		CPPUNIT_TEST(testParseValidISODateTime_TimestampTZ_PositiveUTCTimeZone);
+		CPPUNIT_TEST(testParseValidISODateTime_TimestampTZ_NegativeUTCTimeZone);
+		CPPUNIT_TEST(testParseValidISODateTime_TimestampTZ_PositiveNonUTCTimeZone);
+		CPPUNIT_TEST(testParseValidISODateTime_TimestampTZ_NegativeNonUTCTimeZone);
 		CPPUNIT_TEST_SUITE_END();
 
 		std::unique_ptr<std::string> m_timeZoneBackup;
@@ -52,6 +57,11 @@ namespace afc
 		void testParseValidISODateTime_DateTime_NegativeUTCTimeZone();
 		void testParseValidISODateTime_DateTime_PositiveNonUTCTimeZone();
 		void testParseValidISODateTime_DateTime_NegativeNonUTCTimeZone();
+
+		void testParseValidISODateTime_TimestampTZ_PositiveUTCTimeZone();
+		void testParseValidISODateTime_TimestampTZ_NegativeUTCTimeZone();
+		void testParseValidISODateTime_TimestampTZ_PositiveNonUTCTimeZone();
+		void testParseValidISODateTime_TimestampTZ_NegativeNonUTCTimeZone();
 	};
 }
 

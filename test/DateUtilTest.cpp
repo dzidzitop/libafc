@@ -189,3 +189,91 @@ void DateUtilTest::testParseValidISODateTime_DateTime_NegativeNonUTCTimeZone()
 	CPPUNIT_ASSERT(count != 0);
 	CPPUNIT_ASSERT_EQUAL(string("2013-10-16T20:02:26-0130"), string(buf));
 }
+
+void afc::DateUtilTest::testParseValidISODateTime_TimestampTZ_PositiveUTCTimeZone()
+{
+	string input("2013-10-16T20:02:26+0000");
+	TimestampTZ dest;
+
+	const bool result = parseISODateTime(input, dest);
+
+	CPPUNIT_ASSERT(result);
+
+	CPPUNIT_ASSERT_EQUAL(0, dest.getGmtOffset());
+
+	time_t t = static_cast<time_t>(dest);
+	tm dateTime;
+	gmtime_r(&t, &dateTime);
+
+	char buf[100];
+	const size_t count = std::strftime(buf, 100, "%Y-%m-%dT%H:%M:%S%z", &dateTime);
+
+	CPPUNIT_ASSERT(count != 0);
+	CPPUNIT_ASSERT_EQUAL(string("2013-10-16T20:02:26+0000"), string(buf));
+}
+
+void afc::DateUtilTest::testParseValidISODateTime_TimestampTZ_NegativeUTCTimeZone()
+{
+	string input("2013-10-16T20:02:26-0000");
+	TimestampTZ dest;
+
+	const bool result = parseISODateTime(input, dest);
+
+	CPPUNIT_ASSERT(result);
+
+	CPPUNIT_ASSERT_EQUAL(0, dest.getGmtOffset());
+
+	time_t t = static_cast<time_t>(dest);
+	tm dateTime;
+	gmtime_r(&t, &dateTime);
+
+	char buf[100];
+	const size_t count = std::strftime(buf, 100, "%Y-%m-%dT%H:%M:%S%z", &dateTime);
+
+	CPPUNIT_ASSERT(count != 0);
+	CPPUNIT_ASSERT_EQUAL(string("2013-10-16T20:02:26+0000"), string(buf));
+}
+
+void afc::DateUtilTest::testParseValidISODateTime_TimestampTZ_PositiveNonUTCTimeZone()
+{
+	string input("2013-10-16T20:02:26+0300");
+	TimestampTZ dest;
+
+	const bool result = parseISODateTime(input, dest);
+
+	CPPUNIT_ASSERT(result);
+
+	CPPUNIT_ASSERT_EQUAL(180 * 60, dest.getGmtOffset());
+
+	time_t t = static_cast<time_t>(dest);
+	tm dateTime;
+	gmtime_r(&t, &dateTime);
+
+	char buf[100];
+	const size_t count = std::strftime(buf, 100, "%Y-%m-%dT%H:%M:%S%z", &dateTime);
+
+	CPPUNIT_ASSERT(count != 0);
+	CPPUNIT_ASSERT_EQUAL(string("2013-10-16T17:02:26+0000"), string(buf));
+}
+
+void afc::DateUtilTest::testParseValidISODateTime_TimestampTZ_NegativeNonUTCTimeZone()
+{
+	string input("2013-10-16T20:02:26-0130");
+	TimestampTZ dest;
+
+	const bool result = parseISODateTime(input, dest);
+
+	CPPUNIT_ASSERT(result);
+
+	CPPUNIT_ASSERT_EQUAL(-90 * 60, dest.getGmtOffset());
+
+	time_t t = static_cast<time_t>(dest);
+	tm dateTime;
+	gmtime_r(&t, &dateTime);
+
+	char buf[100];
+	const size_t count = std::strftime(buf, 100, "%Y-%m-%dT%H:%M:%S%z", &dateTime);
+
+	CPPUNIT_ASSERT(count != 0);
+	CPPUNIT_ASSERT_EQUAL(string("2013-10-16T21:32:26+0000"), string(buf));
+}
