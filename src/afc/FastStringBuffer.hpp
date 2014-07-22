@@ -27,6 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include <cstring>
 #include <algorithm>
 #include "math_utils.h"
+#include "StringRef.hpp"
 #ifdef AFC_EXCEPTIONS_ENABLED
 	#include "Exception.h"
 #else
@@ -142,6 +143,8 @@ namespace afc
 			return *this;
 		}
 
+		FastStringBuffer &append(afc::ConstStringRef str) noexcept { return append(str.value(), str.size()); }
+
 		FastStringBuffer &append(const CharType c) noexcept
 		{
 			// assert() can throw an exception, but this is fine with debug code.
@@ -176,6 +179,8 @@ namespace afc
 			// Works fine even if both are null pointers.
 			return m_bufEnd - m_buf;
 		}
+
+		void clear() noexcept { m_bufEnd = m_buf; }
 
 		std::size_t maxSize() const noexcept { return maxCapacity(); }
 
