@@ -62,11 +62,10 @@ namespace afc
 
 		TimestampTZ &operator=(const ::time_t timestamp) noexcept
 		{
-			// ::timezone is defined for POSIX systems. Non-POSIX systems are not supported.
-			::tzset(); // Initialises ::timezone.
 			/* Resetting the time zone to the system default one.
 			 *
-			 * ::timezone contains the negated GMT offset.
+			 * ::timezone contains the negated GMT offset. Note that it is defined
+			 * for POSIX systems. Non-POSIX systems are not supported.
 			 */
 			m_gmtOffset = -::timezone;
 
@@ -76,20 +75,20 @@ namespace afc
 
 		explicit operator std::tm() const noexcept
 		{
-			::time_t t = static_cast< ::time_t >(*this);
-			::tm dateTime;
-
-			::gmtime_r(&t, &dateTime);
-			/* 1) The time zone of the ::tm structure is ignored by ::mktime(). It considers
-			 *    it already local despite of the time zone set.
-			 * 2) Making the fake local time adjusted by the value of GMT offset of this
-			 *    TimestampTZ before normalising it.
-			 * 3) The value obtained is normalised by ::mktime(), which forces the timezone be
-			 *    set as the negated UTC offset.
-			 * 4) Forcing the time zone be set as the time zone of this TimestampTZ.
+			/* 1) ::mktime() normalises ::tm but is very slow. Normalising it indirectly.
+			 * 2) For this, first shift the timestamp towards m_gmtOffset, then obtain
+			 *    the UTC decomposition of this time and then compensate the time shift
+			 *    by setting the correct time zone (i.e. m_gmtOffset).
+			 * 3) After that the time is naturally normalised, since no modifications
+			 *    other than setting the valid time zone offset are performed on the components.
+			 * 4) It is unclear completely how this works together with leap seconds.
+			 *    If this does not support them then we are in trouble.
 			 */
-			dateTime.tm_sec += m_gmtOffset;
-			::mktime(&dateTime);
+			::time_t t = static_cast< ::time_t >(*this);
+			t += ::time_t(m_gmtOffset);
+
+			::tm dateTime;
+			::gmtime_r(&t, &dateTime);
 
 			dateTime.tm_gmtoff = m_gmtOffset;
 
@@ -122,10 +121,6 @@ namespace afc
 
 		DateTime &operator=(const std::time_t timestamp) noexcept
 		{
-			/* Initialises the system time zone data. According to POSIX.1-2004, localtime() is required
-			 * to behave as though tzset(3) was called, while localtime_r() does not have this requirement.
-			 */
-			::tzset();
 			::localtime_r(&timestamp, &m_tm);
 
 			return *this;
@@ -152,8 +147,8 @@ namespace afc
 			return Timestamp(static_cast<Timestamp::time_type>(::mktime(&t)) * 1000);
 		}
 
-		void setYear(const long year) noexcept { m_tm.tm_year = year; }
-		long getYear() const noexcept { return m_tm.tm_year; }
+		void setYear(const long year) noexcept { m_tm.tm_year = year - 1900; }
+		long getYear() const noexcept { return m_tm.tm_year + 1900; }
 		// The first month is 1.
 		void setMonth(const unsigned month) noexcept { m_tm.tm_mon = month - 1; }
 		unsigned getMonth() const noexcept { return m_tm.tm_mon + 1; }
@@ -214,6 +209,11 @@ namespace afc
 
 	namespace helper
 	{
+		struct TimeZoneInit
+		{
+			static const bool initialised;
+		};
+
 		template<typename T, typename Iterator>
 		inline Iterator printTwoDigits(const T value, Iterator dest) noexcept
 		{

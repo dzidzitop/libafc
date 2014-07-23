@@ -53,6 +53,7 @@ void afc::DateUtilTest::setUp()
 	 * It is the negated GMT offset. So in GMT terms it is GMT+12:30.
 	 */
 	setenv("TZ", "ABC-12:30", true);
+	tzset();
 }
 
 void afc::DateUtilTest::tearDown()
@@ -62,6 +63,7 @@ void afc::DateUtilTest::tearDown()
 	} else {
 		unsetenv("TZ");
 	}
+	tzset();
 }
 
 void afc::DateUtilTest::testParseValidISODateTime_PositiveUTCTimeZone()
@@ -304,6 +306,7 @@ void afc::DateUtilTest::test_TimestampTZ_AssignTimeT()
 {
 	// The negated GMT offset.
 	setenv("TZ", "ABC-1:30", true);
+	tzset();
 
 	afc::TimestampTZ ts;
 	ts = utcTime(2000, 1, 1, 23, 12, 33);

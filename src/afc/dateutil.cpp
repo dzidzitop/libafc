@@ -19,6 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 using namespace std;
 
+const bool afc::helper::TimeZoneInit::initialised = []() { ::tzset(); return true; }();
+
 namespace
 {
 	bool parseDateTime(const string &str, tm &dateTime)
@@ -46,9 +48,6 @@ namespace
 
 bool afc::parseISODateTime(const string &str, time_t &dest)
 {
-	// Initialises the system time zone data.
-	tzset();
-
 	tm dateTime;
 
 	if (!parseDateTime(str, dateTime)) {
@@ -86,9 +85,6 @@ bool afc::parseISODateTime(const string &str, afc::DateTime &dest)
 
 bool afc::parseISODateTime(const string &str, TimestampTZ &dest)
 {
-	// Initialises the system time zone data.
-	tzset();
-
 	tm dateTime;
 
 	if (!parseDateTime(str, dateTime)) {
