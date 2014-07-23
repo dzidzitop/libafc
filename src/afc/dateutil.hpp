@@ -15,9 +15,12 @@ You should have received a copy of the GNU Lesser General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #ifndef AFCDATEUTIL_HPP_
 #define AFCDATEUTIL_HPP_
+
+#include <cstddef>
 #include <ctime>
 #include <string>
 #include <cstdint>
+#include "number.h"
 
 /* getCurrentUTCTimeSeconds() relies upon posix-compatible format of std::time_t.
  * Each POSIX implementation must have unistd.h available.
@@ -193,6 +196,14 @@ namespace afc
 	// a utf-8 string is expected
 	bool parseISODateTime(const std::string &str, TimestampTZ &dest);
 
+	constexpr std::size_t maxISODateTimeSize() noexcept
+	{
+		return sizeof("-XX-XXTXX:XX:XX+XXXX") - 1 + afc::maxPrintedSize<decltype(std::tm::tm_year), 10>();
+	}
+
+	template<typename Iterator>
+	Iterator formatISODateTime(const TimestampTZ &time, Iterator dest);
+
 	inline Timestamp now()
 	{
 		/* This implementation works only for POSIX-compatible systems that store time in
@@ -200,6 +211,58 @@ namespace afc
 		 */
 		return Timestamp(static_cast<Timestamp::time_type>(::time(nullptr)) * 1000);
 	}
+
+	namespace helper
+	{
+		template<typename T, typename Iterator>
+		inline Iterator printTwoDigits(const T value, Iterator dest) noexcept
+		{
+			assert(value >= 0 && value < 100);
+
+			const std::uint_fast8_t high = value / 10;
+			const std::uint_fast8_t low = value - high * 10;
+			*dest++ = afc::digitToChar(high);
+			*dest++ = afc::digitToChar(low);
+			return dest;
+		}
+	}
+}
+
+template<typename Iterator>
+Iterator afc::formatISODateTime(const afc::TimestampTZ &time, Iterator dest)
+{
+	using helper::printTwoDigits;
+
+	std::tm t = static_cast<std::tm>(time); // Normalised value.
+	assert(t.tm_mon >= 0 && t.tm_mon <= 11);
+	assert(t.tm_mday >= 1 && t.tm_mday <= 31);
+	assert(t.tm_hour >= 0 && t.tm_hour <= 23);
+	assert(t.tm_min >= 0 && t.tm_min <= 59);
+	assert(t.tm_sec >= 0 && t.tm_sec <= 60); // 60 is for leap seconds.
+	assert(t.tm_gmtoff >= -(99 * 60 * 60) && t.tm_gmtoff <= 99 * 60 * 60); // +hhmm or -hhmm
+
+	dest = afc::printNumber<decltype(std::tm::tm_year), 10>(t.tm_year + 1900, dest);
+	*dest++ = '-';
+	dest = printTwoDigits(t.tm_mon + 1, dest);
+	*dest++ = '-';
+	dest = printTwoDigits(t.tm_mday, dest);
+	*dest++ = 'T';
+	dest = printTwoDigits(t.tm_hour, dest);
+	*dest++ = ':';
+	dest = printTwoDigits(t.tm_min, dest);
+	*dest++ = ':';
+	dest = printTwoDigits(t.tm_sec, dest);
+
+	std::int_fast16_t offsetHoursMinutes = t.tm_gmtoff / 60;
+	std::int_fast16_t offsetHours = offsetHoursMinutes / 60;
+	std::int_fast16_t offsetMinutes = offsetHoursMinutes - offsetHours * 60;
+	// TODO think what to do if gmtoff has three-digit hour value.
+	offsetHours %= 100;
+
+	*dest++ = offsetHours >= 0 ? '+' : '-';
+	dest = printTwoDigits(offsetHours, dest);
+	dest = printTwoDigits(offsetMinutes, dest);
+	return dest;
 }
 
 #endif /* AFCDATEUTIL_HPP_ */
