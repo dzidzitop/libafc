@@ -15,9 +15,12 @@ You should have received a copy of the GNU Lesser General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #ifndef AFC_TOKENISER_HPP_
 #define AFC_TOKENISER_HPP_
-#include <string>
+
+#include <algorithm>
 #include <cstddef>
+#include <string>
 #include <type_traits>
+#include <utility>
 #include "platform.h"
 #ifdef AFC_EXCEPTIONS_ENABLED
 	#include "Exception.h"
@@ -25,95 +28,82 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 namespace afc
 {
-	template<typename String = std::string>
+	template<typename CharType, typename Iterator>
 	class Tokeniser
 	{
 		Tokeniser(const Tokeniser &) = delete;
 		Tokeniser(Tokeniser &&) = delete;
 		Tokeniser &operator=(const Tokeniser &) = delete;
 		Tokeniser &operator=(Tokeniser &&) = delete;
-
-		typedef typename String::value_type CharType;
 	public:
-		// A synonym of the type String::iterator.
-		typedef typename String::iterator CharIterator;
-
-		Tokeniser(String &str, const CharType delimiter)
-				noexcept(std::is_nothrow_default_constructible<String>::value &&
+		Tokeniser(const Iterator begin, Iterator end, const CharType delimiter)
+				noexcept(std::is_nothrow_copy_constructible<Iterator>::value &&
 						std::is_nothrow_copy_constructible<CharType>::value)
-				: m_str(str), m_delimiter(delimiter), m_begin(0) {}
-		Tokeniser(String &&str, const CharType delimiter)
-				noexcept(std::is_nothrow_move_constructible<String>::value &&
-						std::is_nothrow_copy_constructible<CharType>::value)
-				: m_inputCopy(str), m_str(m_inputCopy), m_delimiter(delimiter), m_begin(0) {}
+				: m_curr(begin), m_end(end), m_delimiter(delimiter), m_hasNext(true) {}
 
-		bool hasNext() const noexcept {return m_begin != String::npos;}
-		String next();
-		void next(CharIterator &start, CharIterator &end);
+		bool hasNext() const noexcept { return m_hasNext; }
+		std::pair<Iterator, Iterator> next();
+		void next(Iterator &begin, Iterator &end);
 		void skip();
 		void skip(const std::size_t n) { for (std::size_t i = n; i > 0; --i) { skip(); } }
 	private:
-		/* m_inputCopy is used only with temporary strings because they die early.
-		   In other cases no copying of the input string is used. */
-		String m_inputCopy;
-		String &m_str;
+		Iterator m_curr;
+		Iterator m_end;
 		const CharType m_delimiter;
-		std::size_t m_begin;
+		bool m_hasNext;
 	};
 }
 
-template<typename String>
-inline String afc::Tokeniser<String>::next()
+template<typename CharType, typename Iterator>
+inline std::pair<Iterator, Iterator> afc::Tokeniser<CharType, Iterator>::next()
 {
 #ifdef AFC_EXCEPTIONS_ENABLED
-	if (m_begin == String::npos) {
+	if (!m_hasNext) {
 		throwException<IllegalStateException>("Tokeniser::next is called when it has not more tokens");
 	}
 #endif
 
-	const size_t end = m_str.find(m_delimiter, m_begin);
-	if (end == String::npos) {
-		auto token = m_str.substr(m_begin);
-		m_begin = String::npos;
-		return token;
+	std::pair<Iterator, Iterator> result(m_curr, std::find(m_curr, m_end, m_delimiter));
+	m_curr = std::find(m_curr, m_end, m_delimiter);
+	if (m_curr != m_end) {
+		++m_curr;
 	} else {
-		auto token = m_str.substr(m_begin, end - m_begin);
-		m_begin = end + 1;
-		return token;
+		m_hasNext = false;
 	}
+	return result;
 }
 
-template<typename String>
-inline void afc::Tokeniser<String>::next(CharIterator &start, CharIterator &end)
+template<typename CharType, typename Iterator>
+inline void afc::Tokeniser<CharType, Iterator>::next(Iterator &begin, Iterator &end)
 {
 #ifdef AFC_EXCEPTIONS_ENABLED
-	if (m_begin == String::npos) {
+	if (!m_hasNext) {
 		throwException<IllegalStateException>("Tokeniser::next is called when it has not more tokens");
 	}
 #endif
 
-	start = m_str.begin() + m_begin;
-	const std::size_t endIdx = m_str.find(m_delimiter, m_begin);
-	if (endIdx == String::npos) {
-		end = m_str.end();
-		m_begin = String::npos;
+	begin = m_curr;
+	end = m_curr = std::find(m_curr, m_end, m_delimiter);
+	if (m_curr != m_end) {
+		++m_curr;
 	} else {
-		end = m_str.begin() + endIdx;
-		m_begin = endIdx + 1;
+		m_hasNext = false;
 	}
 }
 
-template<typename String>
-inline void afc::Tokeniser<String>::skip()
+template<typename CharType, typename Iterator>
+inline void afc::Tokeniser<CharType, Iterator>::skip()
 {
 #ifdef AFC_EXCEPTIONS_ENABLED
-	if (m_begin == String::npos) {
+	if (!m_hasNext) {
 		throwException<IllegalStateException>("Tokeniser::skip is called when it has not more tokens");
 	}
 #endif
 
-	const size_t end = m_str.find(m_delimiter, m_begin);
-	m_begin = end == String::npos ? String::npos : end + 1;
+	m_curr = std::find(m_curr, m_end, m_delimiter);
+	if (m_curr != m_end) {
+		++m_curr;
+	}
 }
 
 #endif /* AFC_TOKENISER_HPP_ */

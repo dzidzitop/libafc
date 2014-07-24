@@ -17,6 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include <afc/Tokeniser.hpp>
 #include <afc/Exception.h>
 #include <string>
+#include <utility>
 
 using std::string;
 using std::wstring;
@@ -25,84 +26,114 @@ CPPUNIT_TEST_SUITE_REGISTRATION(afc::TokeniserTest);
 
 void afc::TokeniserTest::testEmptyInputString()
 {
-	afc::Tokeniser<string> t("", '-');
+	std::string s;
+	std::pair<std::string::iterator, std::string::iterator> p;
+	afc::Tokeniser<char, std::string::iterator> t(s.begin(), s.end(), '-');
 	CPPUNIT_ASSERT(t.hasNext());
-	CPPUNIT_ASSERT_EQUAL(string(""), t.next());
+	p = t.next();
+	CPPUNIT_ASSERT_EQUAL(string(""), string(p.first, p.second));
 	CPPUNIT_ASSERT(!t.hasNext());
 	CPPUNIT_ASSERT_THROW(t.next(), afc::IllegalStateException);
 }
 
 void afc::TokeniserTest::testSingleToken()
 {
-	afc::Tokeniser<string> t("abcde", '-');
+	std::string s("abcde");
+	std::pair<std::string::iterator, std::string::iterator> p;
+	afc::Tokeniser<char, std::string::iterator> t(s.begin(), s.end(), '-');
 	CPPUNIT_ASSERT(t.hasNext());
-	CPPUNIT_ASSERT_EQUAL(string("abcde"), t.next());
+	p = t.next();
+	CPPUNIT_ASSERT_EQUAL(string("abcde"), string(p.first, p.second));
 	CPPUNIT_ASSERT(!t.hasNext());
 	CPPUNIT_ASSERT_THROW(t.next(), afc::IllegalStateException);
 }
 
 void afc::TokeniserTest::testMultipleTokens()
 {
-	afc::Tokeniser<string> t("ab+c+d-e", '+');
+	std::string s("ab+c+d-e");
+	std::pair<std::string::iterator, std::string::iterator> p;
+	afc::Tokeniser<char, std::string::iterator> t(s.begin(), s.end(), '+');
 	CPPUNIT_ASSERT(t.hasNext());
-	CPPUNIT_ASSERT_EQUAL(string("ab"), t.next());
+	p = t.next();
+	CPPUNIT_ASSERT_EQUAL(string("ab"), string(p.first, p.second));
 	CPPUNIT_ASSERT(t.hasNext());
-	CPPUNIT_ASSERT_EQUAL(string("c"), t.next());
+	p = t.next();
+	CPPUNIT_ASSERT_EQUAL(string("c"), string(p.first, p.second));
 	CPPUNIT_ASSERT(t.hasNext());
-	CPPUNIT_ASSERT_EQUAL(string("d-e"), t.next());
+	p = t.next();
+	CPPUNIT_ASSERT_EQUAL(string("d-e"), string(p.first, p.second));
 	CPPUNIT_ASSERT(!t.hasNext());
 	CPPUNIT_ASSERT_THROW(t.next(), afc::IllegalStateException);
 }
 
 void afc::TokeniserTest::testMultipleTokensWithEmptyToken()
 {
-	afc::Tokeniser<string> t("ab--de", '-');
+	std::string s("ab--de");
+	std::pair<std::string::iterator, std::string::iterator> p;
+	afc::Tokeniser<char, std::string::iterator> t(s.begin(), s.end(), '-');
 	CPPUNIT_ASSERT(t.hasNext());
-	CPPUNIT_ASSERT_EQUAL(string("ab"), t.next());
+	p = t.next();
+	CPPUNIT_ASSERT_EQUAL(string("ab"), string(p.first, p.second));
 	CPPUNIT_ASSERT(t.hasNext());
-	CPPUNIT_ASSERT_EQUAL(string(""), t.next());
+	p = t.next();
+	CPPUNIT_ASSERT_EQUAL(string(""), string(p.first, p.second));
 	CPPUNIT_ASSERT(t.hasNext());
-	CPPUNIT_ASSERT_EQUAL(string("de"), t.next());
+	p = t.next();
+	CPPUNIT_ASSERT_EQUAL(string("de"), string(p.first, p.second));
 	CPPUNIT_ASSERT(!t.hasNext());
 	CPPUNIT_ASSERT_THROW(t.next(), afc::IllegalStateException);
 }
 
 void afc::TokeniserTest::testOnlyEmptyTokens()
 {
-	afc::Tokeniser<string> t("--", '-');
+	std::string s("--");
+	std::pair<std::string::iterator, std::string::iterator> p;
+	afc::Tokeniser<char, std::string::iterator> t(s.begin(), s.end(), '-');
 	CPPUNIT_ASSERT(t.hasNext());
-	CPPUNIT_ASSERT_EQUAL(string(""), t.next());
+	p = t.next();
+	CPPUNIT_ASSERT_EQUAL(string(""), string(p.first, p.second));
 	CPPUNIT_ASSERT(t.hasNext());
-	CPPUNIT_ASSERT_EQUAL(string(""), t.next());
+	p = t.next();
+	CPPUNIT_ASSERT_EQUAL(string(""), string(p.first, p.second));
 	CPPUNIT_ASSERT(t.hasNext());
-	CPPUNIT_ASSERT_EQUAL(string(""), t.next());
+	p = t.next();
+	CPPUNIT_ASSERT_EQUAL(string(""), string(p.first, p.second));
 	CPPUNIT_ASSERT(!t.hasNext());
 	CPPUNIT_ASSERT_THROW(t.next(), afc::IllegalStateException);
 }
 
 void afc::TokeniserTest::testWideStringMultipleTokens()
 {
-	afc::Tokeniser<wstring> t(L"doing all right", L' ');
+	std::wstring s(L"doing all right");
+	std::pair<std::wstring::iterator, std::wstring::iterator> p;
+	afc::Tokeniser<wchar_t, std::wstring::iterator> t(s.begin(), s.end(), L' ');
 	CPPUNIT_ASSERT(t.hasNext());
-	CPPUNIT_ASSERT(t.next() == wstring(L"doing"));
+	p = t.next();
+	CPPUNIT_ASSERT(wstring(p.first, p.second) == wstring(L"doing"));
 	CPPUNIT_ASSERT(t.hasNext());
-	CPPUNIT_ASSERT(t.next() == wstring(L"all"));
+	p = t.next();
+	CPPUNIT_ASSERT(wstring(p.first, p.second) == wstring(L"all"));
 	CPPUNIT_ASSERT(t.hasNext());
-	CPPUNIT_ASSERT(t.next() == wstring(L"right"));
+	p = t.next();
+	CPPUNIT_ASSERT(wstring(p.first, p.second) == wstring(L"right"));
 	CPPUNIT_ASSERT(!t.hasNext());
 	CPPUNIT_ASSERT_THROW(t.next(), afc::IllegalStateException);
 }
 
 void afc::TokeniserTest::testInputIsNotRvalue()
 {
-	string str("doing all right");
-	afc::Tokeniser<string> t(str, ' ');
+	std::string s("doing all right");
+	std::pair<std::string::iterator, std::string::iterator> p;
+	afc::Tokeniser<char, std::string::iterator> t(s.begin(), s.end(), ' ');
 	CPPUNIT_ASSERT(t.hasNext());
-	CPPUNIT_ASSERT_EQUAL(string("doing"), t.next());
+	p = t.next();
+	CPPUNIT_ASSERT_EQUAL(string("doing"), string(p.first, p.second));
 	CPPUNIT_ASSERT(t.hasNext());
-	CPPUNIT_ASSERT_EQUAL(string("all"), t.next());
+	p = t.next();
+	CPPUNIT_ASSERT_EQUAL(string("all"), string(p.first, p.second));
 	CPPUNIT_ASSERT(t.hasNext());
-	CPPUNIT_ASSERT_EQUAL(string("right"), t.next());
+	p = t.next();
+	CPPUNIT_ASSERT_EQUAL(string("right"), string(p.first, p.second));
 	CPPUNIT_ASSERT(!t.hasNext());
 	CPPUNIT_ASSERT_THROW(t.next(), afc::IllegalStateException);
 }
