@@ -114,6 +114,9 @@ namespace afc
 
 	// TODO test this for all types and bases
 	// TODO optimise performance (especially for binary bases)
+	/* TODO modify iterator-based afc::printNumber so that it is possible to avoid copying digits
+	 * to the intermediate buffer (in the reverse order).
+	 */
 	template<typename T, unsigned char base = 10>
 	inline void printNumber(const T value, std::string &out)
 	{
