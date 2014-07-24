@@ -271,7 +271,6 @@ Iterator afc::formatISODateTime(const afc::TimestampTZ &time, Iterator dest)
 	assert(t.tm_hour >= 0 && t.tm_hour <= 23);
 	assert(t.tm_min >= 0 && t.tm_min <= 59);
 	assert(t.tm_sec >= 0 && t.tm_sec <= 60); // 60 is for leap seconds.
-	assert(t.tm_gmtoff >= -(99 * 60 * 60) && t.tm_gmtoff <= 99 * 60 * 60); // +hhmm or -hhmm
 
 	dest = afc::helper::printISOYear(t.tm_year + 1900, dest);
 	*dest++ = '-';
@@ -285,6 +284,7 @@ Iterator afc::formatISODateTime(const afc::TimestampTZ &time, Iterator dest)
 	*dest++ = ':';
 	dest = printTwoDigits(t.tm_sec, dest);
 
+	// The time zone offset format is +hhmm or -hhmm.
 	std::int_fast16_t offsetHoursMinutes = t.tm_gmtoff / 60;
 	std::int_fast16_t offsetHours = offsetHoursMinutes / 60;
 	std::int_fast16_t offsetMinutes = offsetHoursMinutes - offsetHours * 60;
