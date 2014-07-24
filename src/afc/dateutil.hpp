@@ -215,7 +215,7 @@ namespace afc
 		};
 
 		template<typename T, typename Iterator>
-		inline Iterator printTwoDigits(const T value, Iterator dest) noexcept
+		inline Iterator printTwoDigits(const T value, Iterator dest)
 		{
 			assert(value >= 0 && value < 100);
 
@@ -223,6 +223,38 @@ namespace afc
 			const std::uint_fast8_t low = value - high * 10;
 			*dest++ = afc::digitToChar(high);
 			*dest++ = afc::digitToChar(low);
+			return dest;
+		}
+
+		template<typename T, typename Iterator>
+		inline Iterator printFourDigitYear(const T year, Iterator dest)
+		{
+			assert(year >= 0 && year <= 9999);
+
+			const std::uint_fast16_t century = year / 100;
+			dest = printTwoDigits(century, dest);
+			dest = printTwoDigits(year - century * 100, dest);
+			return dest;
+		}
+
+		template<typename T, typename Iterator>
+		inline Iterator printISOYear(const T year, Iterator dest)
+		{
+			if (year >= 0) {
+				if (year <= 9999) {
+					dest = printFourDigitYear(year, dest);
+				} else {
+					*dest++ = '+'; // The expanded year representation is used.
+					dest = afc::printNumber<decltype(std::tm::tm_year), 10>(year, dest);
+				}
+			} else {
+				if (year <= -9999) {
+					*dest++ = '-';
+					dest = printFourDigitYear(-year, dest);
+				} else {
+					dest = afc::printNumber<decltype(std::tm::tm_year), 10>(year, dest);
+				}
+			}
 			return dest;
 		}
 	}
@@ -241,7 +273,7 @@ Iterator afc::formatISODateTime(const afc::TimestampTZ &time, Iterator dest)
 	assert(t.tm_sec >= 0 && t.tm_sec <= 60); // 60 is for leap seconds.
 	assert(t.tm_gmtoff >= -(99 * 60 * 60) && t.tm_gmtoff <= 99 * 60 * 60); // +hhmm or -hhmm
 
-	dest = afc::printNumber<decltype(std::tm::tm_year), 10>(t.tm_year + 1900, dest);
+	dest = afc::helper::printISOYear(t.tm_year + 1900, dest);
 	*dest++ = '-';
 	dest = printTwoDigits(t.tm_mon + 1, dest);
 	*dest++ = '-';
