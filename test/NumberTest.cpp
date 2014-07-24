@@ -14,6 +14,8 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include "NumberTest.hpp"
+#include <limits>
+#include <string>
 #include <afc/number.h>
 
 using namespace std;
@@ -58,5 +60,23 @@ void afc::NumberTest::testPrintNumber_Int()
 		string result;
 		printNumber(-20, result);
 		CPPUNIT_ASSERT_EQUAL(string("-20"), result);
+	}
+}
+
+void afc::NumberTest::testPrintNumber_MinSignedChar()
+{
+	{
+		string result;
+		printNumber<signed char, 10>(std::numeric_limits<signed char>::min(), result);
+		CPPUNIT_ASSERT_EQUAL(std::to_string(std::numeric_limits<signed char>::min()), result);
+	}
+}
+
+void afc::NumberTest::testPrintNumber_MinSignedLongLong()
+{
+	{
+		string result;
+		printNumber<signed long long, 10>(std::numeric_limits<signed long long>::min(), result);
+		CPPUNIT_ASSERT_EQUAL(std::to_string(std::numeric_limits<signed long long>::min()), result);
 	}
 }

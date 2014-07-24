@@ -135,9 +135,6 @@ OutputIterator afc::printNumber(const T value, const OutputIterator dest)
 	using std::numeric_limits;
 	using namespace afc::_impl;
 
-	unsigned count = 0;
-	UnsignedT val = value < 0 ? -value : value;
-
 	// TODO use direct order and bulk append.
 	// TODO calculate size using base.
 	// The buffer that contains digits in the reverse order.
@@ -147,6 +144,15 @@ OutputIterator afc::printNumber(const T value, const OutputIterator dest)
 	// The two's complement representation can take that even for signed values for the min value for base == 2.
 	constexpr std::size_t maxDigitCount = numeric_limits<UnsignedT>::digits;
 	char digits[maxDigitCount];
+	unsigned count = 0;
+
+	/** If value is equal to the min signed value then the negation of it is either
+	 *  max signed value (for ones' complement and sign/magnitude signed representations) or
+	 *  min signed value itself (for the two's complement representation). In the latter case
+	 *  the min signed value is casted to the correspondent unsigned value correctly as if
+	 *  it were properly negated.
+	 */
+	UnsignedT val = static_cast<UnsignedT>(value < 0 ? -value : value);
 
 	while (val >= base) {
 		const UnsignedT nextVal = val / base;

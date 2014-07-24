@@ -25,9 +25,13 @@ namespace afc
 	{
 		CPPUNIT_TEST_SUITE(NumberTest);
 		CPPUNIT_TEST(testPrintNumber_Int);
+		CPPUNIT_TEST(testPrintNumber_MinSignedChar);
+		CPPUNIT_TEST(testPrintNumber_MinSignedLongLong);
 		CPPUNIT_TEST_SUITE_END();
 	public:
 		void testPrintNumber_Int();
+		void testPrintNumber_MinSignedChar();
+		void testPrintNumber_MinSignedLongLong();
 	};
 }
 
