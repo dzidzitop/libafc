@@ -62,10 +62,10 @@ inline std::pair<Iterator, Iterator> afc::Tokeniser<CharType, Iterator>::next()
 	}
 #endif
 
-	std::pair<Iterator, Iterator> result(m_curr, std::find(m_curr, m_end, m_delimiter));
-	m_curr = std::find(m_curr, m_end, m_delimiter);
-	if (m_curr != m_end) {
-		++m_curr;
+	register Iterator p = std::find(m_curr, m_end, m_delimiter);
+	std::pair<Iterator, Iterator> result(m_curr, p);
+	if (p != m_end) {
+		m_curr = ++p;
 	} else {
 		m_hasNext = false;
 	}
@@ -82,9 +82,10 @@ inline void afc::Tokeniser<CharType, Iterator>::next(Iterator &begin, Iterator &
 #endif
 
 	begin = m_curr;
-	end = m_curr = std::find(m_curr, m_end, m_delimiter);
-	if (m_curr != m_end) {
-		++m_curr;
+	register Iterator p = std::find(m_curr, m_end, m_delimiter);
+	end = p;
+	if (p != m_end) {
+		m_curr = ++p;
 	} else {
 		m_hasNext = false;
 	}
