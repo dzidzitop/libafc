@@ -126,6 +126,29 @@ namespace afc
 		char * const end = printNumber<T, base, char *>(value, begin);
 		out.append(begin, end);
 	}
+
+	template<typename T, typename Iterator>
+	inline Iterator printTwoDigits(const T value, Iterator dest)
+	{
+		assert(value >= 0 && value < 100);
+
+		const std::uint_fast8_t high = value / 10;
+		const std::uint_fast8_t low = value - high * 10;
+		*dest++ = afc::digitToChar(high);
+		*dest++ = afc::digitToChar(low);
+		return dest;
+	}
+
+	template<typename T, typename Iterator>
+	inline Iterator printFourDigits(const T value, Iterator dest)
+	{
+		assert(value >= 0 && value <= 9999);
+
+		const std::uint_fast16_t hundreds = value / 100;
+		dest = afc::printTwoDigits(hundreds, dest);
+		dest = afc::printTwoDigits(value - hundreds * 100, dest);
+		return dest;
+	}
 }
 
 template<typename T, unsigned char base, typename OutputIterator>

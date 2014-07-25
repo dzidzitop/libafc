@@ -215,34 +215,11 @@ namespace afc
 		};
 
 		template<typename T, typename Iterator>
-		inline Iterator printTwoDigits(const T value, Iterator dest)
-		{
-			assert(value >= 0 && value < 100);
-
-			const std::uint_fast8_t high = value / 10;
-			const std::uint_fast8_t low = value - high * 10;
-			*dest++ = afc::digitToChar(high);
-			*dest++ = afc::digitToChar(low);
-			return dest;
-		}
-
-		template<typename T, typename Iterator>
-		inline Iterator printFourDigitYear(const T year, Iterator dest)
-		{
-			assert(year >= 0 && year <= 9999);
-
-			const std::uint_fast16_t century = year / 100;
-			dest = printTwoDigits(century, dest);
-			dest = printTwoDigits(year - century * 100, dest);
-			return dest;
-		}
-
-		template<typename T, typename Iterator>
 		inline Iterator printISOYear(const T year, Iterator dest)
 		{
 			if (year >= 0) {
 				if (year <= 9999) {
-					dest = printFourDigitYear(year, dest);
+					dest = afc::printFourDigits(year, dest);
 				} else {
 					*dest++ = '+'; // The expanded year representation is used.
 					dest = afc::printNumber<decltype(std::tm::tm_year), 10>(year, dest);
@@ -250,7 +227,7 @@ namespace afc
 			} else {
 				if (year <= -9999) {
 					*dest++ = '-';
-					dest = printFourDigitYear(-year, dest);
+					dest = afc::printFourDigits(-year, dest);
 				} else {
 					dest = afc::printNumber<decltype(std::tm::tm_year), 10>(year, dest);
 				}
@@ -263,8 +240,6 @@ namespace afc
 template<typename Iterator>
 Iterator afc::formatISODateTime(const afc::TimestampTZ &time, Iterator dest)
 {
-	using helper::printTwoDigits;
-
 	std::tm t = static_cast<std::tm>(time); // Normalised value.
 	assert(t.tm_mon >= 0 && t.tm_mon <= 11);
 	assert(t.tm_mday >= 1 && t.tm_mday <= 31);
@@ -274,15 +249,15 @@ Iterator afc::formatISODateTime(const afc::TimestampTZ &time, Iterator dest)
 
 	dest = afc::helper::printISOYear(t.tm_year + 1900, dest);
 	*dest++ = '-';
-	dest = printTwoDigits(t.tm_mon + 1, dest);
+	dest = afc::printTwoDigits(t.tm_mon + 1, dest);
 	*dest++ = '-';
-	dest = printTwoDigits(t.tm_mday, dest);
+	dest = afc::printTwoDigits(t.tm_mday, dest);
 	*dest++ = 'T';
-	dest = printTwoDigits(t.tm_hour, dest);
+	dest = afc::printTwoDigits(t.tm_hour, dest);
 	*dest++ = ':';
-	dest = printTwoDigits(t.tm_min, dest);
+	dest = afc::printTwoDigits(t.tm_min, dest);
 	*dest++ = ':';
-	dest = printTwoDigits(t.tm_sec, dest);
+	dest = afc::printTwoDigits(t.tm_sec, dest);
 
 	// The time zone offset format is +hhmm or -hhmm.
 	std::int_fast16_t offsetHoursMinutes = t.tm_gmtoff / 60;
@@ -292,8 +267,8 @@ Iterator afc::formatISODateTime(const afc::TimestampTZ &time, Iterator dest)
 	offsetHours %= 100;
 
 	*dest++ = offsetHours >= 0 ? '+' : '-';
-	dest = printTwoDigits(offsetHours, dest);
-	dest = printTwoDigits(offsetMinutes, dest);
+	dest = afc::printTwoDigits(offsetHours, dest);
+	dest = afc::printTwoDigits(offsetMinutes, dest);
 	return dest;
 }
 
