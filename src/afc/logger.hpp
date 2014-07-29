@@ -54,13 +54,6 @@ namespace afc
 			return logText(buf, end - buf, dest);
 		}
 
-		template<typename T>
-		inline typename std::enable_if<std::is_floating_point<T>::value, bool>::type logPrint(T value, FILE * const dest) noexcept
-		{
-			// TODO improve performance.
-			return logPrint(std::to_string(value), dest);
-		}
-
 		inline bool logPrint(afc::ConstStringRef s, FILE * const dest) noexcept
 		{
 			return logText(s.value(), s.size(), dest);
@@ -79,6 +72,13 @@ namespace afc
 		inline bool logPrint(const std::pair<const char *, const char *> &s, FILE * const dest) noexcept
 		{
 			return logText(s.first, std::size_t(s.second - s.first), dest);
+		}
+
+		template<typename T>
+		inline typename std::enable_if<std::is_floating_point<T>::value, bool>::type logPrint(T value, FILE * const dest) noexcept
+		{
+			// TODO improve performance.
+			return logPrint(std::to_string(value), dest);
 		}
 
 		class Printer
