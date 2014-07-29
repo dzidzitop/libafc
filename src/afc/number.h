@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 #include <cassert>
 #include <cstddef>
+#include <cstdint>
 #include <limits>
 #include <string>
 #include <type_traits>
