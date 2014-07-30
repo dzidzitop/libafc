@@ -16,6 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #ifndef AFC_STRINGREF_HPP_
 #define AFC_STRINGREF_HPP_
 
+#include <algorithm>
 #include <cstddef>
 
 namespace afc
@@ -49,6 +50,9 @@ namespace afc
 	};
 
 	constexpr ConstStringRef operator"" _s(const char * const str, const std::size_t n) noexcept { return ConstStringRef(str, n); };
+
+	template<typename Iterator>
+	inline Iterator copy(ConstStringRef s, Iterator dest) { return std::copy_n(s.value(), s.size(), dest); }
 }
 
 #endif /* AFC_STRINGREF_HPP_ */
