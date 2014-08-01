@@ -13,8 +13,12 @@ GNU Lesser General Public License for more details.
 
 You should have received a copy of the GNU Lesser General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>. */
+
 #include "dateutil.hpp"
+
 #include <time.h>
+
+#include "builtin.hpp"
 #include "ensure_ascii.hpp"
 
 using namespace std;
@@ -23,15 +27,14 @@ const bool afc::helper::TimeZoneInit::initialised = []() { ::tzset(); return tru
 
 namespace
 {
-	bool parseDateTime(const string &str, tm &dateTime)
+	bool parseDateTime(const char * const str, tm &dateTime)
 	{
 		/* The ASCII-compatible encodings are supported only. The pattern used depends only
 		 * on the ASCII subset of UTF-8 so no additional conversion is needed to parse the date.
 		 */
-		const char * const parseResult = strptime(str.c_str(), "%FT%T%z", &dateTime);
+		const char * const parseResult = strptime(str, "%FT%T%z", &dateTime);
 
-		// parseResult points to data managed by strConverted so the latter must be alive here.
-		if (parseResult == nullptr || *parseResult != 0) {
+		if (unlikely(parseResult == nullptr || *parseResult != '\0')) {
 			// Either parse error or not the whole string is processed.
 			return false;
 		}
@@ -50,7 +53,7 @@ bool afc::parseISODateTime(const string &str, time_t &dest)
 {
 	tm dateTime;
 
-	if (!parseDateTime(str, dateTime)) {
+	if (!parseDateTime(str.c_str(), dateTime)) {
 		return false;
 	}
 
@@ -74,7 +77,7 @@ bool afc::parseISODateTime(const string &str, afc::DateTime &dest)
 {
 	tm dateTime;
 
-	if (!parseDateTime(str, dateTime)) {
+	if (!parseDateTime(str.c_str(), dateTime)) {
 		return false;
 	}
 
@@ -83,11 +86,11 @@ bool afc::parseISODateTime(const string &str, afc::DateTime &dest)
 	return true;
 }
 
-bool afc::parseISODateTime(const string &str, TimestampTZ &dest)
+bool afc::parseISODateTime(const char * const str, TimestampTZ &dest)
 {
 	tm dateTime;
 
-	if (!parseDateTime(str, dateTime)) {
+	if (unlikely(!parseDateTime(str, dateTime))) {
 		return false;
 	}
 

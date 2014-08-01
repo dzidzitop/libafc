@@ -182,14 +182,15 @@ namespace afc
 		unsigned m_millisecond;
 	};
 
-	// a utf-8 string is expected
-	bool parseISODateTime(const std::string &str, std::time_t &dest);
+	bool parseISODateTime(const char *str, TimestampTZ &dest);
 
-	// a utf-8 string is expected
+	bool parseISODateTime(const std::string &str, std::time_t &dest);
 	bool parseISODateTime(const std::string &str, DateTime &dest);
 
-	// a utf-8 string is expected
-	bool parseISODateTime(const std::string &str, TimestampTZ &dest);
+	inline bool parseISODateTime(const std::string &str, TimestampTZ &dest)
+	{
+		return afc::parseISODateTime(str.c_str(), dest);
+	}
 
 	constexpr std::size_t maxISODateTimeSize() noexcept
 	{
