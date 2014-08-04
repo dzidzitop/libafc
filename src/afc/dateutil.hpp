@@ -223,14 +223,14 @@ namespace afc
 					dest = afc::printFourDigits(year, dest);
 				} else {
 					*dest++ = '+'; // The expanded year representation is used.
-					dest = afc::printNumber<decltype(std::tm::tm_year), 10>(year, dest);
+					dest = afc::printNumber<10>(year, dest);
 				}
 			} else {
 				if (year <= -9999) {
 					*dest++ = '-';
 					dest = afc::printFourDigits(-year, dest);
 				} else {
-					dest = afc::printNumber<decltype(std::tm::tm_year), 10>(year, dest);
+					dest = afc::printNumber<10>(year, dest);
 				}
 			}
 			return dest;

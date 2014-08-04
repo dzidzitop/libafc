@@ -102,7 +102,7 @@ namespace afc
 	}
 
 	// TODO use std::enable_if
-	template<typename T, unsigned char base>
+	template<unsigned char base, typename T>
 	inline constexpr char digitToChar(const T digit) noexcept
 	{
 		static_assert(std::is_integral<T>::value, "T must be an integral type.");
@@ -113,10 +113,10 @@ namespace afc
 
 	// A hex digit must be passed in.
 	template<typename T>
-	constexpr char hexToChar(const T digit) noexcept { return digitToChar<T, 16>(digit); }
+	constexpr char hexToChar(const T digit) noexcept { return digitToChar<16>(digit); }
 
 	// TODO think of defining conditional noexcept.
-	template<typename T, unsigned char base, typename OutputIterator>
+	template<unsigned char base, typename T, typename OutputIterator>
 	OutputIterator printNumber(const T value, OutputIterator dest);
 
 	// TODO test this for all types and bases
@@ -130,7 +130,7 @@ namespace afc
 		char buf[maxPrintedSize<T, base>()];
 
 		char * const begin = &buf[0];
-		char * const end = printNumber<T, base, char *>(value, begin);
+		char * const end = printNumber<base>(value, begin);
 		out.append(begin, end);
 	}
 
@@ -141,8 +141,8 @@ namespace afc
 
 		const std::uint_fast8_t high = value / 10;
 		const std::uint_fast8_t low = value - high * 10;
-		*dest++ = afc::digitToChar<T, 10>(high);
-		*dest++ = afc::digitToChar<T, 10>(low);
+		*dest++ = afc::digitToChar<10>(high);
+		*dest++ = afc::digitToChar<10>(low);
 		return dest;
 	}
 
@@ -158,7 +158,7 @@ namespace afc
 	}
 }
 
-template<typename T, unsigned char base, typename Iterator>
+template<unsigned char base, typename T, typename Iterator>
 Iterator afc::printNumber(const T value, register Iterator dest)
 {
 	static_assert(std::is_integral<T>::value, "Integral types are supported only.");
@@ -189,10 +189,10 @@ Iterator afc::printNumber(const T value, register Iterator dest)
 
 	while (val >= base) {
 		const UnsignedT nextVal = val / base;
-		digits[count++] = digitToChar<T, base>(val - nextVal * base);
+		digits[count++] = digitToChar<base>(val - nextVal * base);
 		val = nextVal;
 	}
-	digits[count++] = digitToChar<T, base>(val);
+	digits[count++] = digitToChar<base>(val);
 
 	assert(count <= maxDigitCount);
 

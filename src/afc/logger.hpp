@@ -51,7 +51,7 @@ namespace afc
 		inline typename std::enable_if<std::is_integral<T>::value, bool>::type logPrint(T value, FILE * const dest) noexcept
 		{
 			char buf[afc::maxPrintedSize<T, 10>()];
-			char *end = afc::printNumber<T, 10>(value, buf);
+			char *end = afc::printNumber<10>(value, buf);
 			return logText(buf, end - buf, dest);
 		}
 
