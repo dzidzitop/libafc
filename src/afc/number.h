@@ -132,7 +132,7 @@ namespace afc
 	/* TODO modify iterator-based afc::printNumber so that it is possible to avoid copying digits
 	 * to the intermediate buffer (in the reverse order).
 	 */
-	template<unsigned char base = 10, typename T>
+	template<unsigned char base, typename T>
 	inline void printNumber(const T value, std::string &out)
 	{
 		char buf[maxPrintedSize<T, base>()];

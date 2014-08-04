@@ -26,39 +26,39 @@ void afc::NumberTest::testPrintNumber_Int()
 {
 	{
 		string result;
-		printNumber<int, 10>(123, result);
+		printNumber<10, int>(123, result);
 		CPPUNIT_ASSERT_EQUAL(string("123"), result);
-		printNumber<int, 10>(-456, result);
+		printNumber<10, int>(-456, result);
 		CPPUNIT_ASSERT_EQUAL(string("123-456"), result);
 	}
 	{
 		string result;
-		printNumber<int>(123, result);
+		printNumber<10, int>(123, result);
 		CPPUNIT_ASSERT_EQUAL(string("123"), result);
-		printNumber<int>(-456, result);
+		printNumber<10, int>(-456, result);
 		CPPUNIT_ASSERT_EQUAL(string("123-456"), result);
-		printNumber<int>(0, result);
+		printNumber<10, int>(0, result);
 		CPPUNIT_ASSERT_EQUAL(string("123-4560"), result);
 	}
 	{
 		string result("aaa");
-		printNumber<int, 10>(411787, result);
+		printNumber<10, int>(411787, result);
 		CPPUNIT_ASSERT_EQUAL(string("aaa411787"), result);
-		printNumber<int, 27>(411787, result);
+		printNumber<27, int>(411787, result);
 		CPPUNIT_ASSERT_EQUAL(string("aaa411787kona"), result);
-		printNumber<int, 36>(45896, result);
+		printNumber<36, int>(45896, result);
 		CPPUNIT_ASSERT_EQUAL(string("aaa411787konazew"), result);
-		printNumber<int, 35>(45896, result);
+		printNumber<35, int>(45896, result);
 		CPPUNIT_ASSERT_EQUAL(string("aaa411787konazew12gb"), result);
 	}
 	{
 		string result;
-		printNumber<int, 2>(static_cast<int>(-0x80000000), result);
+		printNumber<2, int>(static_cast<int>(-0x80000000), result);
 		CPPUNIT_ASSERT_EQUAL(string("-10000000000000000000000000000000"), result);
 	}
 	{
 		string result;
-		printNumber(-20, result);
+		printNumber<10>(-20, result);
 		CPPUNIT_ASSERT_EQUAL(string("-20"), result);
 	}
 }
@@ -67,7 +67,7 @@ void afc::NumberTest::testPrintNumber_MinSignedChar()
 {
 	{
 		string result;
-		printNumber<signed char, 10>(std::numeric_limits<signed char>::min(), result);
+		printNumber<10, signed char>(std::numeric_limits<signed char>::min(), result);
 		CPPUNIT_ASSERT_EQUAL(std::to_string(std::numeric_limits<signed char>::min()), result);
 	}
 }
@@ -76,7 +76,7 @@ void afc::NumberTest::testPrintNumber_MinSignedLongLong()
 {
 	{
 		string result;
-		printNumber<signed long long, 10>(std::numeric_limits<signed long long>::min(), result);
+		printNumber<10, signed long long>(std::numeric_limits<signed long long>::min(), result);
 		CPPUNIT_ASSERT_EQUAL(std::to_string(std::numeric_limits<signed long long>::min()), result);
 	}
 }
