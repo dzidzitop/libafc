@@ -40,14 +40,6 @@ namespace afc
 	std::u16string stringToUTF16LE(const std::string &src, const char * const encoding);
 	std::string utf16leToString(const std::u16string &src, const char * const encoding);
 
-	// A hex digit must be passed in.
-	template<typename T>
-	constexpr char toHex(const T c) noexcept
-	{
-		static_assert(std::is_integral<T>::value, "T must be an integral type.");
-		return c < 10 ? '0' + c : 'a' + c - 10;
-	}
-
 	struct UnlockGuard
 	{
 		UnlockGuard(std::mutex &mutex) : m_mutex(mutex) { m_mutex.unlock(); };

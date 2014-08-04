@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include <cstddef>
 #include <openssl/md5.h>
 #include "ensure_ascii.hpp"
-#include "utils.h"
+#include "number.h"
 
 namespace afc
 {
@@ -34,8 +34,8 @@ namespace afc
 		for (size_t i = 0; i < MD5_DIGEST_LENGTH; ++i) {
 			const unsigned char b = hash[i] & 0xff;
 			// 0xff is applied just in case non-octet bytes are used.
-			*p++ = toHex(b >> 4);
-			*p++ = toHex(b & 0xf);
+			*p++ = hexToChar(b >> 4);
+			*p++ = hexToChar(b & 0xf);
 		}
 		return p;
 	}

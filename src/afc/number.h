@@ -102,13 +102,18 @@ namespace afc
 	}
 
 	// TODO use std::enable_if
-	template<typename T, unsigned char base = 10>
-	char digitToChar(const T digit)
+	template<typename T, unsigned char base>
+	inline constexpr char digitToChar(const T digit) noexcept
 	{
+		static_assert(std::is_integral<T>::value, "T must be an integral type.");
 		static_assert(base >= afc::number_limits::MIN_BASE && base <= afc::number_limits::MAX_BASE, "Unsupported base.");
-		assert(digit < base);
-		return _impl::digitChars[digit];
+
+		return base <= 10 ? '0' + digit : _impl::digitChars[digit];
 	};
+
+	// A hex digit must be passed in.
+	template<typename T>
+	constexpr char hexToChar(const T digit) noexcept { return digitToChar<T, 16>(digit); }
 
 	// TODO think of defining conditional noexcept.
 	template<typename T, unsigned char base, typename OutputIterator>
@@ -136,8 +141,8 @@ namespace afc
 
 		const std::uint_fast8_t high = value / 10;
 		const std::uint_fast8_t low = value - high * 10;
-		*dest++ = afc::digitToChar(high);
-		*dest++ = afc::digitToChar(low);
+		*dest++ = afc::digitToChar<T, 10>(high);
+		*dest++ = afc::digitToChar<T, 10>(low);
 		return dest;
 	}
 
