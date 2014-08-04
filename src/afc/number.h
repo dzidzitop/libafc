@@ -183,7 +183,7 @@ Iterator afc::printNumber(const T value, register Iterator dest)
 			"Unsupported number representation.");
 
 	// The two's complement representation can take that even for signed values for the min value for base == 2.
-	constexpr std::size_t maxDigitCount = numeric_limits<UnsignedT>::digits;
+	constexpr std::size_t maxDigitCount = maxPrintedSize<UnsignedT, base>();
 	char digits[maxDigitCount];
 	unsigned count = 0;
 
