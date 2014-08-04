@@ -90,15 +90,23 @@ namespace afc
 		return end;
 	}
 
-	// TODO take advantage of using base.
+	template<unsigned char base, typename T>
+	constexpr std::size_t printedSize(T val) noexcept
+	{
+		static_assert(std::is_integral<T>::value, "T must be an integral type.");
+		static_assert(std::is_unsigned<T>::value, "T must be an unsigned type.");
+
+		return val < base ? 1 : 1 + printedSize<base, T>(val / base);
+	}
+
 	template<typename T, unsigned char base>
 	constexpr std::size_t maxPrintedSize() noexcept
 	{
 		typedef typename std::make_unsigned<T>::type UnsignedT;
 		return std::is_signed<T>::value ?
 				// One character for sign.
-				std::numeric_limits<UnsignedT>::digits + 1 :
-				std::numeric_limits<UnsignedT>::digits;
+				printedSize<base>(std::numeric_limits<UnsignedT>::max()) + 1 :
+				printedSize<base>(std::numeric_limits<UnsignedT>::max());
 	}
 
 	// TODO use std::enable_if
@@ -124,7 +132,7 @@ namespace afc
 	/* TODO modify iterator-based afc::printNumber so that it is possible to avoid copying digits
 	 * to the intermediate buffer (in the reverse order).
 	 */
-	template<typename T, unsigned char base = 10>
+	template<unsigned char base = 10, typename T>
 	inline void printNumber(const T value, std::string &out)
 	{
 		char buf[maxPrintedSize<T, base>()];
