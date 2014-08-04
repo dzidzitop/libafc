@@ -173,17 +173,14 @@ Iterator afc::printNumber(const T value, register Iterator dest)
 	static_assert(base >= afc::number_limits::MIN_BASE && base <= afc::number_limits::MAX_BASE, "Unsupported base.");
 
 	typedef typename std::make_unsigned<T>::type UnsignedT;
-	using std::numeric_limits;
-	using namespace afc::_impl;
 
 	// TODO use direct order and bulk append.
-	// TODO calculate size using base.
-	// The buffer that contains digits in the reverse order.
-	static_assert(numeric_limits<UnsignedT>::digits - 1 == numeric_limits<typename std::make_signed<T>::type>::digits,
+	static_assert(std::numeric_limits<UnsignedT>::digits - 1 == std::numeric_limits<typename std::make_signed<T>::type>::digits,
 			"Unsupported number representation.");
 
 	// The two's complement representation can take that even for signed values for the min value for base == 2.
 	constexpr std::size_t maxDigitCount = maxPrintedSize<UnsignedT, base>();
+	// The buffer that contains digits in the reverse order.
 	char digits[maxDigitCount];
 	std::size_t count = 0;
 
