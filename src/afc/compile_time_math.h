@@ -61,15 +61,6 @@ namespace afc
 				"An integral unsigned type is expected.");
 		return std::numeric_limits<unsigned>::digits - leadZeroCount(val - 1);
 	}
-
-	template<typename T, unsigned char base>
-	constexpr unsigned digitCount(const T val)
-	{
-		static_assert(std::is_integral<T>::value, "An integral type is expected.");
-		static_assert(std::is_unsigned<T>::value, "An unsigned type is expected.");
-		static_assert(base >= 2, "Base must be greater than or equal to two.");
-		return val < base ? 1 : 1 + digitCount<T, base>(val / base);
-	}
 }
 
 #endif /*AFC_COMPILE_TIME_MATH_H_*/

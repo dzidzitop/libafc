@@ -102,11 +102,37 @@ namespace afc
 	template<typename T, unsigned char base>
 	constexpr std::size_t maxPrintedSize() noexcept
 	{
+		static_assert(std::is_integral<T>::value, "T must be an integral type.");
+
 		typedef typename std::make_unsigned<T>::type UnsignedT;
 		return std::is_signed<T>::value ?
 				// One character for sign.
 				printedSize<base>(std::numeric_limits<UnsignedT>::max()) + 1 :
 				printedSize<base>(std::numeric_limits<UnsignedT>::max());
+	}
+
+	template<unsigned char base, typename T>
+	constexpr std::size_t digitCount(const T val)
+	{
+		static_assert(std::is_integral<T>::value, "An integral type is expected.");
+		static_assert(base >= 2, "Base must be greater than or equal to two.");
+		return (val < 0 && val > -static_cast<T>(base)) || (val >= 0 && val < base) ?
+				1 : 1 + digitCount<base, T>(val / base);
+	}
+
+	template<unsigned char base, typename T>
+	constexpr std::size_t maxDigitCount()
+	{
+		static_assert(std::is_integral<T>::value, "T must be an integral type.");
+
+		/* The min signed value contains at least as many digits as the max signed value
+		 * for all signed type representations allowed in C++11. However, calculating
+		 * it for both min and max just in case something changes. It is free of charge
+		 * anyway.
+		 */
+		return std::is_signed<T>::value ?
+				std::max(digitCount<base>(std::numeric_limits<T>::min()), digitCount<base>(std::numeric_limits<T>::min())) :
+				digitCount<base>(std::numeric_limits<T>::max());
 	}
 
 	// TODO use std::enable_if
@@ -175,13 +201,9 @@ Iterator afc::printNumber(const T value, register Iterator dest)
 	typedef typename std::make_unsigned<T>::type UnsignedT;
 
 	// TODO use direct order and bulk append.
-	static_assert(std::numeric_limits<UnsignedT>::digits - 1 == std::numeric_limits<typename std::make_signed<T>::type>::digits,
-			"Unsupported number representation.");
 
-	// The two's complement representation can take that even for signed values for the min value for base == 2.
-	constexpr std::size_t maxDigitCount = maxPrintedSize<UnsignedT, base>();
 	// The buffer that contains digits in the reverse order.
-	char digits[maxDigitCount];
+	char digits[maxDigitCount<base, T>()];
 	std::size_t count = 0;
 
 	/** If value is equal to the min signed value then the negation of it is either
@@ -199,7 +221,7 @@ Iterator afc::printNumber(const T value, register Iterator dest)
 	}
 	digits[count++] = digitToChar<base>(val);
 
-	assert(count <= maxDigitCount);
+	assert((count <= maxDigitCount<base, T>()));
 
 	if (value < 0) {
 		*dest++ = '-';
