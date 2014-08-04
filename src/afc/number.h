@@ -23,6 +23,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include <string>
 #include <type_traits>
 
+#include "math_utils.h"
+
 namespace afc
 {
 	namespace number_limits
@@ -131,7 +133,7 @@ namespace afc
 		 * anyway.
 		 */
 		return std::is_signed<T>::value ?
-				std::max(digitCount<base>(std::numeric_limits<T>::min()), digitCount<base>(std::numeric_limits<T>::min())) :
+				afc::math::max(digitCount<base>(std::numeric_limits<T>::min()), digitCount<base>(std::numeric_limits<T>::min())) :
 				digitCount<base>(std::numeric_limits<T>::max());
 	}
 
@@ -202,9 +204,9 @@ Iterator afc::printNumber(const T value, register Iterator dest)
 
 	// TODO use direct order and bulk append.
 
-	// The buffer that contains digits in the reverse order.
-	char digits[maxDigitCount<base, T>()];
-	std::size_t count = 0;
+	// The buffer that contains digits in the reverse order. The greatest digit is not stored here.
+	char digits[maxDigitCount<base, T>() - 1];
+	std::size_t i = 0;
 
 	/** If value is equal to the min signed value then the negation of it is either
 	 *  max signed value (for ones' complement and sign/magnitude signed representations) or
@@ -212,24 +214,26 @@ Iterator afc::printNumber(const T value, register Iterator dest)
 	 *  the min signed value is casted to the correspondent unsigned value correctly as if
 	 *  it were properly negated.
 	 */
-	UnsignedT val = static_cast<UnsignedT>(value < 0 ? -value : value);
+	UnsignedT val;
+	if (value >= 0) {
+		val = value;
+	} else {
+		val = static_cast<UnsignedT>(-value);
+		*dest++ = '-';
+	}
 
 	while (val >= base) {
 		const UnsignedT nextVal = val / base;
-		digits[count++] = digitToChar<base>(val - nextVal * base);
+		digits[i++] = digitToChar<base>(val - nextVal * base);
 		val = nextVal;
 	}
-	digits[count++] = digitToChar<base>(val);
+	assert(i <= sizeof(digits));
 
-	assert((count <= maxDigitCount<base, T>()));
-
-	if (value < 0) {
-		*dest++ = '-';
+	// The highest digit.
+	*dest++ = digitToChar<base>(val);
+	while (i != 0) {
+		*dest++ = digits[--i];
 	}
-	do {
-		*dest++ = digits[--count];
-	} while (count != 0);
-
 	return dest;
 }
 
