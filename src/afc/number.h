@@ -103,7 +103,7 @@ namespace afc
 
 	// TODO use std::enable_if
 	template<unsigned char base, typename T>
-	inline constexpr char digitToChar(const T digit) noexcept
+	constexpr char digitToChar(const T digit) noexcept
 	{
 		static_assert(std::is_integral<T>::value, "T must be an integral type.");
 		static_assert(base >= afc::number_limits::MIN_BASE && base <= afc::number_limits::MAX_BASE, "Unsupported base.");
