@@ -25,10 +25,10 @@ namespace afc
 {
 	namespace math {
 		template<typename T>
-		constexpr T &min(T &a, T &b) { return a < b ? a : b; }
+		constexpr T min(T a, T b) { return a < b ? a : b; }
 
 		template<typename T>
-		constexpr T &max(T &a, T &b) { return a < b ? b : a; }
+		constexpr T max(T a, T b) { return a < b ? b : a; }
 
 		template<typename T>
 		T ceilPow2(const T a)

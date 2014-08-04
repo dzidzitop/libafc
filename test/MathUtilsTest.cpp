@@ -36,7 +36,7 @@ void afc::MathUtilsTest::testMin()
 
 	// Checking that the reference of the correct type is returned.
 	int x = 5, y = 4;
-	int &z = afc::math::min(x, y);
+	int &z = afc::math::min<int &>(x, y);
 	CPPUNIT_ASSERT_EQUAL(4, z);
 
 	const int a = 2, b = 3;
@@ -63,7 +63,7 @@ void afc::MathUtilsTest::testMax()
 
 	// Checking that the reference of the correct type is returned.
 	int x = 5, y = 4;
-	int &z = afc::math::max(x, y);
+	int &z = afc::math::max<int &>(x, y);
 	CPPUNIT_ASSERT_EQUAL(5, z);
 
 	const int a = 2, b = 3;
