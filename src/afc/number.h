@@ -101,8 +101,9 @@ namespace afc
 				std::numeric_limits<UnsignedT>::digits;
 	}
 
-	template<unsigned char base = 10>
-	char digitToChar(const unsigned char digit)
+	// TODO use std::enable_if
+	template<typename T, unsigned char base = 10>
+	char digitToChar(const T digit)
 	{
 		static_assert(base >= afc::number_limits::MIN_BASE && base <= afc::number_limits::MAX_BASE, "Unsupported base.");
 		assert(digit < base);
@@ -152,8 +153,8 @@ namespace afc
 	}
 }
 
-template<typename T, unsigned char base, typename OutputIterator>
-OutputIterator afc::printNumber(const T value, const OutputIterator dest)
+template<typename T, unsigned char base, typename Iterator>
+Iterator afc::printNumber(const T value, register Iterator dest)
 {
 	static_assert(std::is_integral<T>::value, "Integral types are supported only.");
 	static_assert(base >= afc::number_limits::MIN_BASE && base <= afc::number_limits::MAX_BASE, "Unsupported base.");
@@ -183,22 +184,21 @@ OutputIterator afc::printNumber(const T value, const OutputIterator dest)
 
 	while (val >= base) {
 		const UnsignedT nextVal = val / base;
-		digits[count++] = digitChars[val - nextVal*base];
+		digits[count++] = digitToChar<T, base>(val - nextVal * base);
 		val = nextVal;
 	}
-	digits[count++] = digitChars[val];
+	digits[count++] = digitToChar<T, base>(val);
 
 	assert(count <= maxDigitCount);
 
-	OutputIterator end = dest;
 	if (value < 0) {
-		*end++ = '-';
+		*dest++ = '-';
 	}
 	do {
-		*end++ = digits[--count];
+		*dest++ = digits[--count];
 	} while (count != 0);
 
-	return end;
+	return dest;
 }
 
 #endif /*AFC_NUMBER_H_*/
