@@ -185,7 +185,7 @@ Iterator afc::printNumber(const T value, register Iterator dest)
 	// The two's complement representation can take that even for signed values for the min value for base == 2.
 	constexpr std::size_t maxDigitCount = maxPrintedSize<UnsignedT, base>();
 	char digits[maxDigitCount];
-	unsigned count = 0;
+	std::size_t count = 0;
 
 	/** If value is equal to the min signed value then the negation of it is either
 	 *  max signed value (for ones' complement and sign/magnitude signed representations) or
