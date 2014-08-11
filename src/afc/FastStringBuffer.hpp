@@ -16,16 +16,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #ifndef AFC_FASTSTRINGBUFFER_HPP_
 #define AFC_FASTSTRINGBUFFER_HPP_
 
-#include <cstddef>
+#include <algorithm>
 #include <cassert>
+#include <cstddef>
+#include <cstring>
 #include <initializer_list>
+#ifdef AFC_FASTSTRINGBUFFER_DEBUG
+	#include <iterator>
+#endif
 #include <limits>
 #include <memory>
 #include <new>
 #include <type_traits>
 #include <utility>
-#include <cstring>
-#include <algorithm>
+
+#include "builtin.hpp"
 #include "math_utils.h"
 #include "StringRef.hpp"
 #ifdef AFC_EXCEPTIONS_ENABLED
@@ -33,14 +38,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #else
 	#include <exception>
 #endif
-#ifdef AFC_FASTSTRINGBUFFER_DEBUG
-	#include <iterator>
-#endif
 
 namespace afc
 {
+	enum class AllocMode
+	{
+		pow2,
+		accurate
+	};
+
 	// A buffer that assumes that the caller handles the capacity of the buffer manually.
-	template<typename CharType>
+	template<typename CharType, afc::AllocMode allocMode = afc::AllocMode::pow2>
 	class FastStringBuffer
 	{
 		/* Supporting consistent and still efficient implementation for non-POD types is
@@ -66,7 +74,7 @@ namespace afc
 		FastStringBuffer() noexcept : m_buf(nullptr), m_bufEnd(nullptr), m_capacity(0) {}
 		explicit FastStringBuffer(const std::size_t initialCapacity)
 		{
-			if (initialCapacity > 0) {
+			if (likely(initialCapacity > 0)) {
 				const std::size_t storageSize = nextStorageSize(initialCapacity);
 				m_capacity = storageSize - 1;
 				// Alignment of the block allocated is suitable for CharType elements.
@@ -221,7 +229,7 @@ namespace afc
 	private:
 		void expand(std::size_t capacity);
 		// The expected new capacity is passed in, not the current capacity.
-		inline std::size_t nextStorageSize(std::size_t capacity);
+		std::size_t nextStorageSize(std::size_t capacity);
 
 		static constexpr std::size_t maxCapacity() noexcept
 		{
@@ -245,31 +253,47 @@ namespace afc
 	};
 }
 
-template<typename CharType>
-const CharType afc::FastStringBuffer<CharType>::empty[1] = {CharType(0)};
+template<typename CharType, afc::AllocMode allocMode>
+const CharType afc::FastStringBuffer<CharType, allocMode>::empty[1] = {CharType(0)};
 
-template<typename CharType>
-inline std::size_t afc::FastStringBuffer<CharType>::nextStorageSize(const std::size_t capacity)
+template<typename CharType, afc::AllocMode allocMode>
+inline std::size_t afc::FastStringBuffer<CharType, allocMode>::nextStorageSize(const std::size_t capacity)
 {
-	// FastStringBuffer::reserve() does not expand storage if capacity == 0.
+	static_assert(allocMode == afc::AllocMode::pow2 || allocMode == afc::AllocMode::accurate, "Unsupported allocMode.");
+
 	assert(capacity > 0);
 
-	constexpr std::size_t maxStorageSize = maxCapacity() + 1;
-	const std::size_t requestedStorageSize = capacity + 1;
+	if (allocMode == afc::AllocMode::pow2) {
+		constexpr std::size_t maxStorageSize = maxCapacity() + 1;
+		const std::size_t requestedStorageSize = capacity + 1;
 
-	/* Since newStorageSize is always a power of two, the first value that
-	 * newStorageSize * 2 overflows with is (2^(n-1) * 2) mod 2^n = 0
-	 */
-	static_assert((std::numeric_limits<std::size_t>::max() / 2 + 1) * 2 == 0,
-			"Wrong assumption on overflow rules.");
+		// FastStringBuffer::reserve() does not expand storage if capacity == 0.
+		/* Since newStorageSize is always a power of two, the first value that
+		 * newStorageSize * 2 overflows with is (2^(n-1) * 2) mod 2^n = 0
+		 */
+		static_assert((std::numeric_limits<std::size_t>::max() / 2 + 1) * 2 == 0,
+				"Wrong assumption on overflow rules.");
 
-	/* Minimal next storage size is 2 (if n == 1) - one for the character requested,
-	 * the other for the terminating character.
-	 */
-	const std::size_t newStorageSize = afc::math::ceilPow2(requestedStorageSize);
+		/* Minimal next storage size is 2 (if n == 1) - one for the character requested,
+		 * the other for the terminating character.
+		 */
+		const std::size_t newStorageSize = afc::math::ceilPow2(requestedStorageSize);
 
-	if (newStorageSize == 0 || newStorageSize >= maxStorageSize) {
-		// Overflow. Reducing storage size to max allowed.
+		if (newStorageSize == 0 || newStorageSize >= maxStorageSize) {
+			// Overflow. Reducing storage size to max allowed.
+			if (capacity > maxCapacity()) {
+				// The capacity requested is greater than max size of this FastStringBuffer.
+#ifdef AFC_EXCEPTIONS_ENABLED
+				throwException<OverflowException>("Capacity to reserve exceeds max size allowed.");
+#else
+				std::terminate();
+#endif
+			}
+			return maxStorageSize;
+		}
+
+		return newStorageSize;
+	} else { // accurate mode
 		if (capacity > maxCapacity()) {
 			// The capacity requested is greater than max size of this FastStringBuffer.
 #ifdef AFC_EXCEPTIONS_ENABLED
@@ -278,14 +302,12 @@ inline std::size_t afc::FastStringBuffer<CharType>::nextStorageSize(const std::s
 			std::terminate();
 #endif
 		}
-		return maxStorageSize;
+		return capacity + 1;
 	}
-
-	return newStorageSize;
 }
 
-template<typename CharType>
-void afc::FastStringBuffer<CharType>::expand(const std::size_t capacity)
+template<typename CharType, afc::AllocMode allocMode>
+void afc::FastStringBuffer<CharType, allocMode>::expand(const std::size_t capacity)
 {
 	const std::size_t newStorageSize = nextStorageSize(capacity);
 
