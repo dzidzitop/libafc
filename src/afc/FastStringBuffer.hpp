@@ -261,6 +261,7 @@ inline std::size_t afc::FastStringBuffer<CharType, allocMode>::nextStorageSize(c
 {
 	static_assert(allocMode == afc::AllocMode::pow2 || allocMode == afc::AllocMode::accurate, "Unsupported allocMode.");
 
+	// FastStringBuffer::reserve() does not expand storage if capacity == 0.
 	assert(capacity > 0);
 
 	if (allocMode == afc::AllocMode::pow2) {
