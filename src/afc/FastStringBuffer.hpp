@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include <algorithm>
 #include <cassert>
 #include <cstddef>
+#include <cstdlib>
 #include <cstring>
 #include <initializer_list>
 #ifdef AFC_FASTSTRINGBUFFER_DEBUG
@@ -26,7 +27,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #endif
 #include <limits>
 #include <memory>
-#include <new>
 #include <type_traits>
 #include <utility>
 
@@ -34,6 +34,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include "math_utils.h"
 #include "StringRef.hpp"
 #ifdef AFC_EXCEPTIONS_ENABLED
+	#include <new>
 	#include "Exception.h"
 #else
 	#include <exception>
@@ -78,8 +79,12 @@ namespace afc
 				const std::size_t storageSize = nextStorageSize(initialCapacity);
 				m_capacity = storageSize - 1;
 				// Alignment of the block allocated is suitable for CharType elements.
-				m_buf = static_cast<CharType *>(::operator new(storageSize * sizeof(CharType)));
-				m_bufEnd = m_buf;
+				register void * const ptr = std::malloc(storageSize * sizeof(CharType));
+				if (likely(ptr != nullptr)) {
+					m_bufEnd = m_buf = static_cast<CharType *>(ptr);
+				} else {
+					badAlloc();
+				}
 			} else {
 				m_buf = m_bufEnd = nullptr;
 				m_capacity = 0;
@@ -104,7 +109,7 @@ namespace afc
 			return *this;
 		}
 
-		~FastStringBuffer() { delete m_buf; };
+		~FastStringBuffer() { std::free(m_buf); };
 
 		void reserve(const std::size_t n)
 		{
@@ -243,6 +248,15 @@ namespace afc
 					std::size_t(std::numeric_limits<std::ptrdiff_t>::max()));
 		}
 
+		static void badAlloc()
+		{
+#ifdef AFC_EXCEPTIONS_ENABLED
+			throw std::bad_alloc;
+#else
+			std::terminate();
+#endif
+		}
+
 		static const CharType empty[1];
 
 		// If not nullptr then one character is reserved for the terminating character.
@@ -310,27 +324,24 @@ inline std::size_t afc::FastStringBuffer<CharType, allocMode>::nextStorageSize(c
 template<typename CharType, afc::AllocMode allocMode>
 void afc::FastStringBuffer<CharType, allocMode>::expand(const std::size_t capacity)
 {
-	const std::size_t newStorageSize = nextStorageSize(capacity);
+	register const std::size_t newStorageSize = nextStorageSize(capacity);
 
 	/* The old buffer is deleted (and replaced with the new buffer) iff no exception is thrown
 	 * while copying data from the old buffer to the new one. Otherwise this FastStringBuffer
 	 * remains unmodified.
 	 */
 	// Alignment of the block allocated is suitable for CharType elements.
-	CharType * const newBuf = static_cast<CharType *>(::operator new(newStorageSize * sizeof(CharType)));
+	// POD values are copied bitwise, if needed, which is efficient for all compilers/runtimes.
+	register void * const newBuf = std::realloc(m_buf, newStorageSize * sizeof(CharType));
 
-	if (m_buf != nullptr) {
-		const std::size_t size = this->size();
-		// POD values are copied by std::memcpy, which is efficient for all compilers/runtimes.
-		std::memcpy(newBuf, m_buf, size * sizeof(CharType));
-		// No exception is thrown after newBuf is allocated.
-		delete m_buf;
-		m_bufEnd = newBuf + size;
+	if (likely(newBuf != nullptr)) {
+		register const std::size_t size = this->size();
+		m_buf = static_cast<CharType *>(newBuf);
+		m_bufEnd = m_buf + size;
+		m_capacity = newStorageSize - 1;
 	} else {
-		m_bufEnd = newBuf;
+		badAlloc();
 	}
-	m_buf = newBuf;
-	m_capacity = newStorageSize - 1;
 }
 
 #ifdef AFC_FASTSTRINGBUFFER_DEBUG

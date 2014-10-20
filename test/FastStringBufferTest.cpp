@@ -411,8 +411,6 @@ void afc::FastStringBufferTest::testChar_EmptyBuffer_ReserveNonEmptySpace()
 	CPPUNIT_ASSERT_EQUAL('\0', str2[0]);
 	CPPUNIT_ASSERT_EQUAL(str2, buf.c_str());
 
-	CPPUNIT_ASSERT(str != str2);
-
 	buf.reserve(5);
 
 	CPPUNIT_ASSERT_EQUAL(size_t(0), buf.size());
@@ -423,8 +421,6 @@ void afc::FastStringBufferTest::testChar_EmptyBuffer_ReserveNonEmptySpace()
 	CPPUNIT_ASSERT(str3 != nullptr);
 	CPPUNIT_ASSERT_EQUAL('\0', str3[0]);
 	CPPUNIT_ASSERT_EQUAL(str3, buf.c_str());
-
-	CPPUNIT_ASSERT(str2 != str3);
 }
 
 void afc::FastStringBufferTest::testChar_EmptyBuffer_ReserveSpace_TryToReduceCapacity()
@@ -531,7 +527,6 @@ void afc::FastStringBufferTest::testChar_AppendCharArray_SingleAppend_EmptyArray
 	const char * const str2 = buf.c_str();
 	CPPUNIT_ASSERT(str2 != nullptr);
 	CPPUNIT_ASSERT_EQUAL('\0', str2[0]);
-	CPPUNIT_ASSERT(str2 != str); // Ensuring re-allocation happens.
 
 	buf.reserve(3);
 
@@ -568,7 +563,6 @@ void afc::FastStringBufferTest::testChar_AppendCharArray_SingleAppend_NonEmptyAr
 	const char * const str2 = buf.c_str();
 	CPPUNIT_ASSERT(str2 != nullptr);
 	CPPUNIT_ASSERT_EQUAL(string("Joy"), string(str2));
-	CPPUNIT_ASSERT(str2 != str); // Ensuring re-allocation happens.
 
 	buf.reserve(3);
 
@@ -611,7 +605,6 @@ void afc::FastStringBufferTest::testChar_AppendCharArray_MultipleAppends()
 	CPPUNIT_ASSERT(str2 != nullptr);
 	CPPUNIT_ASSERT_EQUAL(string("BomBibom"), string(str2));
 	CPPUNIT_ASSERT_EQUAL(str2, buf.c_str());
-	CPPUNIT_ASSERT(str2 != str); // Ensuring re-allocation happens.
 
 	buf.append(" is classics! Really.", " is classics!"_s.size());
 
@@ -655,7 +648,6 @@ void afc::FastStringBufferTest::testChar_AppendCharArray_MultipleAppends_WithEmp
 	CPPUNIT_ASSERT(str2 != nullptr);
 	CPPUNIT_ASSERT_EQUAL(string("Bom"), string(str2));
 	CPPUNIT_ASSERT_EQUAL(str2, buf.c_str());
-	CPPUNIT_ASSERT(str2 != str); // Ensuring re-allocation happens.
 
 	// Ensuring ::c_str() influences neither size nor capacity.
 	CPPUNIT_ASSERT_EQUAL(size_t(3), buf.size());
@@ -713,7 +705,6 @@ void afc::FastStringBufferTest::testChar_AppendCharArray_MultipleAppends_WithTer
 	CPPUNIT_ASSERT_EQUAL(string("B\0mBib\0m\0", 9), string(str2, 9));
 	CPPUNIT_ASSERT_EQUAL('\0', str2[9]);
 	CPPUNIT_ASSERT_EQUAL(str2, buf.c_str());
-	CPPUNIT_ASSERT(str2 != str); // Ensuring re-allocation happens.
 
 	// Ensuring ::c_str() influences neither size nor capacity.
 	CPPUNIT_ASSERT_EQUAL(size_t(9), buf.size());
