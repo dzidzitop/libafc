@@ -58,6 +58,10 @@ namespace afc
 				{ assert(str != nullptr); assign(str, std::strlen(str)); return *this; }
 		SimpleString &operator=(const ConstStringRef &str) { assign(str.value(), str.size()); return *this; }
 
+		inline void assign(const char *str, const std::size_t size);
+		template<typename Iterator>
+		inline void assign(Iterator begin, Iterator end);
+
 		void attach(const char * const str, const std::size_t strSize) noexcept
 				{ std::free(const_cast<char *>(m_str)); m_str = str; m_size = strSize; }
 
@@ -86,8 +90,7 @@ namespace afc
 
 		void clear() noexcept { std::free(const_cast<char *>(m_str)); m_size = 0; }
 	private:
-		inline void assign(const char *str, const std::size_t size);
-
+		// TODO specify noreturn here.
 		static void badAlloc()
 		{
 #ifdef AFC_EXCEPTIONS_ENABLED
@@ -150,13 +153,28 @@ void afc::SimpleString::assign(const char * const str, const std::size_t size)
 {
 	assert(str != nullptr);
 
-	std::free(const_cast<char *>(m_str));
-	m_size = size;
-	m_str = static_cast<char *>(std::malloc(size * sizeof(char) + 1));
-	if (unlikely(m_str == nullptr)) {
+	char * const newBuf = static_cast<char *>(std::malloc(size * sizeof(char) + 1));
+	if (unlikely(newBuf == nullptr)) {
 		badAlloc();
 	}
-	std::copy_n(str, size, const_cast<char *>(m_str));
+	std::copy_n(str, size, newBuf);
+	std::free(const_cast<char *>(m_str));
+	m_str = newBuf;
+	m_size = size;
+}
+
+template<typename Iterator>
+void afc::SimpleString::assign(Iterator begin, Iterator end)
+{
+	const std::size_t newSize = std::distance(begin, end);
+	char * const newBuf = static_cast<char *>(std::malloc(newSize * sizeof(char) + 1));
+	if (unlikely(newBuf == nullptr)) {
+		badAlloc();
+	}
+	std::copy(begin, end, newBuf);
+	std::free(const_cast<char *>(m_str));
+	m_str = newBuf;
+	m_size = newSize;
 }
 
 #endif /* AFC_SIMPLESTRING_HPP_ */
