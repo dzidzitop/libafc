@@ -66,6 +66,16 @@ namespace afc
 		explicit operator const char *() const noexcept { return m_str; }
 
 		const char *data() const noexcept { return m_str; }
+		const char *c_str() const noexcept
+		{
+			if (m_str == nullptr) {
+				return SimpleString::EmptyCStr<char>::value;
+			} else {
+				const_cast<char *>(m_str)[m_size] = '\0';
+				return m_str;
+			}
+		}
+
 		std::size_t size() const noexcept { return m_size; }
 		bool empty() const noexcept { return m_size == 0; }
 
@@ -90,18 +100,26 @@ namespace afc
 		const char *m_str;
 		// TODO m_strEnd should support for more efficient iteration
 		std::size_t m_size;
+
+		template<typename T> // just to init it in the header file.
+		struct EmptyCStr {
+			static const T value[1];
+		};
 	};
 
 	template<typename Iterator>
 	inline Iterator copy(const SimpleString &s, Iterator dest) { return std::copy_n(s.data(), s.size(), dest); }
 }
 
+template<typename T>
+const T afc::SimpleString::EmptyCStr<T>::value[1] = {T(0)};
+
 afc::SimpleString::SimpleString(const char * const str)
 {
 	assert(str != nullptr);
 
 	m_size = std::strlen(str);
-	m_str = static_cast<char *>(std::malloc(m_size * sizeof(char)));
+	m_str = static_cast<char *>(std::malloc(m_size * sizeof(char) + 1));
 	if (unlikely(m_str == nullptr)) {
 		badAlloc();
 	}
@@ -112,7 +130,7 @@ afc::SimpleString::SimpleString(const char * const str, const std::size_t size) 
 {
 	assert(src != nullptr);
 
-	m_str = static_cast<char *>(std::malloc(size * sizeof(char)));
+	m_str = static_cast<char *>(std::malloc(size * sizeof(char) + 1));
 	if (unlikely(m_str == nullptr)) {
 		badAlloc();
 	}
@@ -121,7 +139,7 @@ afc::SimpleString::SimpleString(const char * const str, const std::size_t size) 
 
 afc::SimpleString::SimpleString(const afc::ConstStringRef &str) : m_size(str.size())
 {
-	m_str = static_cast<char *>(std::malloc(m_size * sizeof(char)));
+	m_str = static_cast<char *>(std::malloc(m_size * sizeof(char) + 1));
 	if (unlikely(m_str == nullptr)) {
 		badAlloc();
 	}
@@ -134,7 +152,7 @@ void afc::SimpleString::assign(const char * const str, const std::size_t size)
 
 	std::free(const_cast<char *>(m_str));
 	m_size = size;
-	m_str = static_cast<char *>(std::malloc(size * sizeof(char)));
+	m_str = static_cast<char *>(std::malloc(size * sizeof(char) + 1));
 	if (unlikely(m_str == nullptr)) {
 		badAlloc();
 	}
