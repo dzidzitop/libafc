@@ -1,5 +1,5 @@
 /* libafc - utils to facilitate C++ development.
-Copyright (C) 2013-2014 Dźmitry Laŭčuk
+Copyright (C) 2013-2015 Dźmitry Laŭčuk
 
 libafc is free software: you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by
@@ -27,6 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 #include "ensure_ascii.hpp" // needed to ensure that '\n' != EOF.
 #include "number.h"
+#include "SimpleString.hpp"
 #include "StringRef.hpp"
 
 namespace afc
@@ -58,6 +59,11 @@ namespace afc
 		inline bool logPrint(afc::ConstStringRef s, FILE * const dest) noexcept
 		{
 			return logText(s.value(), s.size(), dest);
+		}
+
+		inline bool logPrint(afc::SimpleString &s, FILE * const dest) noexcept
+		{
+			return logText(s.data(), s.size(), dest);
 		}
 
 		inline bool logPrint(const std::string &s, FILE * const dest) noexcept

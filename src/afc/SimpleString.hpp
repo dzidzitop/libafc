@@ -131,7 +131,7 @@ afc::SimpleString::SimpleString(const char * const str)
 
 afc::SimpleString::SimpleString(const char * const str, const std::size_t size) : m_size(size)
 {
-	assert(src != nullptr);
+	assert(str != nullptr);
 
 	m_str = static_cast<char *>(std::malloc(size * sizeof(char) + 1));
 	if (unlikely(m_str == nullptr)) {
