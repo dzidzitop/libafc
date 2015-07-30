@@ -58,17 +58,23 @@ namespace afc
 				{ assert(str != nullptr); assign(str, std::strlen(str)); return *this; }
 		SimpleString &operator=(const ConstStringRef &str) { assign(str.value(), str.size()); return *this; }
 
-		~SimpleString() { std::free(m_str); };
+		void attach(const char * const str, const std::size_t strSize) noexcept
+				{ std::free(const_cast<char *>(m_str)); m_str = str; m_size = strSize; }
+
+		~SimpleString() { std::free(const_cast<char *>(m_str)); };
 
 		explicit operator const char *() const noexcept { return m_str; }
 
 		const char *data() const noexcept { return m_str; }
 		std::size_t size() const noexcept { return m_size; }
+		bool empty() const noexcept { return m_size == 0; }
 
 		const char &operator[](const std::size_t i) const noexcept { return m_str[i]; };
 
 		const char *begin() const noexcept { return &m_str[0]; };
 		const char *end() const noexcept { return &m_str[m_size]; };
+
+		void clear() noexcept { std::free(const_cast<char *>(m_str)); m_size = 0; }
 	private:
 		inline void assign(const char *str, const std::size_t size);
 
@@ -81,7 +87,7 @@ namespace afc
 #endif
 		}
 
-		char *m_str;
+		const char *m_str;
 		// TODO m_strEnd should support for more efficient iteration
 		std::size_t m_size;
 	};
@@ -99,7 +105,7 @@ afc::SimpleString::SimpleString(const char * const str)
 	if (unlikely(m_str == nullptr)) {
 		badAlloc();
 	}
-	std::copy_n(str, m_size, m_str);
+	std::copy_n(str, m_size, const_cast<char *>(m_str));
 }
 
 afc::SimpleString::SimpleString(const char * const str, const std::size_t size) : m_size(size)
@@ -110,7 +116,7 @@ afc::SimpleString::SimpleString(const char * const str, const std::size_t size) 
 	if (unlikely(m_str == nullptr)) {
 		badAlloc();
 	}
-	std::copy_n(str, size, m_str);
+	std::copy_n(str, size, const_cast<char *>(m_str));
 }
 
 afc::SimpleString::SimpleString(const afc::ConstStringRef &str) : m_size(str.size())
@@ -119,20 +125,20 @@ afc::SimpleString::SimpleString(const afc::ConstStringRef &str) : m_size(str.siz
 	if (unlikely(m_str == nullptr)) {
 		badAlloc();
 	}
-	copy(str, m_str);
+	copy(str, const_cast<char *>(m_str));
 }
 
 void afc::SimpleString::assign(const char * const str, const std::size_t size)
 {
 	assert(str != nullptr);
 
-	std::free(m_str);
+	std::free(const_cast<char *>(m_str));
 	m_size = size;
 	m_str = static_cast<char *>(std::malloc(size * sizeof(char)));
 	if (unlikely(m_str == nullptr)) {
 		badAlloc();
 	}
-	std::copy_n(str, size, m_str);
+	std::copy_n(str, size, const_cast<char *>(m_str));
 }
 
 #endif /* AFC_SIMPLESTRING_HPP_ */
