@@ -51,7 +51,7 @@ namespace afc
 		template<typename Iterator>
 		SimpleString(Iterator begin, Iterator end);
 
-		SimpleString &operator=(const SimpleString &str) { assign(str.value(), str.size()); return *this; }
+		SimpleString &operator=(const SimpleString &str) { assign(str.m_str, str.m_size); return *this; }
 		SimpleString &operator=(SimpleString &&str) noexcept
 				{ m_str = str.m_str; str.m_str = nullptr; m_size = str.m_size; str.m_size = 0; return *this; }
 		SimpleString &operator=(const char *str)
@@ -62,7 +62,7 @@ namespace afc
 
 		explicit operator const char *() const noexcept { return m_str; }
 
-		const char *value() const noexcept { return m_str; }
+		const char *data() const noexcept { return m_str; }
 		std::size_t size() const noexcept { return m_size; }
 
 		const char &operator[](const std::size_t i) const noexcept { return m_str[i]; };
@@ -87,7 +87,7 @@ namespace afc
 	};
 
 	template<typename Iterator>
-	inline Iterator copy(const SimpleString &s, Iterator dest) { return std::copy_n(s.value(), s.size(), dest); }
+	inline Iterator copy(const SimpleString &s, Iterator dest) { return std::copy_n(s.data(), s.size(), dest); }
 }
 
 afc::SimpleString::SimpleString(const char * const str)
