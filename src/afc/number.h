@@ -170,6 +170,10 @@ namespace afc
 		out.append(begin, end);
 	}
 
+	// TODO think of defining conditional noexcept.
+	template<unsigned char base, typename T, typename Iterator, typename ErrorHandler>
+	Iterator parseNumber(Iterator begin, Iterator end, T &result, ErrorHandler errorHandler);
+
 	template<typename T, typename Iterator>
 	inline Iterator printTwoDigits(const T value, Iterator dest)
 	{
@@ -235,6 +239,72 @@ Iterator afc::printNumber(const T value, register Iterator dest)
 		*dest++ = digits[--i];
 	}
 	return dest;
+}
+
+// TODO optimise performance
+template<unsigned char base, typename T, typename Iterator, typename ErrorHandler>
+Iterator afc::parseNumber(Iterator begin, Iterator end, T &result, ErrorHandler errorHandler)
+{
+	static_assert(std::is_integral<T>::value, "Integral types are supported only.");
+	static_assert(base >= afc::number_limits::MIN_BASE && base <= afc::number_limits::MAX_BASE, "Unsupported base.");
+
+	if (begin == end) {
+		errorHandler(begin);
+		return end;
+	}
+
+	Iterator p = begin;
+	char c;
+	bool signedValue;
+	if (std::is_signed<T>::value) {
+		c = *p;
+		if (c == u8"-"[0]) {
+			signedValue = true;
+			if (++p == end) {
+				errorHandler(end);
+				return p;
+			}
+		} else {
+			signedValue = false;
+		}
+	}
+	result = 0;
+	do {
+		unsigned digit;
+		const char c = *p;
+		if (c >= u8"0"[0] && c <= u8"9"[0]) {
+			digit = c - u8"0"[0];
+		} else if (c >= u8"a"[0] && c <= u8"z"[0]) {
+			digit = c - u8"a"[0] + 10;
+		} else {
+			if (p == begin) {
+				errorHandler(p);
+				return p;
+			} else {
+				break;
+			}
+		}
+		if (digit >= base) {
+			errorHandler(p);
+			return p;
+		}
+		const T newResult = base * result + digit;
+		if (newResult < result) {
+			errorHandler(p);
+			return p;
+		}
+		result = newResult;
+	} while (++p != end);
+
+	if (std::is_signed<T>::value) {
+		// Checking for underflow.
+		if (signedValue && (result = -result) >= 0) { // This check is valid for all sign encoding schemes.
+			errorHandler(p);
+			return p;
+		}
+	}
+
+	return p;
 }
 
 #endif /*AFC_NUMBER_H_*/
