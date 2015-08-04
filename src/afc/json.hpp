@@ -14,13 +14,12 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
-// Devoted to Anžalika Žuk. She gave me strength and patience to implement this toolkit.
+// Dedicated to Anžalika Žuk. She gave me strength and patience to implement this toolkit.
 
 #ifndef AFC_JSON_HPP_
 #define AFC_JSON_HPP_
 
 #include <algorithm>
-#include <cassert>
 
 #include <afc/builtin.hpp>
 
@@ -66,7 +65,10 @@ namespace json
 			errorHandler.prematureEnd();
 			return end;
 		}
-		assert(*i == u8"}"[0]);
+		if (unlikely(*i != u8"}"[0])) {
+			errorHandler.malformedJson(i);
+			return end;
+		}
 		++i;
 		if (spacePolicy == spaces) {
 			i = skipSpaces(i, end);
@@ -114,7 +116,8 @@ namespace json
 					i = skipSpaces(i, end);
 				}
 				return i;
-			} else if (c == u8","[0]) {
+			}
+			if (likely(c == u8","[0])) {
 				++i;
 			} else {
 				errorHandler.malformedJson(i);
@@ -145,9 +148,12 @@ namespace json
 		}
 		if (unlikely(i == end)) {
 			errorHandler.prematureEnd();
-			return i;
+			return end;
 		}
-		assert(*i == u8"\""[0]);
+		if (unlikely(*i != u8"\""[0])) {
+			errorHandler.malformedJson(i);
+			return end;
+		}
 		++i;
 		if (spacePolicy == spaces) {
 			i = skipSpaces(i, end);
