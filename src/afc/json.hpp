@@ -224,8 +224,7 @@ namespace json
 
 			++i;
 			if (likely(c != u8"\\"[0])) {
-				dest(c);
-				continue;
+				goto callDest;
 			}
 
 			if (unlikely(i == end)) {
@@ -236,17 +235,18 @@ namespace json
 			c = *i;
 			++i;
 			if (c == u8"\""[0] || c == u8"\\"[0] || c == u8"/"[0]) {
-				dest(c);
+				// c is already valid.
+				goto callDest;
 			} else if (c == u8"b"[0]) {
-				dest(u8"\b"[0]);
+				c = u8"\b"[0];
 			} else if (c == u8"f"[0]) {
-				dest(u8"\f"[0]);
+				c = u8"\f"[0];
 			} else if (c == u8"n"[0]) {
-				dest(u8"\n"[0]);
+				c = u8"\n"[0];
 			} else if (c == u8"r"[0]) {
-				dest(u8"\r"[0]);
+				c = u8"\r"[0];
 			} else if (c == u8"t"[0]) {
-				dest(u8"\t"[0]);
+				c = u8"\t"[0];
 			} else if (c == u8"u"[0]) {
 				// TODO support unicode escapes.
 				errorHandler.malformedJson(begin);
@@ -255,6 +255,9 @@ namespace json
 				errorHandler.malformedJson(i);
 				return end;
 			}
+
+		callDest:
+			dest(c);
 		} while (i != end);
 
 		return i;
