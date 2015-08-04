@@ -117,6 +117,12 @@ namespace afc
 				expand(n);
 			}
 		}
+		void reserveForOne()
+		{
+			if (m_buf + m_capacity == m_bufEnd) {
+				expand();
+			}
+		}
 
 		template<typename Iterator>
 		FastStringBuffer &append(const Iterator from, const Iterator to) noexcept
@@ -236,6 +242,7 @@ namespace afc
 		void returnTail(const Tail tail) noexcept { assert(tail <= m_buf + m_capacity); m_bufEnd = tail; };
 #endif
 	private:
+		inline void expand();
 		void expand(std::size_t capacity);
 		// The expected new capacity is passed in, not the current capacity.
 		std::size_t nextStorageSize(std::size_t capacity);
@@ -286,7 +293,7 @@ inline std::size_t afc::FastStringBuffer<CharType, allocMode>::nextStorageSize(c
 		constexpr std::size_t maxStorageSize = maxCapacity() + 1;
 		const std::size_t requestedStorageSize = capacity + 1;
 
-		// FastStringBuffer::reserve() does not expand storage if capacity == 0.
+		// FastStringBuffer::reserve(std::size_t) does not expand storage if capacity == 0.
 		/* Since newStorageSize is always a power of two, the first value that
 		 * newStorageSize * 2 overflows with is (2^(n-1) * 2) mod 2^n = 0
 		 */
@@ -322,6 +329,47 @@ inline std::size_t afc::FastStringBuffer<CharType, allocMode>::nextStorageSize(c
 #endif
 		}
 		return capacity + 1;
+	}
+}
+
+template<typename CharType, afc::AllocMode allocMode>
+void afc::FastStringBuffer<CharType, allocMode>::expand()
+{
+	static_assert(allocMode == afc::AllocMode::pow2 || allocMode == afc::AllocMode::accurate, "Unsupported allocMode.");
+
+	if (m_capacity == maxCapacity()) {
+		// The capacity requested is greater than max size of this FastStringBuffer.
+#ifdef AFC_EXCEPTIONS_ENABLED
+		throwException<OverflowException>("Capacity to reserve exceeds max size allowed.");
+#else
+		std::terminate();
+#endif
+	}
+
+	register std::size_t newCapacity;
+
+	if (allocMode == afc::AllocMode::pow2) {
+		newCapacity = m_capacity * 2 + 1; // Never overflows.
+		assert(newCapacity <= maxCapacity());
+	} else { // accurate mode
+		newCapacity = m_capacity + 1;
+	}
+
+	/* The old buffer is deleted (and replaced with the new buffer) iff no exception is thrown
+	 * while copying data from the old buffer to the new one. Otherwise this FastStringBuffer
+	 * remains unmodified.
+	 */
+	// Alignment of the block allocated is suitable for CharType elements.
+	// POD values are copied bitwise, if needed, which is efficient for all compilers/runtimes.
+	register void * const newBuf = std::realloc(m_buf, (newCapacity + 1) * sizeof(CharType));
+
+	if (likely(newBuf != nullptr)) {
+		register const std::size_t size = this->size();
+		m_buf = static_cast<CharType *>(newBuf);
+		m_bufEnd = m_buf + size;
+		m_capacity = newCapacity;
+	} else {
+		badAlloc();
 	}
 }
 
