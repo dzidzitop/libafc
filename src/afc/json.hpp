@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #define AFC_JSON_HPP_
 
 #include <algorithm>
+#include <cctype>
 
 #include <afc/builtin.hpp>
 
