@@ -19,6 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include <algorithm>
 #include <cstddef>
 #include <string>
+#include <type_traits>
+#include <utility>
 #include <langinfo.h>
 #include "ensure_ascii.hpp"
 #include <cassert>
@@ -71,6 +73,36 @@ namespace afc
 		UnlockGuard &operator=(UnlockGuard &&) = delete;
 
 		std::mutex &m_mutex;
+	};
+
+	template<typename T>
+	class Optional
+	{
+	public:
+		Optional(const Optional &o) : m_hasValue(o.m_hasValue) { if (o.m_hasValue) { new (&m_data.value) T(o.m_data.value); } }
+		Optional(Optional &&o) : m_hasValue(o.m_hasValue) { if (o.m_hasValue) { new (&m_data.value) T(std::move(o.m_data.value)); } }
+
+		template<typename... Args, typename = typename std::enable_if<std::is_constructible<T, Args...>::value>::type>
+		Optional(Args &&...args) : m_hasValue(true) { new (&m_data.value) T(std::forward<Args>(args)...); }
+
+		~Optional() { if (m_hasValue) { m_data.value.~T(); } }
+
+		static Optional none() { return Optional(static_cast<Data *>(nullptr)); }
+
+		bool hasValue() const { return m_hasValue; }
+
+		T &value() { return m_data.value; }
+		const T &value() const { return m_data.value; }
+	private:
+		union Data {
+			Data() {}
+			~Data() { /* Optional::~Optional() destructs value if needed. */ }
+
+			T value;
+		} m_data;
+		const bool m_hasValue;
+
+		Optional(Data *) : m_hasValue(false) {}
 	};
 }
 
