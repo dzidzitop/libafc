@@ -62,8 +62,8 @@ namespace afc
 		template<typename Iterator>
 		inline void assign(Iterator begin, Iterator end);
 
-		void attach(const char * const str, const std::size_t strSize) noexcept
-				{ std::free(const_cast<char *>(m_str)); m_str = str; m_size = strSize; }
+		SimpleString &attach(const char * const str, const std::size_t strSize) noexcept
+				{ std::free(const_cast<char *>(m_str)); m_str = str; m_size = strSize; return *this; }
 
 		~SimpleString() { std::free(const_cast<char *>(m_str)); };
 
