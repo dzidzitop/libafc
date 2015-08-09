@@ -1,5 +1,5 @@
 /* libafc - utils to facilitate C++ development.
-Copyright (C) 2010-2014 Dźmitry Laŭčuk
+Copyright (C) 2010-2015 Dźmitry Laŭčuk
 
 libafc is free software: you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by
@@ -270,12 +270,14 @@ Iterator afc::parseNumber(Iterator begin, Iterator end, T &result, ErrorHandler 
 	}
 	result = 0;
 	do {
-		unsigned digit;
+		T digit;
 		const char c = *p;
-		if (c >= u8"0"[0] && c <= u8"9"[0]) {
+		if (c >= u8"0"[0] && c <= afc::math::min<char>(u8"9"[0], u8"0"[0] + base)) {
 			digit = c - u8"0"[0];
-		} else if (c >= u8"a"[0] && c <= u8"z"[0]) {
+		} else if (base > 10 && c >= u8"a"[0] && c <= afc::math::min<char>(u8"z"[0], u8"a"[0] + base - 10)) {
 			digit = c - u8"a"[0] + 10;
+		} else if (base > 10 && c >= u8"A"[0] && c <= afc::math::min<char>(u8"Z"[0], u8"A"[0] + base - 10)) {
+			digit = c - u8"A"[0] + 10;
 		} else {
 			if (p == begin) {
 				errorHandler(p);
@@ -284,10 +286,8 @@ Iterator afc::parseNumber(Iterator begin, Iterator end, T &result, ErrorHandler 
 				break;
 			}
 		}
-		if (digit >= base) {
-			errorHandler(p);
-			return p;
-		}
+		assert(digit < base);
+
 		const T newResult = base * result + digit;
 		if (newResult < result) {
 			errorHandler(p);

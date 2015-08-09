@@ -1,5 +1,5 @@
 /* libafc - utils to facilitate C++ development.
-Copyright (C) 2010-2014 Dźmitry Laŭčuk
+Copyright (C) 2010-2015 Dźmitry Laŭčuk
 
 libafc is free software: you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by
@@ -27,11 +27,23 @@ namespace afc
 		CPPUNIT_TEST(testPrintNumber_Int);
 		CPPUNIT_TEST(testPrintNumber_MinSignedChar);
 		CPPUNIT_TEST(testPrintNumber_MinSignedLongLong);
+
+		CPPUNIT_TEST(testParseNumber_DecimalInts);
+		CPPUNIT_TEST(testParseNumber_DecimalUnsignedInts);
+
+		CPPUNIT_TEST(testParseNumber_HexInts);
+		CPPUNIT_TEST(testParseNumber_HexUnsignedInts);
 		CPPUNIT_TEST_SUITE_END();
 	public:
 		void testPrintNumber_Int();
 		void testPrintNumber_MinSignedChar();
 		void testPrintNumber_MinSignedLongLong();
+
+		void testParseNumber_DecimalInts();
+		void testParseNumber_DecimalUnsignedInts();
+
+		void testParseNumber_HexInts();
+		void testParseNumber_HexUnsignedInts();
 	};
 }
 

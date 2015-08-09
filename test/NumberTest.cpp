@@ -1,5 +1,5 @@
 /* libafc - utils to facilitate C++ development.
-Copyright (C) 2010-2014 Dźmitry Laŭčuk
+Copyright (C) 2010-2015 Dźmitry Laŭčuk
 
 libafc is free software: you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by
@@ -17,6 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include <limits>
 #include <string>
 #include <afc/number.h>
+#include <afc/StringRef.hpp>
 
 using namespace std;
 
@@ -78,5 +79,117 @@ void afc::NumberTest::testPrintNumber_MinSignedLongLong()
 		string result;
 		printNumber<10, signed long long>(std::numeric_limits<signed long long>::min(), result);
 		CPPUNIT_ASSERT_EQUAL(std::to_string(std::numeric_limits<signed long long>::min()), result);
+	}
+}
+
+void afc::NumberTest::testParseNumber_DecimalInts()
+{
+	{
+		ConstStringRef positiveNumber = "1053"_s;
+		int parsedPositiveNumber = 1;
+
+		const char * const iteraporPositiveNumber = parseNumber<10>(positiveNumber.begin(), positiveNumber.end(),
+				parsedPositiveNumber, [](const char *) { CPPUNIT_FAIL(""); });
+		CPPUNIT_ASSERT_EQUAL(1053, parsedPositiveNumber);
+		CPPUNIT_ASSERT_EQUAL(positiveNumber.end(), iteraporPositiveNumber);
+	}
+
+	{
+		ConstStringRef negativeNumber = "-12366"_s;
+		int parsedNegativeNumber = 1;
+
+		const char * const iteraporNegativeNumber = parseNumber<10>(negativeNumber.begin(), negativeNumber.end(),
+				parsedNegativeNumber, [](const char *) { CPPUNIT_FAIL(""); });
+		CPPUNIT_ASSERT_EQUAL(-12366, parsedNegativeNumber);
+		CPPUNIT_ASSERT_EQUAL(negativeNumber.end(), iteraporNegativeNumber);
+	}
+
+	{
+		ConstStringRef zero = "0"_s;
+		int parsedZero = 1;
+
+		const char * const iteraporZero = parseNumber<10>(zero.begin(), zero.end(),
+				parsedZero, [](const char *) { CPPUNIT_FAIL(""); });
+		CPPUNIT_ASSERT_EQUAL(0, parsedZero);
+		CPPUNIT_ASSERT_EQUAL(zero.end(), iteraporZero);
+	}
+}
+
+void afc::NumberTest::testParseNumber_DecimalUnsignedInts()
+{
+	{
+		ConstStringRef positiveNumber = "1053"_s;
+		unsigned parsedPositiveNumber = 1;
+
+		const char * const iteraporPositiveNumber = parseNumber<10>(positiveNumber.begin(), positiveNumber.end(),
+				parsedPositiveNumber, [](const char *) { CPPUNIT_FAIL(""); });
+		CPPUNIT_ASSERT_EQUAL(1053u, parsedPositiveNumber);
+		CPPUNIT_ASSERT_EQUAL(positiveNumber.end(), iteraporPositiveNumber);
+	}
+
+	{
+		ConstStringRef zero = "0"_s;
+		unsigned parsedZero = 1;
+
+		const char * const iteraporZero = parseNumber<10>(zero.begin(), zero.end(),
+				parsedZero, [](const char *) { CPPUNIT_FAIL(""); });
+		CPPUNIT_ASSERT_EQUAL(0u, parsedZero);
+		CPPUNIT_ASSERT_EQUAL(zero.end(), iteraporZero);
+	}
+}
+
+void afc::NumberTest::testParseNumber_HexInts()
+{
+	{
+		ConstStringRef positiveNumber = "F3aB"_s;
+		int parsedPositiveNumber = 1;
+
+		const char * const iteraporPositiveNumber = parseNumber<16>(positiveNumber.begin(), positiveNumber.end(),
+				parsedPositiveNumber, [](const char *) { CPPUNIT_FAIL("parse error"); });
+		CPPUNIT_ASSERT_EQUAL(0xf3ab, parsedPositiveNumber);
+		CPPUNIT_ASSERT_EQUAL(positiveNumber.end(), iteraporPositiveNumber);
+	}
+
+	{
+		ConstStringRef negativeNumber = "-1f9e"_s;
+		int parsedNegativeNumber = 1;
+
+		const char * const iteraporNegativeNumber = parseNumber<16>(negativeNumber.begin(), negativeNumber.end(),
+				parsedNegativeNumber, [](const char *) { CPPUNIT_FAIL("parse error"); });
+		CPPUNIT_ASSERT_EQUAL(-0x1f9e, parsedNegativeNumber);
+		CPPUNIT_ASSERT_EQUAL(negativeNumber.end(), iteraporNegativeNumber);
+	}
+
+	{
+		ConstStringRef zero = "0"_s;
+		int parsedZero = 1;
+
+		const char * const iteraporZero = parseNumber<16>(zero.begin(), zero.end(),
+				parsedZero, [](const char *) { CPPUNIT_FAIL("parse error"); });
+		CPPUNIT_ASSERT_EQUAL(0, parsedZero);
+		CPPUNIT_ASSERT_EQUAL(zero.end(), iteraporZero);
+	}
+}
+
+void afc::NumberTest::testParseNumber_HexUnsignedInts()
+{
+	{
+		ConstStringRef positiveNumber = "e05D"_s;
+		unsigned parsedPositiveNumber = 1;
+
+		const char * const iteraporPositiveNumber = parseNumber<16>(positiveNumber.begin(), positiveNumber.end(),
+				parsedPositiveNumber, [](const char *) { CPPUNIT_FAIL("parse error"); });
+		CPPUNIT_ASSERT_EQUAL(0xe05du, parsedPositiveNumber);
+		CPPUNIT_ASSERT_EQUAL(positiveNumber.end(), iteraporPositiveNumber);
+	}
+
+	{
+		ConstStringRef zero = "0"_s;
+		unsigned parsedZero = 1;
+
+		const char * const iteraporZero = parseNumber<16>(zero.begin(), zero.end(),
+				parsedZero, [](const char *) { CPPUNIT_FAIL("parse error"); });
+		CPPUNIT_ASSERT_EQUAL(0u, parsedZero);
+		CPPUNIT_ASSERT_EQUAL(zero.end(), iteraporZero);
 	}
 }
