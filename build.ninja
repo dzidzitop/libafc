@@ -48,6 +48,7 @@ build $buildDir/DateUtilTest.o: cxx_test $testDir/DateUtilTest.cpp
 build $buildDir/EncodeBase64Test.o: cxx_test $testDir/EncodeBase64Test.cpp
 build $buildDir/FastDivisionTest.o: cxx_test $testDir/FastDivisionTest.cpp
 build $buildDir/FastStringBufferTest.o: cxx_test $testDir/FastStringBufferTest.cpp
+build $buildDir/JSONObjectParserTest.o: cxx_test $testDir/JSONObjectParserTest.cpp
 build $buildDir/MathUtilsTest.o: cxx_test $testDir/MathUtilsTest.cpp
 build $buildDir/NumberTest.o: cxx_test $testDir/NumberTest.cpp
 build $buildDir/RepositoryTest.o: cxx_test $testDir/RepositoryTest.cpp
@@ -94,6 +95,7 @@ build $buildDir/libafc_test: bin $
     $buildDir/EncodeBase64Test.o $
     $buildDir/FastDivisionTest.o $
     $buildDir/FastStringBufferTest.o $
+    $buildDir/JSONObjectParserTest.o $
     $buildDir/MathUtilsTest.o $
     $buildDir/NumberTest.o $
     $buildDir/RepositoryTest.o $

@@ -29,16 +29,22 @@ CPPUNIT_TEST_SUITE_REGISTRATION(afc::JSONObjectParserTest);
 
 struct ErrorHandler
 {
-	template<typename Iterator>
-	void prematureEnd(Iterator begin, Iterator end)
+	bool m_valid = true;
+
+	void prematureEnd()
 	{
-		// TODO
+		m_valid = false;
 	}
 
 	template<typename Iterator>
-	void malformedJson(Iterator begin, Iterator end, Iterator pos)
+	void malformedJson(Iterator pos)
 	{
-		// TODO
+		m_valid = false;
+	}
+
+	bool valid()
+	{
+		return m_valid;
 	}
 };
 
@@ -46,7 +52,7 @@ void afc::JSONObjectParserTest::testEmptyObject()
 {
 	bool objectBodyParserCalled = false;
 	afc::ConstStringRef input = u8"{}"_s;
-	auto objectBodyParser = [&](const char * const begin, const char * const end) -> const char *
+	auto objectBodyParser = [&](const char * const begin, const char * const end, ErrorHandler &errorHandler) -> const char *
 	{
 		CPPUNIT_ASSERT_EQUAL(input.begin() + 1, begin);
 		CPPUNIT_ASSERT_EQUAL(input.end(), end);
@@ -61,13 +67,14 @@ void afc::JSONObjectParserTest::testEmptyObject()
 
 	CPPUNIT_ASSERT_EQUAL(input.end(), result);
 	CPPUNIT_ASSERT(objectBodyParserCalled);
+	CPPUNIT_ASSERT(errorHandler.valid());
 }
 
 void afc::JSONObjectParserTest::testEmptyObjectWithOuterSpaces()
 {
 	bool objectBodyParserCalled = false;
 	afc::ConstStringRef input = u8" \t  \n\v\f{}\n  \r\r\n"_s;
-	auto objectBodyParser = [&](const char * const begin, const char * const end) -> const char *
+	auto objectBodyParser = [&](const char * const begin, const char * const end, ErrorHandler &errorHandler) -> const char *
 	{
 		CPPUNIT_ASSERT_EQUAL(input.begin() + 8, begin);
 		CPPUNIT_ASSERT_EQUAL(u8"}"[0], *begin);
@@ -83,13 +90,14 @@ void afc::JSONObjectParserTest::testEmptyObjectWithOuterSpaces()
 
 	CPPUNIT_ASSERT_EQUAL(input.end(), result);
 	CPPUNIT_ASSERT(objectBodyParserCalled);
+	CPPUNIT_ASSERT(errorHandler.valid());
 }
 
 void afc::JSONObjectParserTest::testEmptyObjectWithInnerSpaces()
 {
 	bool objectBodyParserCalled = false;
 	afc::ConstStringRef input = u8"{  \t\n \v}"_s;
-	auto objectBodyParser = [&](const char * const begin, const char * const end) -> const char *
+	auto objectBodyParser = [&](const char * const begin, const char * const end, ErrorHandler &errorHandler) -> const char *
 	{
 		CPPUNIT_ASSERT_EQUAL(input.begin() + 1, begin);
 		CPPUNIT_ASSERT_EQUAL(input.end(), end);
@@ -107,6 +115,7 @@ void afc::JSONObjectParserTest::testEmptyObjectWithInnerSpaces()
 
 	CPPUNIT_ASSERT_EQUAL(input.end(), result);
 	CPPUNIT_ASSERT(objectBodyParserCalled);
+	CPPUNIT_ASSERT(errorHandler.valid());
 }
 
 void afc::JSONObjectParserTest::testObjectWithStringProperty()
@@ -117,13 +126,13 @@ void afc::JSONObjectParserTest::testObjectWithStringProperty()
 
 	ErrorHandler errorHandler;
 
-	auto objectBodyParser = [&](const char * const begin, const char * const end) -> const char *
+	auto objectBodyParser = [&](const char * const begin, const char * const end, ErrorHandler &errorHandler) -> const char *
 	{
 		CPPUNIT_ASSERT_EQUAL(input.begin() + 1, begin);
 		CPPUNIT_ASSERT_EQUAL(u8"\""[0], *begin);
 		CPPUNIT_ASSERT_EQUAL(input.end(), end);
 
-		auto propertyNameParser = [&](const char * const begin, const char * const end) -> const char *
+		auto propertyNameParser = [&](const char * const begin, const char * const end, ErrorHandler &errorHandler) -> const char *
 		{
 			CPPUNIT_ASSERT_EQUAL(input.begin() + 2, begin);
 			CPPUNIT_ASSERT_EQUAL(u8"h"[0], *begin);
@@ -139,7 +148,7 @@ void afc::JSONObjectParserTest::testObjectWithStringProperty()
 			return propNameEnd;
 		};
 
-		auto propertyValueParser = [&](const char * const begin, const char * const end) -> const char *
+		auto propertyValueParser = [&](const char * const begin, const char * const end, ErrorHandler &errorHandler) -> const char *
 		{
 			CPPUNIT_ASSERT_EQUAL(input.begin() + 2 + 5 + 3, begin);
 			CPPUNIT_ASSERT_EQUAL(u8"w"[0], *begin);
@@ -178,6 +187,7 @@ void afc::JSONObjectParserTest::testObjectWithStringProperty()
 			(input.begin(), input.end(), objectBodyParser, errorHandler);
 
 	CPPUNIT_ASSERT_EQUAL(input.end(), result);
+	CPPUNIT_ASSERT(errorHandler.valid());
 }
 
 void afc::JSONObjectParserTest::testObjectWithIntProperty()
@@ -188,13 +198,13 @@ void afc::JSONObjectParserTest::testObjectWithIntProperty()
 
 	ErrorHandler errorHandler;
 
-	auto objectBodyParser = [&](const char * const begin, const char * const end) -> const char *
+	auto objectBodyParser = [&](const char * const begin, const char * const end, ErrorHandler &errorHandler) -> const char *
 	{
 		CPPUNIT_ASSERT_EQUAL(input.begin() + 1, begin);
 		CPPUNIT_ASSERT_EQUAL(u8"\""[0], *begin);
 		CPPUNIT_ASSERT_EQUAL(input.end(), end);
 
-		auto propertyNameParser = [&](const char * const begin, const char * const end) -> const char *
+		auto propertyNameParser = [&](const char * const begin, const char * const end, ErrorHandler &errorHandler) -> const char *
 		{
 			CPPUNIT_ASSERT_EQUAL(input.begin() + 2, begin);
 			CPPUNIT_ASSERT_EQUAL(u8"h"[0], *begin);
@@ -210,7 +220,7 @@ void afc::JSONObjectParserTest::testObjectWithIntProperty()
 			return propNameEnd;
 		};
 
-		auto propertyValueParser = [&](const char * const begin, const char * const end) -> const char *
+		auto propertyValueParser = [&](const char * const begin, const char * const end, ErrorHandler &errorHandler) -> const char *
 		{
 			CPPUNIT_ASSERT_EQUAL(input.begin() + 2 + 5 + 2, begin);
 			CPPUNIT_ASSERT_EQUAL(u8"1"[0], *begin);
@@ -246,4 +256,5 @@ void afc::JSONObjectParserTest::testObjectWithIntProperty()
 			(input.begin(), input.end(), objectBodyParser, errorHandler);
 
 	CPPUNIT_ASSERT_EQUAL(input.end(), result);
+	CPPUNIT_ASSERT(errorHandler.valid());
 }
