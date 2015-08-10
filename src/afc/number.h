@@ -23,6 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include <string>
 #include <type_traits>
 
+#include "builtin.hpp"
 #include "math_utils.h"
 
 namespace afc
@@ -35,6 +36,24 @@ namespace afc
 
 	namespace _impl
 	{
+		// Return value is negated for negative limits.
+		template<typename T, int base, bool positive>
+		constexpr T safeLimit() noexcept
+		{
+			return positive ?
+					(std::numeric_limits<T>::max() - base + 1) / base :
+					(std::is_signed<T>::value ? -((std::numeric_limits<T>::min() + base - 1) / base) : 0);
+		}
+
+		// Return value is negated for negative limits.
+		template<typename T, int base, bool positive>
+		constexpr T mulLimit() noexcept
+		{
+			return positive ?
+					std::numeric_limits<T>::max() / base :
+					(std::is_signed<T>::value ? -(std::numeric_limits<T>::min() / base) : 0);
+		}
+
 		static constexpr char digitChars[number_limits::MAX_BASE] =
 			{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
 			 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
@@ -256,18 +275,32 @@ Iterator afc::parseNumber(Iterator begin, Iterator end, T &result, ErrorHandler 
 	Iterator p = begin;
 	char c;
 	bool signedValue;
+	T safeLimit;
+	T mulLimit;
+	T addLimit;
 	if (std::is_signed<T>::value) {
 		c = *p;
 		if (c == u8"-"[0]) {
-			signedValue = true;
 			if (++p == end) {
 				errorHandler(end);
 				return p;
 			}
+			signedValue = true;
+			safeLimit = _impl::safeLimit<T, base, false>();
+			mulLimit = _impl::mulLimit<T, base, false>();
+			addLimit = std::numeric_limits<T>::min();
 		} else {
 			signedValue = false;
+			safeLimit = _impl::safeLimit<T, base, true>();
+			mulLimit = _impl::mulLimit<T, base, true>();
+			addLimit = -std::numeric_limits<T>::max();
 		}
+	} else {
+		safeLimit = _impl::safeLimit<T, base, true>();
+		mulLimit = _impl::mulLimit<T, base, true>();
+		addLimit = std::numeric_limits<T>::max();
 	}
+
 	result = 0;
 	do {
 		T digit;
@@ -288,12 +321,26 @@ Iterator afc::parseNumber(Iterator begin, Iterator end, T &result, ErrorHandler 
 		}
 		assert(digit < base);
 
-		const T newResult = base * result + digit;
-		if (newResult < result) {
+		if (likely(result <= safeLimit)) {
+			result = result * base + digit;
+		} else {
+			if (likely(result <= mulLimit)) {
+				result *= base;
+				if (std::is_signed<T>::value) {
+					if (likely(addLimit + result + digit <= 0)) {
+						result += digit;
+						continue;
+					}
+				} else {
+					if (likely(result <= std::numeric_limits<T>::max() - digit)) {
+						result += digit;
+						continue;
+					}
+				}
+			}
 			errorHandler(p);
 			return p;
 		}
-		result = newResult;
 	} while (++p != end);
 
 	if (std::is_signed<T>::value) {
