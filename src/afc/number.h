@@ -332,7 +332,7 @@ Iterator afc::parseNumber(Iterator begin, Iterator end, T &result, ErrorHandler 
 						continue;
 					}
 				} else {
-					if (likely(result <= std::numeric_limits<T>::max() - digit)) {
+					if (likely(result <= addLimit - digit)) {
 						result += digit;
 						continue;
 					}

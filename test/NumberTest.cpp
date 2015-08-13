@@ -133,6 +133,26 @@ void afc::NumberTest::testParseNumber_DecimalInts()
 		CPPUNIT_ASSERT_EQUAL(std::numeric_limits<int>::min(), parsedNumber);
 		CPPUNIT_ASSERT(minInt.end() == result);
 	}
+
+	if (std::numeric_limits<long long>::max() > std::numeric_limits<int>::max()) {
+		bool errorReported = false;
+		string overflow(std::to_string(static_cast<long long>(std::numeric_limits<int>::max()) + 1));
+		int parsedNumber = 0;
+
+		string::iterator result = parseNumber<10>(overflow.begin(), overflow.end(),
+				parsedNumber, [&](string::iterator) { errorReported = true; });
+		CPPUNIT_ASSERT(errorReported);
+	}
+
+	if (std::numeric_limits<long long>::min() < std::numeric_limits<int>::min()) {
+		bool errorReported = false;
+		string underflow(std::to_string(static_cast<long long>(std::numeric_limits<int>::min()) - 1));
+		int parsedNumber = 0;
+
+		string::iterator result = parseNumber<10>(underflow.begin(), underflow.end(),
+				parsedNumber, [&](string::iterator) { errorReported = true; });
+		CPPUNIT_ASSERT(errorReported);
+	}
 }
 
 void afc::NumberTest::testParseNumber_DecimalUnsignedInts()
@@ -165,6 +185,16 @@ void afc::NumberTest::testParseNumber_DecimalUnsignedInts()
 				parsedNumber, [](string::iterator) { CPPUNIT_FAIL(""); });
 		CPPUNIT_ASSERT_EQUAL(std::numeric_limits<unsigned>::max(), parsedNumber);
 		CPPUNIT_ASSERT(maxUInt.end() == result);
+	}
+
+	if (std::numeric_limits<unsigned long long>::max() > std::numeric_limits<unsigned>::max()) {
+		bool errorReported = false;
+		string overflow(std::to_string(static_cast<unsigned long long>(std::numeric_limits<unsigned>::max()) + 1));
+		unsigned parsedNumber = 0;
+
+		string::iterator result = parseNumber<10>(overflow.begin(), overflow.end(),
+				parsedNumber, [&](string::iterator) { errorReported = true; });
+		CPPUNIT_ASSERT(errorReported);
 	}
 }
 
