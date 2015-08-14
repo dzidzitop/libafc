@@ -350,12 +350,8 @@ Iterator afc::parseNumber(Iterator begin, Iterator end, T &result, ErrorHandler 
 		}
 	} while (++p != end);
 
-	if (std::is_signed<T>::value) {
-		// Checking for underflow.
-		if (signedValue && (result = -result) >= 0) { // This check is valid for all sign encoding schemes.
-			errorHandler(p);
-			return p;
-		}
+	if (std::is_signed<T>::value && signedValue) {
+		result = -result; // Works even for min value for all sign encoding schemes.
 	}
 
 	return p;
