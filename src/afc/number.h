@@ -296,13 +296,14 @@ Iterator afc::parseNumber(Iterator begin, Iterator end, T &result, ErrorHandler 
 	result = 0;
 	do {
 		T digit;
-		const char c = *p;
+		char c = *p;
 		if (c >= u8"0"[0] && c <= afc::math::min<char>(u8"9"[0], u8"0"[0] + base)) {
 			digit = c - u8"0"[0];
-		} else if (base > 10 && c >= u8"a"[0] && c <= afc::math::min<char>(u8"z"[0], u8"a"[0] + base - 10)) {
+		} else if (base > 10 &&
+				(c |= 0x20, // approximate lower-casing
+						c >= u8"a"[0] && c <= afc::math::min<char>(u8"z"[0], u8"a"[0] + base - 10)
+				)) {
 			digit = c - u8"a"[0] + 10;
-		} else if (base > 10 && c >= u8"A"[0] && c <= afc::math::min<char>(u8"Z"[0], u8"A"[0] + base - 10)) {
-			digit = c - u8"A"[0] + 10;
 		} else {
 			if (p == begin) {
 				errorHandler(p);
