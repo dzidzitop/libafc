@@ -276,8 +276,6 @@ Iterator afc::parseNumber(Iterator begin, Iterator end, T &result, ErrorHandler 
 	char c;
 	bool signedValue;
 	T safeLimit;
-	T mulLimit;
-	T addLimit;
 	if (std::is_signed<T>::value) {
 		c = *p;
 		if (c == u8"-"[0]) {
@@ -287,18 +285,12 @@ Iterator afc::parseNumber(Iterator begin, Iterator end, T &result, ErrorHandler 
 			}
 			signedValue = true;
 			safeLimit = _impl::safeLimit<T, base, false>();
-			mulLimit = _impl::mulLimit<T, base, false>();
-			addLimit = std::numeric_limits<T>::min();
 		} else {
 			signedValue = false;
 			safeLimit = _impl::safeLimit<T, base, true>();
-			mulLimit = _impl::mulLimit<T, base, true>();
-			addLimit = -std::numeric_limits<T>::max();
 		}
 	} else {
 		safeLimit = _impl::safeLimit<T, base, true>();
-		mulLimit = _impl::mulLimit<T, base, true>();
-		addLimit = std::numeric_limits<T>::max();
 	}
 
 	result = 0;
@@ -324,6 +316,21 @@ Iterator afc::parseNumber(Iterator begin, Iterator end, T &result, ErrorHandler 
 		if (likely(result <= safeLimit)) {
 			result = result * base + digit;
 		} else {
+			T mulLimit;
+			T addLimit;
+			if (std::is_signed<T>::value) {
+				if (signedValue) {
+					mulLimit = _impl::mulLimit<T, base, false>();
+					addLimit = std::numeric_limits<T>::min();
+				} else {
+					mulLimit = _impl::mulLimit<T, base, true>();
+					addLimit = -std::numeric_limits<T>::max();
+				}
+			} else {
+				mulLimit = _impl::mulLimit<T, base, true>();
+				addLimit = std::numeric_limits<T>::max();
+			}
+
 			if (likely(result <= mulLimit)) {
 				result *= base;
 				if (std::is_signed<T>::value) {
