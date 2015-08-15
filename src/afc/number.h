@@ -99,25 +99,6 @@ namespace afc
 			{'f', '8'}, {'f', '9'}, {'f', 'a'}, {'f', 'b'}, {'f', 'c'}, {'f', 'd'}, {'f', 'e'}, {'f', 'f'}
 	};
 
-	static const unsigned char asciiToDigit[256] = {
-			0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-			0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-			0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-			0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-			0xff, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
-			25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 0xff, 0xff, 0xff, 0xff, 0xff,
-			0xff, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
-			25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 0xff, 0xff, 0xff, 0xff, 0xff,
-			0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-			0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-			0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-			0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-			0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-			0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-			0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-			0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff
-	};
-
 	// TODO think how to declare noexcept
 	template<typename OutputIterator>
 	OutputIterator octetToHex(const unsigned char o, const OutputIterator dest)
@@ -293,7 +274,7 @@ Iterator afc::parseNumber(Iterator begin, Iterator end, T &result, ErrorHandler 
 
 	Iterator p = begin;
 	char c;
-	bool signedValue;
+	T sign;
 	T safeLimit;
 	if (std::is_signed<T>::value) {
 		c = *p;
@@ -302,10 +283,10 @@ Iterator afc::parseNumber(Iterator begin, Iterator end, T &result, ErrorHandler 
 				errorHandler(end);
 				return p;
 			}
-			signedValue = true;
+			sign = -1;
 			safeLimit = _impl::safeLimit<T, base, false>();
 		} else {
-			signedValue = false;
+			sign = 1;
 			safeLimit = _impl::safeLimit<T, base, true>();
 		}
 	} else {
@@ -314,13 +295,16 @@ Iterator afc::parseNumber(Iterator begin, Iterator end, T &result, ErrorHandler 
 
 	result = 0;
 	do {
-		const unsigned char c = static_cast<unsigned char>(*p);
-		if (c > 0xff) {
-			errorHandler(p);
-			return p;
-		}
-		const T digit = asciiToDigit[c];
-		if (unlikely(digit >= base)) {
+		T digit;
+		char c = *p;
+		if (c >= u8"0"[0] && c <= afc::math::min<char>(u8"9"[0], u8"0"[0] + base)) {
+			digit = c - u8"0"[0];
+		} else if (base > 10 &&
+				(c |= 0x20, // approximate lower-casing
+						c >= u8"a"[0] && c <= afc::math::min<char>(u8"z"[0], u8"a"[0] + base - 10)
+				)) {
+			digit = c - u8"a"[0] + 10;
+		} else {
 			if (p == begin) {
 				errorHandler(p);
 				return p;
@@ -328,14 +312,16 @@ Iterator afc::parseNumber(Iterator begin, Iterator end, T &result, ErrorHandler 
 				break;
 			}
 		}
+		assert(digit < base);
 
 		if (likely(result <= safeLimit)) {
-			result = result * base + digit;
+			result *= base;
+			result += digit;
 		} else {
 			T mulLimit;
 			T addLimit;
 			if (std::is_signed<T>::value) {
-				if (signedValue) {
+				if (sign < 0) {
 					mulLimit = _impl::mulLimit<T, base, false>();
 					addLimit = std::numeric_limits<T>::min();
 				} else {
@@ -366,8 +352,8 @@ Iterator afc::parseNumber(Iterator begin, Iterator end, T &result, ErrorHandler 
 		}
 	} while (++p != end);
 
-	if (std::is_signed<T>::value && signedValue) {
-		result = -result; // Works even for min value for all sign encoding schemes.
+	if (std::is_signed<T>::value) {
+		result *= sign; // Works even for min value for all sign encoding schemes.
 	}
 
 	return p;
