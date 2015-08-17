@@ -328,7 +328,7 @@ Iterator afc::parseNumber(Iterator begin, Iterator end, T &result, ErrorHandler 
 		}
 		const T digit = asciiToDigit[c];
 		if (unlikely(digit >= base)) {
-			if (p == begin) {
+			if (parseMode == ParseMode::all || p == begin) {
 				errorHandler(p);
 				return p;
 			} else if (parseMode == ParseMode::scan) {
