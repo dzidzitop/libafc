@@ -118,6 +118,12 @@ namespace afc
 			0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff
 	};
 
+	enum class ParseMode
+	{
+		scan,
+		all
+	};
+
 	// TODO think how to declare noexcept
 	template<typename OutputIterator>
 	OutputIterator octetToHex(const unsigned char o, const OutputIterator dest)
@@ -209,7 +215,8 @@ namespace afc
 	}
 
 	// TODO think of defining conditional noexcept.
-	template<unsigned char base, typename T, typename Iterator, typename ErrorHandler>
+	template<unsigned char base, afc::ParseMode parseMode = ParseMode::all,
+			typename T, typename Iterator, typename ErrorHandler>
 	Iterator parseNumber(Iterator begin, Iterator end, T &result, ErrorHandler errorHandler);
 
 	template<typename T, typename Iterator>
@@ -280,7 +287,7 @@ Iterator afc::printNumber(const T value, register Iterator dest)
 }
 
 // TODO optimise performance
-template<unsigned char base, typename T, typename Iterator, typename ErrorHandler>
+template<unsigned char base, afc::ParseMode parseMode, typename T, typename Iterator, typename ErrorHandler>
 Iterator afc::parseNumber(Iterator begin, Iterator end, T &result, ErrorHandler errorHandler)
 {
 	static_assert(std::is_integral<T>::value, "Integral types are supported only.");
@@ -324,7 +331,7 @@ Iterator afc::parseNumber(Iterator begin, Iterator end, T &result, ErrorHandler 
 			if (p == begin) {
 				errorHandler(p);
 				return p;
-			} else {
+			} else if (parseMode == ParseMode::scan) {
 				break;
 			}
 		}

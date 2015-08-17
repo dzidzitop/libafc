@@ -226,7 +226,8 @@ void afc::JSONObjectParserTest::testObjectWithIntProperty()
 			CPPUNIT_ASSERT_EQUAL(u8"1"[0], *begin);
 			CPPUNIT_ASSERT_EQUAL(input.end(), end);
 
-			const char * const propValueEnd = afc::parseNumber<10>(begin, end, propertyValue, [](const char *) { CPPUNIT_FAIL("Parse error."); });
+			const char * const propValueEnd = afc::parseNumber<10, afc::ParseMode::scan>(
+					begin, end, propertyValue, [](const char *) { CPPUNIT_FAIL("Parse error."); });
 
 			CPPUNIT_ASSERT_EQUAL(input.begin() + 2 + 5 + 2 + 5, propValueEnd);
 
