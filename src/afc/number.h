@@ -292,6 +292,7 @@ Iterator afc::parseNumber(Iterator begin, Iterator end, T &result, ErrorHandler 
 {
 	static_assert(std::is_integral<T>::value, "Integral types are supported only.");
 	static_assert(base >= afc::number_limits::MIN_BASE && base <= afc::number_limits::MAX_BASE, "Unsupported base.");
+	static_assert(parseMode == ParseMode::all || parseMode == ParseMode::scan, "Unsupported parsing mode.");
 
 	if (begin == end) {
 		errorHandler(begin);
