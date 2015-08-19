@@ -294,22 +294,22 @@ Iterator afc::parseNumber(Iterator begin, Iterator end, T &result, ErrorHandler 
 	static_assert(base >= afc::number_limits::MIN_BASE && base <= afc::number_limits::MAX_BASE, "Unsupported base.");
 	static_assert(parseMode == ParseMode::all || parseMode == ParseMode::scan, "Unsupported parsing mode.");
 
-	if (begin == end) {
-		errorHandler(begin);
-		return end;
-	}
-
-	Iterator p = begin;
 	char c;
 	T sign;
 	T safeLimit;
+
+	Iterator p = begin;
+	if (unlikely(p == end)) {
+		goto error;
+	}
+
+	c = *p;
 	if (std::is_signed<T>::value) {
-		c = *p;
 		if (c == u8"-"[0]) {
 			if (++p == end) {
-				errorHandler(end);
-				return p;
+				goto error;
 			}
+			c = *p;
 			sign = -1;
 			safeLimit = _impl::safeLimit<T, base, false>();
 		} else {
@@ -320,20 +320,24 @@ Iterator afc::parseNumber(Iterator begin, Iterator end, T &result, ErrorHandler 
 		safeLimit = _impl::safeLimit<T, base, true>();
 	}
 
-	result = 0;
-	do {
-		const unsigned char c = static_cast<unsigned char>(*p);
+	if (c > 0xff) {
+		goto error;
+	}
+	result = asciiToDigit[static_cast<unsigned char>(c)];
+	if (unlikely(result >= base)) {
+		goto error;
+	}
+
+	while (++p != end) {
+		c = static_cast<unsigned char>(*p);
 		if (c > 0xff) {
-			errorHandler(p);
-			return p;
+			goto error;
 		}
-		const T digit = asciiToDigit[c];
+		const T digit = asciiToDigit[static_cast<unsigned char>(c)];
 		if (unlikely(digit >= base)) {
-			if (parseMode == ParseMode::all || p == begin) {
-				errorHandler(p);
-				return p;
-			} else if (parseMode == ParseMode::scan) {
-				break;
+			switch (parseMode) {
+			case ParseMode::all: goto error;
+			case ParseMode::scan: goto loopEnd;
 			}
 		}
 
@@ -370,15 +374,16 @@ Iterator afc::parseNumber(Iterator begin, Iterator end, T &result, ErrorHandler 
 					}
 				}
 			}
-			errorHandler(p);
-			return p;
+			goto error;
 		}
-	} while (++p != end);
-
+	}
+loopEnd:
 	if (std::is_signed<T>::value) {
 		result *= sign; // Works even for min value for all sign encoding schemes.
 	}
-
+	return p;
+error:
+	errorHandler(p);
 	return p;
 }
 
