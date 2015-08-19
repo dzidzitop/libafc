@@ -329,7 +329,7 @@ Iterator afc::parseNumber(Iterator begin, Iterator end, T &result, ErrorHandler 
 	}
 
 	while (++p != end) {
-		c = static_cast<unsigned char>(*p);
+		c = *p;
 		if (c > 0xff) {
 			goto error;
 		}
