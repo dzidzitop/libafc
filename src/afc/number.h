@@ -288,7 +288,7 @@ Iterator afc::printNumber(const T value, register Iterator dest)
 
 // TODO optimise performance
 template<unsigned char base, afc::ParseMode parseMode, typename T, typename Iterator, typename ErrorHandler>
-Iterator afc::parseNumber(Iterator begin, Iterator end, T &result, ErrorHandler errorHandler)
+Iterator afc::parseNumber(Iterator begin, Iterator end, T &dest, ErrorHandler errorHandler)
 {
 	static_assert(std::is_integral<T>::value, "Integral types are supported only.");
 	static_assert(base >= afc::number_limits::MIN_BASE && base <= afc::number_limits::MAX_BASE, "Unsupported base.");
@@ -297,6 +297,7 @@ Iterator afc::parseNumber(Iterator begin, Iterator end, T &result, ErrorHandler 
 	char c;
 	T sign;
 	T safeLimit;
+	T result;
 
 	Iterator p = begin;
 	if (unlikely(p == end)) {
@@ -381,6 +382,7 @@ loopEnd:
 	if (std::is_signed<T>::value) {
 		result *= sign; // Works even for min value for all sign encoding schemes.
 	}
+	dest = result;
 	return p;
 error:
 	errorHandler(p);
