@@ -88,7 +88,7 @@ namespace afc
 		const char *begin() const noexcept { return &m_str[0]; };
 		const char *end() const noexcept { return &m_str[m_size]; };
 
-		void clear() noexcept { std::free(const_cast<char *>(m_str)); m_size = 0; }
+		void clear() noexcept { std::free(const_cast<char *>(m_str)); m_str = nullptr; m_size = 0; }
 	private:
 		// TODO specify noreturn here.
 		static void badAlloc()
@@ -171,6 +171,7 @@ void afc::SimpleString::assign(Iterator begin, Iterator end)
 	if (unlikely(newBuf == nullptr)) {
 		badAlloc();
 	}
+	// TODO check for exceptions
 	std::copy(begin, end, newBuf);
 	std::free(const_cast<char *>(m_str));
 	m_str = newBuf;
