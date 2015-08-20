@@ -131,8 +131,10 @@ namespace afc
 		assert(o >= 0 && o <= 0xff);
 		OutputIterator end = dest;
 		const char *p = octetToHexTable[o];
-		*end++ = *p;
-		*end++ = *(p + 1);
+		*end = *p;
+		++end;
+		*end = *(p + 1);
+		++end;
 		return end;
 	}
 
@@ -226,8 +228,10 @@ namespace afc
 
 		const std::uint_fast8_t high = value / 10;
 		const std::uint_fast8_t low = value - high * 10;
-		*dest++ = afc::digitToChar<10>(high);
-		*dest++ = afc::digitToChar<10>(low);
+		*dest = afc::digitToChar<10>(high);
+		++dest;
+		*dest = afc::digitToChar<10>(low);
+		++dest;
 		return dest;
 	}
 
@@ -268,7 +272,8 @@ Iterator afc::printNumber(const T value, register Iterator dest)
 		val = value;
 	} else {
 		val = static_cast<UnsignedT>(-value);
-		*dest++ = '-';
+		*dest = '-';
+		++dest;
 	}
 
 	while (val >= base) {
@@ -279,9 +284,11 @@ Iterator afc::printNumber(const T value, register Iterator dest)
 	assert(i <= sizeof(digits));
 
 	// The highest digit.
-	*dest++ = digitToChar<base>(val);
+	*dest = digitToChar<base>(val);
+	++dest;
 	while (i != 0) {
-		*dest++ = digits[--i];
+		*dest = digits[--i];
+		++dest;
 	}
 	return dest;
 }
