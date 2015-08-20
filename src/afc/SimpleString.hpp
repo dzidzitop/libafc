@@ -26,43 +26,41 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 #include "builtin.hpp"
 #include "StringRef.hpp"
-#ifdef AFC_EXCEPTIONS_ENABLED
-	#include <new>
-	#include "Exception.h"
-#else
-	#include <exception>
-#endif
+#include "utils.h"
 
 namespace afc
 {
 	// TODO make a template out of this class
-	// TODO think of assigning noexcept accurately depending on AFC_EXCEPTIONS_ENABLED
 	class SimpleString
 	{
 	public:
 		SimpleString() noexcept : m_str(nullptr), m_size(0) {}
-		SimpleString(const SimpleString &str) : SimpleString(str.m_str, str.m_size) {}
+		SimpleString(const SimpleString &str) noexcept(noexcept(afc::badAlloc()))
+				: SimpleString(str.m_str, str.m_size) {}
 		SimpleString(SimpleString &&str) noexcept
 				: m_str(str.m_str), m_size(str.m_size) { str.m_str = nullptr; str.m_size = 0; }
-		inline explicit SimpleString(const char *str);
-		inline SimpleString(const char * const str, const std::size_t size);
-		inline explicit SimpleString(const ConstStringRef &str);
-		SimpleString(const char *begin, const char *end) : SimpleString(begin, end - begin) {}
+		inline explicit SimpleString(const char *str) noexcept(noexcept(afc::badAlloc()));
+		inline SimpleString(const char * const str, const std::size_t size) noexcept(noexcept(afc::badAlloc()));
+		inline explicit SimpleString(const ConstStringRef &str) noexcept(noexcept(afc::badAlloc()));
+		SimpleString(const char *begin, const char *end) noexcept(noexcept(afc::badAlloc()))
+				: SimpleString(begin, end - begin) {}
 		// TODO implement this
 		template<typename Iterator>
 		SimpleString(Iterator begin, Iterator end);
 
-		SimpleString &operator=(const SimpleString &str) { assign(str.m_str, str.m_size); return *this; }
+		SimpleString &operator=(const SimpleString &str) noexcept(noexcept(afc::badAlloc()))
+				{ assign(str.m_str, str.m_size); return *this; }
 		SimpleString &operator=(SimpleString &&str) noexcept
 				{ m_str = str.m_str; str.m_str = nullptr; m_size = str.m_size; str.m_size = 0; return *this; }
-		SimpleString &operator=(const char *str)
+		SimpleString &operator=(const char *str) noexcept(noexcept(afc::badAlloc()))
 				{ assert(str != nullptr); assign(str, std::strlen(str)); return *this; }
-		SimpleString &operator=(const ConstStringRef &str) { assign(str.value(), str.size()); return *this; }
+		SimpleString &operator=(const ConstStringRef &str) noexcept(noexcept(afc::badAlloc()))
+				{ assign(str.value(), str.size()); return *this; }
 
-		inline void assign(const char *begin, const char *end);
-		inline void assign(char *begin, char *end)
+		inline void assign(const char *begin, const char *end) noexcept(noexcept(afc::badAlloc()));
+		inline void assign(char *begin, char *end) noexcept(noexcept(afc::badAlloc()))
 				{ assign(const_cast<const char *>(begin), const_cast<const char *>(end)); }
-		inline void assign(const char *str, const std::size_t size);
+		inline void assign(const char *str, const std::size_t size) noexcept(noexcept(afc::badAlloc()));
 		template<typename Iterator>
 		inline void assign(Iterator begin, Iterator end);
 
@@ -94,16 +92,6 @@ namespace afc
 
 		void clear() noexcept { std::free(const_cast<char *>(m_str)); m_str = nullptr; m_size = 0; }
 	private:
-		// TODO specify noreturn here.
-		static void badAlloc()
-		{
-#ifdef AFC_EXCEPTIONS_ENABLED
-			throw std::bad_alloc;
-#else
-			std::terminate();
-#endif
-		}
-
 		const char *m_str;
 		// TODO m_strEnd should support for more efficient iteration
 		std::size_t m_size;
@@ -121,7 +109,7 @@ namespace afc
 template<typename T>
 const T afc::SimpleString::EmptyCStr<T>::value[1] = {T(0)};
 
-afc::SimpleString::SimpleString(const char * const str)
+afc::SimpleString::SimpleString(const char * const str) noexcept(noexcept(afc::badAlloc()))
 {
 	assert(str != nullptr);
 
@@ -133,7 +121,8 @@ afc::SimpleString::SimpleString(const char * const str)
 	std::copy_n(str, m_size, const_cast<char *>(m_str));
 }
 
-afc::SimpleString::SimpleString(const char * const str, const std::size_t size) : m_size(size)
+afc::SimpleString::SimpleString(const char * const str, const std::size_t size) noexcept(noexcept(afc::badAlloc()))
+		: m_size(size)
 {
 	assert(str != nullptr);
 
@@ -144,7 +133,8 @@ afc::SimpleString::SimpleString(const char * const str, const std::size_t size) 
 	std::copy_n(str, size, const_cast<char *>(m_str));
 }
 
-afc::SimpleString::SimpleString(const afc::ConstStringRef &str) : m_size(str.size())
+afc::SimpleString::SimpleString(const afc::ConstStringRef &str) noexcept(noexcept(afc::badAlloc()))
+		: m_size(str.size())
 {
 	m_str = static_cast<char *>(std::malloc(m_size * sizeof(char) + 1));
 	if (unlikely(m_str == nullptr)) {
@@ -153,7 +143,7 @@ afc::SimpleString::SimpleString(const afc::ConstStringRef &str) : m_size(str.siz
 	copy(str, const_cast<char *>(m_str));
 }
 
-void afc::SimpleString::assign(const char * const str, const std::size_t size)
+void afc::SimpleString::assign(const char * const str, const std::size_t size) noexcept(noexcept(afc::badAlloc()))
 {
 	assert(str != nullptr);
 
@@ -167,9 +157,9 @@ void afc::SimpleString::assign(const char * const str, const std::size_t size)
 	m_size = size;
 }
 
-void afc::SimpleString::assign(const char * const begin, const char * const end)
+void afc::SimpleString::assign(const char * const begin, const char * const end) noexcept(noexcept(afc::badAlloc()))
 {
-	const std::size_t newSize = std::distance(begin, end);
+	const std::size_t newSize = end - begin;
 	char *newBuf = static_cast<char *>(std::malloc(newSize * sizeof(char) + 1));
 	if (unlikely(newBuf == nullptr)) {
 		badAlloc();

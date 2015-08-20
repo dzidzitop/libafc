@@ -18,13 +18,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 #include <algorithm>
 #include <cstddef>
+#include <mutex>
 #include <string>
 #include <type_traits>
 #include <utility>
 #include <langinfo.h>
 #include "ensure_ascii.hpp"
-#include <cassert>
-#include <mutex>
+
+#ifdef AFC_EXCEPTIONS_ENABLED
+	#include <new>
+	#include "Exception.h"
+#else
+	#include <exception>
+#endif
 
 namespace afc
 {
@@ -104,6 +110,14 @@ namespace afc
 
 		Optional(Data *) : m_hasValue(false) {}
 	};
+
+#ifdef AFC_EXCEPTIONS_ENABLED
+	// TODO specify noreturn here.
+	inline void badAlloc() { throw std::bad_alloc; }
+#else
+	// TODO specify noreturn here.
+	inline void badAlloc() noexcept { std::terminate(); }
+#endif
 }
 
 #endif /*AFC_UTILS_H_*/
