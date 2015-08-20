@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include <cstdlib>
 #include <cstring>
 #include <iterator>
+#include <memory>
 
 #include "builtin.hpp"
 #include "StringRef.hpp"
@@ -58,6 +59,9 @@ namespace afc
 				{ assert(str != nullptr); assign(str, std::strlen(str)); return *this; }
 		SimpleString &operator=(const ConstStringRef &str) { assign(str.value(), str.size()); return *this; }
 
+		inline void assign(const char *begin, const char *end);
+		inline void assign(char *begin, char *end)
+				{ assign(const_cast<const char *>(begin), const_cast<const char *>(end)); }
 		inline void assign(const char *str, const std::size_t size);
 		template<typename Iterator>
 		inline void assign(Iterator begin, Iterator end);
@@ -163,19 +167,40 @@ void afc::SimpleString::assign(const char * const str, const std::size_t size)
 	m_size = size;
 }
 
-template<typename Iterator>
-void afc::SimpleString::assign(Iterator begin, Iterator end)
+void afc::SimpleString::assign(const char * const begin, const char * const end)
 {
 	const std::size_t newSize = std::distance(begin, end);
-	char * const newBuf = static_cast<char *>(std::malloc(newSize * sizeof(char) + 1));
+	char *newBuf = static_cast<char *>(std::malloc(newSize * sizeof(char) + 1));
 	if (unlikely(newBuf == nullptr)) {
 		badAlloc();
 	}
-	// TODO check for exceptions
 	std::copy(begin, end, newBuf);
 	std::free(const_cast<char *>(m_str));
 	m_str = newBuf;
 	m_size = newSize;
+}
+
+template<typename Iterator>
+void afc::SimpleString::assign(Iterator begin, Iterator end)
+{
+	struct PGuard {
+		PGuard(char *p) : ptr(p) {}
+		~PGuard() { std::free(ptr); }
+
+		char *ptr;
+	};
+	const std::size_t newSize = std::distance(begin, end);
+	char *newBuf = static_cast<char *>(std::malloc(newSize * sizeof(char) + 1));
+	if (unlikely(newBuf == nullptr)) {
+		badAlloc();
+	}
+	{ PGuard newBufGuard(newBuf);
+		std::copy(begin, end, newBuf);
+
+		newBufGuard.ptr = const_cast<char *>(m_str);
+		m_str = newBuf;
+		m_size = newSize;
+	}
 }
 
 #endif /* AFC_SIMPLESTRING_HPP_ */
