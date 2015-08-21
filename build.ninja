@@ -40,7 +40,6 @@ build $buildDir/logger.o: cxx $srcDir/afc/logger.cpp
 build $buildDir/path_util.o: cxx $srcDir/afc/path_util.cpp
 build $buildDir/StackTrace.o: cxx $srcDir/afc/StackTrace.cpp
 build $buildDir/stream.o: cxx $srcDir/afc/stream.cpp
-build $buildDir/string_util.o: cxx $srcDir/afc/string_util.cpp
 
 build $buildDir/run_tests.o: cxx_test $testDir/run_tests.cpp
 build $buildDir/CompileTimeMathTest.o: cxx_test $testDir/CompileTimeMathTest.cpp
@@ -70,8 +69,7 @@ build $buildDir/libafc.so: linkDynamic $
     $buildDir/logger.o $
     $buildDir/path_util.o $
     $buildDir/StackTrace.o $
-    $buildDir/stream.o $
-    $buildDir/string_util.o
+    $buildDir/stream.o
 
 build $buildDir/libafc.a: linkStatic $
     $buildDir/_demangle.o $
@@ -85,8 +83,7 @@ build $buildDir/libafc.a: linkStatic $
     $buildDir/logger.o $
     $buildDir/path_util.o $
     $buildDir/StackTrace.o $
-    $buildDir/stream.o $
-    $buildDir/string_util.o
+    $buildDir/stream.o
 
 build $buildDir/libafc_test: bin $
     $buildDir/run_tests.o $

@@ -1,5 +1,5 @@
 /* libafc - utils to facilitate C++ development.
-Copyright (C) 2010-2014 Dźmitry Laŭčuk
+Copyright (C) 2010-2015 Dźmitry Laŭčuk
 
 libafc is free software: you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by
@@ -24,11 +24,9 @@ namespace afc
 	class StringUtilTest : public CppUnit::TestFixture
 	{
 		CPPUNIT_TEST_SUITE(StringUtilTest);
-		CPPUNIT_TEST(testStartsWith);
 		CPPUNIT_TEST(testEndsWith);
 		CPPUNIT_TEST_SUITE_END();
 	public:
-		void testStartsWith();
 		void testEndsWith();
 	};
 }

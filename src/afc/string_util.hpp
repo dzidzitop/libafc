@@ -1,5 +1,5 @@
 /* libafc - utils to facilitate C++ development.
-Copyright (C) 2010-2014 Dźmitry Laŭčuk
+Copyright (C) 2010-2015 Dźmitry Laŭčuk
 
 libafc is free software: you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by
@@ -16,12 +16,29 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #ifndef AFC_STRING_UTIL_HPP_
 #define AFC_STRING_UTIL_HPP_
 
-#include <string>
+#include <cstddef>
+#include <iterator>
 
 namespace afc
 {
-	bool startsWith(const std::string &str, const std::string &substr) noexcept;
-	bool endsWith(const std::string &str, const std::string &substr) noexcept;
+	// TODO define conditional noexcept;
+	template<typename StringIterator, typename SubstringIterator>
+	bool endsWith(StringIterator strBegin, StringIterator strEnd,
+			SubstringIterator substrBegin, SubstringIterator substrEnd)
+	{
+		const std::size_t m = std::distance(substrBegin, substrEnd), n = std::distance(strBegin, strEnd);
+
+		if (m > n) {
+			return false;
+		}
+
+		for (auto p = strBegin + (n - m), q = substrBegin; p != strEnd; ++p, ++q) {
+			if (*p != *q) {
+				return false;
+			}
+		}
+		return true;
+	}
 }
 
 #endif /* AFC_STRING_UTIL_HPP_ */
