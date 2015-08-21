@@ -20,9 +20,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 namespace afc
 {
-	afc::SimpleString getExecPath();
-	afc::SimpleString getHomeDir();
-	afc::SimpleString getDataDir();
+	afc::String getExecPath();
+	afc::String getHomeDir();
+	afc::String getDataDir();
 }
 
 #endif /*AFC_PATH_UTIL_H_*/

@@ -36,31 +36,31 @@ using std::string;
 namespace afc
 {
 #ifdef AFC_LINUX
-	SimpleString getExecPath()
+	String getExecPath()
 	{
 		char result[PATH_MAX];
 		ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
-		return SimpleString(result, (count > 0) ? count : 0);
+		return String(result, (count > 0) ? count : 0);
 	}
 #elif defined AFC_WIN32
-	SimpleString getExecPath()
+	String getExecPath()
 	{
 		char result[MAX_PATH];
-		return SimpleString(result, GetModuleFileName(0, result, MAX_PATH));
+		return String(result, GetModuleFileName(0, result, MAX_PATH));
 	}
 #elif defined AFC_UNIX
-	SimpleString getExecPath()
+	String getExecPath()
 	{
 		char result[PATH_MAX];
 		struct pst_status ps;
 
 		if (pstat_getproc(&ps, sizeof(ps), 0, getpid()) < 0) {
-			return SimpleString();
+			return String();
 		}
 		if (pstat_getpathname(result, PATH_MAX, &ps.pst_fid_text) < 0) {
-			return SimpleString();
+			return String();
 		}
-		return SimpleString(result);
+		return String(result);
 	}
 #else
 	#error "unsupported system"

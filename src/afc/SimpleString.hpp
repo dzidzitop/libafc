@@ -23,6 +23,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include <cstring>
 #include <iterator>
 #include <memory>
+#include <type_traits>
+#include <utility>
 
 #include "builtin.hpp"
 #include "StringRef.hpp"
@@ -30,19 +32,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 namespace afc
 {
-	// TODO make a template out of this class
+	template<typename CharType>
 	class SimpleString
 	{
+		static_assert(std::is_pod<CharType>::value, "POD char types are supported only.");
 	public:
 		SimpleString() noexcept : m_str(nullptr), m_size(0) {}
 		SimpleString(const SimpleString &str) noexcept(noexcept(afc::badAlloc()))
 				: SimpleString(str.m_str, str.m_size) {}
 		SimpleString(SimpleString &&str) noexcept
 				: m_str(str.m_str), m_size(str.m_size) { str.m_str = nullptr; str.m_size = 0; }
-		inline explicit SimpleString(const char *str) noexcept(noexcept(afc::badAlloc()));
-		inline SimpleString(const char * const str, const std::size_t size) noexcept(noexcept(afc::badAlloc()));
+		inline explicit SimpleString(const CharType *str) noexcept(noexcept(afc::badAlloc()));
+		inline SimpleString(const CharType * const str, const std::size_t size) noexcept(noexcept(afc::badAlloc()));
+		template<typename = typename std::enable_if<std::is_same<CharType, char>::value>::type>
 		inline explicit SimpleString(const ConstStringRef &str) noexcept(noexcept(afc::badAlloc()));
-		SimpleString(const char *begin, const char *end) noexcept(noexcept(afc::badAlloc()))
+		SimpleString(const CharType * const begin, const CharType * const end) noexcept(noexcept(afc::badAlloc()))
 				: SimpleString(begin, end - begin) {}
 		// TODO implement this
 		template<typename Iterator>
@@ -52,32 +56,33 @@ namespace afc
 				{ assign(str.m_str, str.m_size); return *this; }
 		SimpleString &operator=(SimpleString &&str) noexcept
 				{ m_str = str.m_str; str.m_str = nullptr; m_size = str.m_size; str.m_size = 0; return *this; }
-		SimpleString &operator=(const char *str) noexcept(noexcept(afc::badAlloc()))
+		SimpleString &operator=(const CharType * const str) noexcept(noexcept(afc::badAlloc()))
 				{ assert(str != nullptr); assign(str, std::strlen(str)); return *this; }
+		template<typename = typename std::enable_if<std::is_same<CharType, char>::value>::type>
 		SimpleString &operator=(const ConstStringRef &str) noexcept(noexcept(afc::badAlloc()))
 				{ assign(str.value(), str.size()); return *this; }
 
-		inline void assign(const char *begin, const char *end) noexcept(noexcept(afc::badAlloc()));
-		inline void assign(char *begin, char *end) noexcept(noexcept(afc::badAlloc()))
-				{ assign(const_cast<const char *>(begin), const_cast<const char *>(end)); }
-		inline void assign(const char *str, const std::size_t size) noexcept(noexcept(afc::badAlloc()));
+		inline void assign(const CharType *begin, const CharType *end) noexcept(noexcept(afc::badAlloc()));
+		inline void assign(CharType * const begin, CharType * const end) noexcept(noexcept(afc::badAlloc()))
+				{ assign(const_cast<const CharType *>(begin), const_cast<const CharType *>(end)); }
+		inline void assign(const CharType *str, const std::size_t size) noexcept(noexcept(afc::badAlloc()));
 		template<typename Iterator>
 		inline void assign(Iterator begin, Iterator end);
 
-		SimpleString &attach(const char * const str, const std::size_t strSize) noexcept
-				{ std::free(const_cast<char *>(m_str)); m_str = str; m_size = strSize; return *this; }
+		SimpleString &attach(const CharType * const str, const std::size_t strSize) noexcept
+				{ std::free(const_cast<CharType *>(m_str)); m_str = str; m_size = strSize; return *this; }
 
-		~SimpleString() { std::free(const_cast<char *>(m_str)); };
+		~SimpleString() { std::free(const_cast<CharType *>(m_str)); };
 
 		explicit operator const char *() const noexcept { return m_str; }
 
-		const char *data() const noexcept { return m_str; }
-		const char *c_str() const noexcept
+		const CharType *data() const noexcept { return m_str; }
+		const CharType *c_str() const noexcept
 		{
 			if (m_str == nullptr) {
-				return SimpleString::EmptyCStr<char>::value;
+				return emptyString;
 			} else {
-				const_cast<char *>(m_str)[m_size] = '\0';
+				const_cast<CharType *>(m_str)[m_size] = '\0';
 				return m_str;
 			}
 		}
@@ -85,109 +90,115 @@ namespace afc
 		std::size_t size() const noexcept { return m_size; }
 		bool empty() const noexcept { return m_size == 0; }
 
-		const char &operator[](const std::size_t i) const noexcept { return m_str[i]; };
+		const CharType &operator[](const std::size_t i) const noexcept { return m_str[i]; };
 
-		const char *begin() const noexcept { return &m_str[0]; };
-		const char *end() const noexcept { return &m_str[m_size]; };
+		const CharType *begin() const noexcept { return &m_str[0]; };
+		const CharType *end() const noexcept { return &m_str[m_size]; };
 
-		void clear() noexcept { std::free(const_cast<char *>(m_str)); m_str = nullptr; m_size = 0; }
+		void clear() noexcept { std::free(const_cast<CharType *>(m_str)); m_str = nullptr; m_size = 0; }
 	private:
-		const char *m_str;
+		const CharType *m_str;
 		// TODO m_strEnd should support for more efficient iteration
 		std::size_t m_size;
 
-		template<typename T> // just to init it in the header file.
-		struct EmptyCStr {
-			static const T value[1];
-		};
+		static const CharType emptyString[1];
 	};
 
-	template<typename Iterator>
-	inline Iterator copy(const SimpleString &s, Iterator dest) { return std::copy_n(s.data(), s.size(), dest); }
+	template<typename CharType, typename Iterator>
+	inline Iterator copy(const SimpleString<CharType> &s, Iterator dest) { return std::copy_n(s.data(), s.size(), dest); }
+
+	typedef SimpleString<char> String;
 }
 
-template<typename T>
-const T afc::SimpleString::EmptyCStr<T>::value[1] = {T(0)};
+template<typename CharType>
+const CharType afc::SimpleString<CharType>::emptyString[1] = {CharType(0)};
 
-afc::SimpleString::SimpleString(const char * const str) noexcept(noexcept(afc::badAlloc()))
+template<typename CharType>
+afc::SimpleString<CharType>::SimpleString(const CharType * const str) noexcept(noexcept(afc::badAlloc()))
 {
 	assert(str != nullptr);
 
 	m_size = std::strlen(str);
-	m_str = static_cast<char *>(std::malloc(m_size * sizeof(char) + 1));
+	m_str = static_cast<CharType *>(std::malloc(m_size * sizeof(CharType) + 1));
 	if (unlikely(m_str == nullptr)) {
 		badAlloc();
 	}
-	std::copy_n(str, m_size, const_cast<char *>(m_str));
+	std::copy_n(str, m_size, const_cast<CharType *>(m_str));
 }
 
-afc::SimpleString::SimpleString(const char * const str, const std::size_t size) noexcept(noexcept(afc::badAlloc()))
+template<typename CharType>
+afc::SimpleString<CharType>::SimpleString(const CharType * const str, const std::size_t size) noexcept(noexcept(afc::badAlloc()))
 		: m_size(size)
 {
 	assert(str != nullptr);
 
-	m_str = static_cast<char *>(std::malloc(size * sizeof(char) + 1));
+	m_str = static_cast<CharType *>(std::malloc(size * sizeof(CharType) + 1));
 	if (unlikely(m_str == nullptr)) {
 		badAlloc();
 	}
-	std::copy_n(str, size, const_cast<char *>(m_str));
+	std::copy_n(str, size, const_cast<CharType *>(m_str));
 }
 
-afc::SimpleString::SimpleString(const afc::ConstStringRef &str) noexcept(noexcept(afc::badAlloc()))
+template<typename CharType>
+template<typename>
+afc::SimpleString<CharType>::SimpleString(const afc::ConstStringRef &str) noexcept(noexcept(afc::badAlloc()))
 		: m_size(str.size())
 {
-	m_str = static_cast<char *>(std::malloc(m_size * sizeof(char) + 1));
+	m_str = static_cast<CharType *>(std::malloc(m_size * sizeof(CharType) + 1));
 	if (unlikely(m_str == nullptr)) {
 		badAlloc();
 	}
-	copy(str, const_cast<char *>(m_str));
+	copy(str, const_cast<CharType *>(m_str));
 }
 
-void afc::SimpleString::assign(const char * const str, const std::size_t size) noexcept(noexcept(afc::badAlloc()))
+template<typename CharType>
+void afc::SimpleString<CharType>::assign(const CharType * const str, const std::size_t size) noexcept(noexcept(afc::badAlloc()))
 {
 	assert(str != nullptr);
 
-	char * const newBuf = static_cast<char *>(std::malloc(size * sizeof(char) + 1));
+	CharType * const newBuf = static_cast<CharType *>(std::malloc(size * sizeof(CharType) + 1));
 	if (unlikely(newBuf == nullptr)) {
 		badAlloc();
 	}
 	std::copy_n(str, size, newBuf);
-	std::free(const_cast<char *>(m_str));
+	std::free(const_cast<CharType *>(m_str));
 	m_str = newBuf;
 	m_size = size;
 }
 
-void afc::SimpleString::assign(const char * const begin, const char * const end) noexcept(noexcept(afc::badAlloc()))
+template<typename CharType>
+void afc::SimpleString<CharType>::assign(const CharType * const begin, const CharType * const end) noexcept(noexcept(afc::badAlloc()))
 {
 	const std::size_t newSize = end - begin;
-	char *newBuf = static_cast<char *>(std::malloc(newSize * sizeof(char) + 1));
+	CharType *newBuf = static_cast<CharType *>(std::malloc(newSize * sizeof(CharType) + 1));
 	if (unlikely(newBuf == nullptr)) {
 		badAlloc();
 	}
 	std::copy(begin, end, newBuf);
-	std::free(const_cast<char *>(m_str));
+	std::free(const_cast<CharType *>(m_str));
 	m_str = newBuf;
 	m_size = newSize;
 }
 
+template<typename CharType>
 template<typename Iterator>
-void afc::SimpleString::assign(Iterator begin, Iterator end)
+void afc::SimpleString<CharType>::assign(Iterator begin, Iterator end)
 {
 	struct PGuard {
-		PGuard(char *p) : ptr(p) {}
+		PGuard(CharType *p) : ptr(p) {}
 		~PGuard() { std::free(ptr); }
 
-		char *ptr;
+		CharType *ptr;
 	};
 	const std::size_t newSize = std::distance(begin, end);
-	char *newBuf = static_cast<char *>(std::malloc(newSize * sizeof(char) + 1));
+	CharType *newBuf = static_cast<CharType *>(std::malloc(newSize * sizeof(CharType) + 1));
 	if (unlikely(newBuf == nullptr)) {
 		badAlloc();
 	}
 	{ PGuard newBufGuard(newBuf);
 		std::copy(begin, end, newBuf);
 
-		newBufGuard.ptr = const_cast<char *>(m_str);
+		newBufGuard.ptr = const_cast<CharType *>(m_str);
 		m_str = newBuf;
 		m_size = newSize;
 	}

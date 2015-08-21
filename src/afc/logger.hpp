@@ -61,7 +61,7 @@ namespace afc
 			return logText(s.value(), s.size(), dest);
 		}
 
-		inline bool logPrint(const afc::SimpleString &s, FILE * const dest) noexcept
+		inline bool logPrint(const afc::String &s, FILE * const dest) noexcept
 		{
 			return logText(s.data(), s.size(), dest);
 		}
