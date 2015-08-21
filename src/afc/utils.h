@@ -113,7 +113,7 @@ namespace afc
 
 #ifdef AFC_EXCEPTIONS_ENABLED
 	// TODO specify noreturn here.
-	inline void badAlloc() { throw std::bad_alloc; }
+	inline void badAlloc() { throw std::bad_alloc(); }
 #else
 	// TODO specify noreturn here.
 	inline void badAlloc() noexcept { std::terminate(); }
