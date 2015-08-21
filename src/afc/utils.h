@@ -34,10 +34,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 namespace afc
 {
-	std::string getExecPath();
-	std::string getHomeDir();
-	std::string getDataDir();
-
 	inline std::string systemCharset(void) { return std::string(nl_langinfo(CODESET)); }
 
 	std::string convertToUtf8(const char *src, const char *encoding);
