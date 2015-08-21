@@ -1,5 +1,5 @@
 /* libafc - utils to facilitate C++ development.
-Copyright (C) 2014 Dźmitry Laŭčuk
+Copyright (C) 2014-2015 Dźmitry Laŭčuk
 
 libafc is free software: you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by
@@ -20,7 +20,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include <algorithm>
 #include <cassert>
 #include <cstring>
-#include <string>
 #include <type_traits>
 #include <utility>
 #include <afc/ensure_ascii.hpp>
@@ -60,7 +59,6 @@ namespace afc
 			explicit constexpr UrlPart(const char * const value) noexcept : UrlPart(value, std::strlen(value)) {}
 			constexpr UrlPart(const char * const value, const std::size_t n) noexcept : m_value(value), m_size(n) {}
 			explicit constexpr UrlPart(const afc::ConstStringRef value) noexcept : UrlPart(value.value(), value.size()) {}
-			explicit constexpr UrlPart(const std::string &value) noexcept : UrlPart(value.data(), value.size()) {}
 
 			template<typename Iterator>
 			Iterator appendTo(Iterator dest) const noexcept;
@@ -100,7 +98,6 @@ namespace afc
 			UrlBuilder(const char * const urlBase, const std::size_t n)
 					: m_buf(std::max(minBufCapacity(), n)), m_queryState(queryEmptyUrl) { m_buf.append(urlBase, n); }
 			UrlBuilder(const afc::ConstStringRef urlBase) : UrlBuilder(urlBase.value(), urlBase.size()) {}
-			UrlBuilder(const std::string &urlBase) : UrlBuilder(urlBase.c_str(), urlBase.size(), query) {}
 			// TODO set query-only mode properly or remove this constructor.
 			UrlBuilder(QueryOnly) : m_buf(minBufCapacity()), m_queryState(queryEmptyQueryString) {}
 
@@ -120,10 +117,6 @@ namespace afc
 			template<typename QueryString, typename = typename std::enable_if<queryFormat == plain, QueryString>::type>
 			UrlBuilder(const afc::ConstStringRef urlBase, QueryString &&query)
 					: UrlBuilder(urlBase.value(), urlBase.size(), query) {}
-
-			template<typename QueryString, typename = typename std::enable_if<queryFormat == plain, QueryString>::type>
-			UrlBuilder(const std::string &urlBase, QueryString &&query)
-					: UrlBuilder(urlBase.c_str(), urlBase.size(), query) {}
 
 			template<typename QueryString, typename = typename std::enable_if<queryFormat == plain, QueryString>::type>
 			UrlBuilder(QueryOnly, QueryString &&query)
@@ -152,11 +145,6 @@ namespace afc
 					typename = typename std::enable_if<queryFormat == webForm && sizeof...(Parts) >= 0>::type>
 			UrlBuilder(const afc::ConstStringRef urlBase, Parts &&...paramParts)
 					: UrlBuilder(urlBase.value(), urlBase.size(), paramParts...) {}
-
-			template<typename... Parts,
-					typename = typename std::enable_if<queryFormat == webForm && sizeof...(Parts) >= 0>::type>
-			UrlBuilder(const std::string &urlBase, Parts &&...paramParts)
-					: UrlBuilder(urlBase.c_str(), urlBase.size(), paramParts...) {}
 
 			template<typename... Parts,
 					typename = typename std::enable_if<queryFormat == webForm && sizeof...(Parts) >= 0>::type>

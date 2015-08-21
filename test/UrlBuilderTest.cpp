@@ -1,5 +1,5 @@
 /* libafc - utils to facilitate C++ development.
-Copyright (C) 2014 Dźmitry Laŭčuk
+Copyright (C) 2014-2015 Dźmitry Laŭčuk
 
 libafc is free software: you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by
@@ -290,8 +290,8 @@ void UrlBuilderTest::testCapacityComputation_QueryOnly_OrdinaryParams_NoEscaping
 	 * while the size of param parts is less than 127.
 	 */
 	UrlBuilder<webForm> builder(queryOnly,
-			UrlPart<>(string(21, 'a')), UrlPart<>(string(10, 'b')),
-			UrlPart<>(string(6, 'c')), UrlPart<>(string(5, 'd')));
+			UrlPart<>(string(21, 'a').c_str()), UrlPart<>(string(10, 'b').c_str()),
+			UrlPart<>(string(6, 'c').c_str()), UrlPart<>(string(5, 'd').c_str()));
 
 	const string expectedResult(string(21, 'a') + "=" + string(10, 'b') + "&" + string(6, 'c') + "=" + string(5, 'd'));
 
@@ -308,8 +308,8 @@ void UrlBuilderTest::testCapacityComputation_QueryOnly_OrdinaryParams_AllEscaped
 	 * while the size of param parts is less than 127.
 	 */
 	UrlBuilder<webForm> builder(queryOnly,
-			UrlPart<>(string(21, '+')), UrlPart<>(string(10, '$')),
-			UrlPart<>(string(6, '#')), UrlPart<>(string(5, '@')));
+			UrlPart<>(string(21, '+').c_str()), UrlPart<>(string(10, '$').c_str()),
+			UrlPart<>(string(6, '#').c_str()), UrlPart<>(string(5, '@').c_str()));
 
 	string expectedResult;
 	for (int i = 0; i < 21; ++i) {
@@ -341,9 +341,9 @@ void UrlBuilderTest::testCapacityComputation_QueryOnly_RawParams()
 	 * while the size of param parts is less than 127.
 	 */
 	UrlBuilder<webForm> builder(queryOnly,
-			UrlPart<raw>(string(40, 'a')), UrlPart<raw>(string(40, 'b')),
-			UrlPart<raw>(string(20, 'c')), UrlPart<raw>(string(5, 'd')),
-			UrlPart<raw>(string(10, 'e')), UrlPart<raw>(string(10, 'f')));
+			UrlPart<raw>(string(40, 'a').c_str()), UrlPart<raw>(string(40, 'b').c_str()),
+			UrlPart<raw>(string(20, 'c').c_str()), UrlPart<raw>(string(5, 'd').c_str()),
+			UrlPart<raw>(string(10, 'e').c_str()), UrlPart<raw>(string(10, 'f').c_str()));
 
 	const string expectedResult(string(40, 'a') + "=" + string(40, 'b') + "&" +
 			string(20, 'c') + "=" + string(5, 'd') + "&" + string(10, 'e') + "=" + string(10, 'f'));
@@ -361,8 +361,8 @@ void UrlBuilderTest::testCapacityComputation_UrlWithQuery()
 	 * while the size of param parts is less than 127.
 	 */
 	UrlBuilder<webForm> builder("abcde",
-			UrlPart<>(string(19, 'a')), UrlPart<>(string(10, 'b')),
-			UrlPart<>(string(6, 'c')), UrlPart<>(string(5, 'd')));
+			UrlPart<>(string(19, 'a').c_str()), UrlPart<>(string(10, 'b').c_str()),
+			UrlPart<>(string(6, 'c').c_str()), UrlPart<>(string(5, 'd').c_str()));
 
 	const string expectedResult(string("abcde") + "?" + string(19, 'a') + "=" + string(10, 'b') + "&" +
 			string(6, 'c') + "=" + string(5, 'd'));
@@ -380,10 +380,10 @@ void UrlBuilderTest::testCapacityComputation_ParamsAppended()
 	 * while the size of param parts is less than 127.
 	 */
 	UrlBuilder<webForm> builder(queryOnly,
-			UrlPart<raw>(string(40, 'a')), UrlPart<raw>(string(40, 'b')));
+			UrlPart<raw>(string(40, 'a').c_str()), UrlPart<raw>(string(40, 'b').c_str()));
 	builder.params(
-			UrlPart<raw>(string(20, 'c')), UrlPart<raw>(string(5, 'd')),
-			UrlPart<raw>(string(10, 'e')), UrlPart<raw>(string(10, 'f')));
+			UrlPart<raw>(string(20, 'c').c_str()), UrlPart<raw>(string(5, 'd').c_str()),
+			UrlPart<raw>(string(10, 'e').c_str()), UrlPart<raw>(string(10, 'f').c_str()));
 
 	const string expectedResult(string(40, 'a') + "=" + string(40, 'b') + "&" +
 			string(20, 'c') + "=" + string(5, 'd') + "&" + string(10, 'e') + "=" + string(10, 'f'));
