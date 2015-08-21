@@ -24,9 +24,9 @@ namespace afc
 	class NumberTest : public CppUnit::TestFixture
 	{
 		CPPUNIT_TEST_SUITE(NumberTest);
-		CPPUNIT_TEST(testPrintNumber_Int);
-		CPPUNIT_TEST(testPrintNumber_MinSignedChar);
-		CPPUNIT_TEST(testPrintNumber_MinSignedLongLong);
+		CPPUNIT_TEST(testAppendNumber_Int);
+		CPPUNIT_TEST(testAppendNumber_MinSignedChar);
+		CPPUNIT_TEST(testAppendNumber_MinSignedLongLong);
 
 		CPPUNIT_TEST(testParseNumber_DecimalInts);
 		CPPUNIT_TEST(testParseNumber_DecimalUnsignedInts);
@@ -35,9 +35,9 @@ namespace afc
 		CPPUNIT_TEST(testParseNumber_HexUnsignedInts);
 		CPPUNIT_TEST_SUITE_END();
 	public:
-		void testPrintNumber_Int();
-		void testPrintNumber_MinSignedChar();
-		void testPrintNumber_MinSignedLongLong();
+		void testAppendNumber_Int();
+		void testAppendNumber_MinSignedChar();
+		void testAppendNumber_MinSignedLongLong();
 
 		void testParseNumber_DecimalInts();
 		void testParseNumber_DecimalUnsignedInts();

@@ -23,61 +23,64 @@ using namespace std;
 
 CPPUNIT_TEST_SUITE_REGISTRATION(afc::NumberTest);
 
-void afc::NumberTest::testPrintNumber_Int()
+void afc::NumberTest::testAppendNumber_Int()
 {
 	{
 		string result;
-		printNumber<10, int>(123, result);
+		appendNumber<10, int>(123, [&](const char *begin, const char *end) { result.append(begin, end); });
 		CPPUNIT_ASSERT_EQUAL(string("123"), result);
-		printNumber<10, int>(-456, result);
+		appendNumber<10, int>(-456, [&](const char *begin, const char *end) { result.append(begin, end); });
 		CPPUNIT_ASSERT_EQUAL(string("123-456"), result);
 	}
 	{
 		string result;
-		printNumber<10, int>(123, result);
+		appendNumber<10, int>(123, [&](const char *begin, const char *end) { result.append(begin, end); });
 		CPPUNIT_ASSERT_EQUAL(string("123"), result);
-		printNumber<10, int>(-456, result);
+		appendNumber<10, int>(-456, [&](const char *begin, const char *end) { result.append(begin, end); });
 		CPPUNIT_ASSERT_EQUAL(string("123-456"), result);
-		printNumber<10, int>(0, result);
+		appendNumber<10, int>(0, [&](const char *begin, const char *end) { result.append(begin, end); });
 		CPPUNIT_ASSERT_EQUAL(string("123-4560"), result);
 	}
 	{
 		string result("aaa");
-		printNumber<10, int>(411787, result);
+		appendNumber<10, int>(411787, [&](const char *begin, const char *end) { result.append(begin, end); });
 		CPPUNIT_ASSERT_EQUAL(string("aaa411787"), result);
-		printNumber<27, int>(411787, result);
+		appendNumber<27, int>(411787, [&](const char *begin, const char *end) { result.append(begin, end); });
 		CPPUNIT_ASSERT_EQUAL(string("aaa411787kona"), result);
-		printNumber<36, int>(45896, result);
+		appendNumber<36, int>(45896, [&](const char *begin, const char *end) { result.append(begin, end); });
 		CPPUNIT_ASSERT_EQUAL(string("aaa411787konazew"), result);
-		printNumber<35, int>(45896, result);
+		appendNumber<35, int>(45896, [&](const char *begin, const char *end) { result.append(begin, end); });
 		CPPUNIT_ASSERT_EQUAL(string("aaa411787konazew12gb"), result);
 	}
 	{
 		string result;
-		printNumber<2, int>(static_cast<int>(-0x80000000), result);
+		appendNumber<2, int>(static_cast<int>(-0x80000000),
+				[&](const char *begin, const char *end) { result.append(begin, end); });
 		CPPUNIT_ASSERT_EQUAL(string("-10000000000000000000000000000000"), result);
 	}
 	{
 		string result;
-		printNumber<10>(-20, result);
+		appendNumber<10>(-20, [&](const char *begin, const char *end) { result.append(begin, end); });
 		CPPUNIT_ASSERT_EQUAL(string("-20"), result);
 	}
 }
 
-void afc::NumberTest::testPrintNumber_MinSignedChar()
+void afc::NumberTest::testAppendNumber_MinSignedChar()
 {
 	{
 		string result;
-		printNumber<10, signed char>(std::numeric_limits<signed char>::min(), result);
+		appendNumber<10, signed char>(std::numeric_limits<signed char>::min(),
+				[&](const char *begin, const char *end) { result.append(begin, end); });
 		CPPUNIT_ASSERT_EQUAL(std::to_string(std::numeric_limits<signed char>::min()), result);
 	}
 }
 
-void afc::NumberTest::testPrintNumber_MinSignedLongLong()
+void afc::NumberTest::testAppendNumber_MinSignedLongLong()
 {
 	{
 		string result;
-		printNumber<10, signed long long>(std::numeric_limits<signed long long>::min(), result);
+		appendNumber<10, signed long long>(std::numeric_limits<signed long long>::min(),
+				[&](const char *begin, const char *end) { result.append(begin, end); });
 		CPPUNIT_ASSERT_EQUAL(std::to_string(std::numeric_limits<signed long long>::min()), result);
 	}
 }

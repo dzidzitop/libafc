@@ -20,7 +20,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include <cstddef>
 #include <cstdint>
 #include <limits>
-#include <string>
 #include <type_traits>
 
 #include "builtin.hpp"
@@ -197,23 +196,23 @@ namespace afc
 	template<typename T>
 	constexpr char hexToChar(const T digit) noexcept { return digitToChar<16>(digit); }
 
+	/* TODO modify iterator-based afc::printNumber so that it is possible to avoid copying digits
+	 * to the intermediate buffer (in the reverse order).
+	 */
 	// TODO think of defining conditional noexcept.
 	template<unsigned char base, typename T, typename OutputIterator>
 	OutputIterator printNumber(const T value, OutputIterator dest);
 
 	// TODO test this for all types and bases
 	// TODO optimise performance (especially for binary bases)
-	/* TODO modify iterator-based afc::printNumber so that it is possible to avoid copying digits
-	 * to the intermediate buffer (in the reverse order).
-	 */
-	template<unsigned char base, typename T>
-	inline void printNumber(const T value, std::string &out)
+	template<unsigned char base, typename T, typename Appender>
+	inline void appendNumber(const T value, Appender appender)
 	{
 		char buf[maxPrintedSize<T, base>()];
 
 		char * const begin = &buf[0];
 		char * const end = printNumber<base>(value, begin);
-		out.append(begin, end);
+		appender(begin, end);
 	}
 
 	// TODO think of defining conditional noexcept.
