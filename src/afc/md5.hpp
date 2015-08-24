@@ -1,5 +1,5 @@
 /* libafc - utils to facilitate C++ development.
-Copyright (C) 2014 Dźmitry Laŭčuk
+Copyright (C) 2014-2015 Dźmitry Laŭčuk
 
 libafc is free software: you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by
@@ -15,8 +15,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #ifndef AFC_MD5_HPP_
 #define AFC_MD5_HPP_
+
 #include <ctime>
-#include <string>
 #include <cstddef>
 #include <openssl/md5.h>
 #include "ensure_ascii.hpp"
@@ -41,21 +41,21 @@ namespace afc
 	}
 
 	/*
-	 * Calculates the MD5 hash of a given binary data and writes it in the lower-case hex format
-	 * as an ASCII sequence to the destination string.
+	 * Calculates the MD5 hash of a given binary data and passes it in the lower-case hex format
+	 * as an ASCII sequence using to a given appender.
 	 *
 	 * @param data the binary data whose MD5 hash is to be calculated.
 	 * @param n the size of the binary data.
-	 * @param dest the destination string. It is expected to be ASCII-compatible.
+	 * @param appender the destination appender. It is expected to be ASCII-compatible.
 	 */
-	inline void md5String(const unsigned char * const data, std::size_t n, std::string &dest)
+	template<typename Appender>
+	inline void appendMD5String(const unsigned char * const data, const std::size_t n, Appender appender)
 	{
-		// Contains encoded hash value.
+		// Contains the encoded hash value.
 		char hashString[2 * MD5_DIGEST_LENGTH];
 
 		md5String(data, n, &hashString[0]);
-
-		dest.append(hashString, 2 * MD5_DIGEST_LENGTH);
+		appender(hashString, 2 * MD5_DIGEST_LENGTH);
 	}
 }
 
