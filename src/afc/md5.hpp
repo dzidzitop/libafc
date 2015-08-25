@@ -34,8 +34,10 @@ namespace afc
 		for (size_t i = 0; i < MD5_DIGEST_LENGTH; ++i) {
 			const unsigned char b = hash[i] & 0xff;
 			// 0xff is applied just in case non-octet bytes are used.
-			*p++ = hexToChar(b >> 4);
-			*p++ = hexToChar(b & 0xf);
+			*p = hexToChar(b >> 4);
+			++p;
+			*p = hexToChar(b & 0xf);
+			++p;
 		}
 		return p;
 	}
