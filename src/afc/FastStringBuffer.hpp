@@ -262,7 +262,7 @@ namespace afc
 		static void badAlloc()
 		{
 #ifdef AFC_EXCEPTIONS_ENABLED
-			throw std::bad_alloc;
+			throw std::bad_alloc();
 #else
 			std::terminate();
 #endif
