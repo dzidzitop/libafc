@@ -28,10 +28,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 #include "builtin.hpp"
 #include "StringRef.hpp"
-#include "utils.h"
+
+#ifdef AFC_EXCEPTIONS_ENABLED
+	#include <new>
+#else
+	#include <exception>
+#endif
 
 namespace afc
 {
+#ifdef AFC_EXCEPTIONS_ENABLED
+	// TODO specify noreturn here.
+	inline void badAlloc() { throw std::bad_alloc(); }
+#else
+	// TODO specify noreturn here.
+	inline void badAlloc() noexcept { std::terminate(); }
+#endif
+
 	template<typename CharType>
 	class SimpleString
 	{
@@ -44,8 +57,9 @@ namespace afc
 				: m_str(str.m_str), m_size(str.m_size) { str.m_str = nullptr; str.m_size = 0; }
 		inline explicit SimpleString(const CharType *str) noexcept(noexcept(afc::badAlloc()));
 		inline SimpleString(const CharType * const str, const std::size_t size) noexcept(noexcept(afc::badAlloc()));
-		template<typename = typename std::enable_if<std::is_same<CharType, char>::value>::type>
-		inline explicit SimpleString(const ConstStringRef &str) noexcept(noexcept(afc::badAlloc()));
+		template<typename StrRef = ConstStringRef,
+				typename = typename std::enable_if<std::is_same<CharType, char>::value && std::is_same<StrRef, ConstStringRef>::value>::type>
+		inline explicit SimpleString(StrRef str) noexcept(noexcept(afc::badAlloc()));
 		SimpleString(const CharType * const begin, const CharType * const end) noexcept(noexcept(afc::badAlloc()))
 				: SimpleString(begin, end - begin) {}
 		// TODO implement this
@@ -58,8 +72,9 @@ namespace afc
 				{ m_str = str.m_str; str.m_str = nullptr; m_size = str.m_size; str.m_size = 0; return *this; }
 		SimpleString &operator=(const CharType * const str) noexcept(noexcept(afc::badAlloc()))
 				{ assert(str != nullptr); assign(str, std::strlen(str)); return *this; }
-		template<typename = typename std::enable_if<std::is_same<CharType, char>::value>::type>
-		SimpleString &operator=(const ConstStringRef &str) noexcept(noexcept(afc::badAlloc()))
+		template<typename StrRef = ConstStringRef,
+				typename = typename std::enable_if<std::is_same<CharType, char>::value && std::is_same<StrRef, ConstStringRef>::value>::type>
+		SimpleString &operator=(StrRef str) noexcept(noexcept(afc::badAlloc()))
 				{ assign(str.value(), str.size()); return *this; }
 
 		inline void assign(const CharType *begin, const CharType *end) noexcept(noexcept(afc::badAlloc()));
@@ -108,6 +123,7 @@ namespace afc
 	inline Iterator copy(const SimpleString<CharType> &s, Iterator dest) { return std::copy_n(s.data(), s.size(), dest); }
 
 	typedef SimpleString<char> String;
+	typedef SimpleString<char16_t> U16String;
 }
 
 template<typename CharType>
@@ -140,8 +156,8 @@ afc::SimpleString<CharType>::SimpleString(const CharType * const str, const std:
 }
 
 template<typename CharType>
-template<typename>
-afc::SimpleString<CharType>::SimpleString(const afc::ConstStringRef &str) noexcept(noexcept(afc::badAlloc()))
+template<typename StrRef, typename>
+afc::SimpleString<CharType>::SimpleString(StrRef str) noexcept(noexcept(afc::badAlloc()))
 		: m_size(str.size())
 {
 	m_str = static_cast<CharType *>(std::malloc(m_size * sizeof(CharType) + 1));

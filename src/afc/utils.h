@@ -19,32 +19,25 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include <algorithm>
 #include <cstddef>
 #include <mutex>
-#include <string>
 #include <type_traits>
 #include <utility>
 #include <langinfo.h>
 #include "ensure_ascii.hpp"
-
-#ifdef AFC_EXCEPTIONS_ENABLED
-	#include <new>
-	#include "Exception.h"
-#else
-	#include <exception>
-#endif
+#include "SimpleString.hpp"
 
 namespace afc
 {
-	inline std::string systemCharset(void) { return std::string(nl_langinfo(CODESET)); }
+	inline afc::String systemCharset(void) { return afc::String(nl_langinfo(CODESET)); }
 
-	std::string convertToUtf8(const char *src, const char *encoding);
-	std::string convertToUtf8(const std::string &src, const char *encoding);
-	std::string convertFromUtf8(const char *src, const char *encoding);
-	std::string convertFromUtf8(const std::string &src, const char *encoding);
+	afc::String convertToUtf8(const char *src, const char *encoding);
+	afc::String convertToUtf8(const char *src, std::size_t n, const char *encoding);
+	afc::String convertFromUtf8(const char *src, const char *encoding);
+	afc::String convertFromUtf8(const char *src, std::size_t n, const char *encoding);
 
 	// code points have platform endianness, while characters are little-endian
-	std::u16string stringToUTF16LE(const char * const src, const char * const encoding);
-	std::u16string stringToUTF16LE(const std::string &src, const char * const encoding);
-	std::string utf16leToString(const std::u16string &src, const char * const encoding);
+	afc::U16String stringToUTF16LE(const char *src, const char *encoding);
+	afc::U16String stringToUTF16LE(const char *src, std::size_t n, const char *encoding);
+	afc::String utf16leToString(const char16_t *src, std::size_t n, const char * const encoding);
 
 	template<typename Iterator1, typename Iterator2>
 	inline bool equal(Iterator1 r1, const std::size_t r1Size, Iterator2 r2, const std::size_t r2Size)
@@ -106,14 +99,6 @@ namespace afc
 
 		Optional(Data *) : m_hasValue(false) {}
 	};
-
-#ifdef AFC_EXCEPTIONS_ENABLED
-	// TODO specify noreturn here.
-	inline void badAlloc() { throw std::bad_alloc(); }
-#else
-	// TODO specify noreturn here.
-	inline void badAlloc() noexcept { std::terminate(); }
-#endif
 }
 
 #endif /*AFC_UTILS_H_*/
