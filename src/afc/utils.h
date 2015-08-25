@@ -38,6 +38,9 @@ namespace afc
 	afc::U16String stringToUTF16LE(const char *src, const char *encoding);
 	afc::U16String stringToUTF16LE(const char *src, std::size_t n, const char *encoding);
 	afc::String utf16leToString(const char16_t *src, std::size_t n, const char * const encoding);
+	template<typename U16String>
+	afc::String utf16leToString(const U16String &str, const char * const encoding)
+			{ return utf16leToString(str.c_str(), str.size(), encoding); }
 
 	template<typename Iterator1, typename Iterator2>
 	inline bool equal(Iterator1 r1, const std::size_t r1Size, Iterator2 r2, const std::size_t r2Size)

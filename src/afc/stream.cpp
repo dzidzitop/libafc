@@ -1,5 +1,5 @@
 /* libafc - utils to facilitate C++ development.
-Copyright (C) 2011-2013 Dźmitry Laŭčuk
+Copyright (C) 2011-2015 Dźmitry Laŭčuk
 
 libafc is free software: you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by
@@ -15,7 +15,6 @@ You should have received a copy of the GNU Lesser General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include "stream.h"
 #include "Exception.h"
-#include <string>
 #include <sstream>
 #include <functional>
 
@@ -39,19 +38,9 @@ namespace
 		throwIOException(buf.str().c_str());
 	}
 
-	void throwIllegalStateException(const char * const message = "")
-	{
-		throw IllegalStateException(message);
-	}
-
 	void throwMalformedFormatException(const char * const message = "")
 	{
 		throw MalformedFormatException(message);
-	}
-
-	void throwUnsupportedFormatException(const char * const message = "")
-	{
-		throw UnsupportedFormatException(message);
 	}
 
 	void throwInvalidArgumentException(const char * const message = "")
