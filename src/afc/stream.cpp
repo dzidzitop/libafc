@@ -14,9 +14,17 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include "stream.h"
-#include "Exception.h"
-#include <sstream>
+
+#include <cassert>
+#include <cstddef>
+#include <cstring>
 #include <functional>
+#include <sstream>
+#include <utility>
+
+#include "Exception.h"
+#include "FastStringBuffer.hpp"
+#include "StringRef.hpp"
 
 using namespace afc;
 using namespace std;
@@ -26,32 +34,35 @@ namespace
 	// 128 is small enough to not consume too much of the stack and quite large to minimise the amount of invocations
 	static const size_t gZipSkipChunkSize = 128;
 
-	void throwIOException(const char * const message = "")
+	void throwException(const char * const message)
 	{
-		throw IOException(message);
+		throw Exception(afc::String(message));
+	}
+
+	void throwException(ConstStringRef message)
+	{
+		throw Exception(message);
 	}
 
 	void throwCannotOpenFileIOException(const char * const file)
 	{
-		stringstream buf;
-		buf << "unable to open file '" << file << '\'';
-		throwIOException(buf.str().c_str());
-	}
+		const std::size_t fileSize = std::strlen(file);
+		const std::size_t bufSize = "unable to open file '"_s.size() + fileSize + 1;
 
-	void throwMalformedFormatException(const char * const message = "")
-	{
-		throw MalformedFormatException(message);
-	}
+		afc::FastStringBuffer<char, afc::AllocMode::accurate> buf(bufSize);
+		buf.append("unable to open file '"_s);
+		buf.append(file, fileSize);
+		buf.append('\'');
 
-	void throwInvalidArgumentException(const char * const message = "")
-	{
-		throw InvalidArgumentException(message);
+		assert(bufSize == buf.size());
+
+		throw Exception(std::move(afc::String().attach(buf.detach(), bufSize)));
 	}
 
 	template<typename FileType>
 	inline void ensureNotClosed(const FileType file) {
 		if (file == nullptr) {
-			throwIOException("Stream is closed");
+			throwException("Stream is closed"_s);
 		}
 	}
 
@@ -62,7 +73,7 @@ namespace
 			return;
 		}
 		if (close(file) != 0) {
-			throwIOException("Unable to close file");
+			throwException("Unable to close file"_s);
 		}
 		file = nullptr;
 	}
@@ -91,7 +102,7 @@ size_t afc::FileInputStream::read(unsigned char * const data, const size_t n)
 	const size_t count = fread(data, sizeof(unsigned char), n, m_file);
 	if (count != n) {
 		if (ferror(m_file)) {
-			throwIOException("error encountered while reading from file");
+			throwException("error encountered while reading from file"_s);
 		}
 	}
 	return count;
@@ -101,7 +112,7 @@ void afc::FileInputStream::reset()
 {
 	ensureNotClosed(m_file);
 	if (fseek(m_file, 0, SEEK_SET) != 0) {
-		throwIOException("unable to reset stream");
+		throwException("unable to reset stream"_s);
 	}
 }
 
@@ -110,7 +121,7 @@ size_t afc::FileInputStream::skip(const size_t n)
 	ensureNotClosed(m_file);
 	const long currPos = ftell(m_file);
 	if (fseek(m_file, 0, SEEK_END) != 0) {
-		throwIOException("unable to skip data in stream");
+		throwException("unable to skip data in stream"_s);
 	}
 	const long endPos = ftell(m_file);
 	const size_t tail = endPos - currPos;
@@ -118,7 +129,7 @@ size_t afc::FileInputStream::skip(const size_t n)
 		return tail;
 	}
 	if (fseek(m_file, currPos + n, SEEK_SET) != 0) {
-		throwIOException("unable to skip data in stream");
+		throwException("unable to skip data in stream"_s);
 	}
 	return n;
 }
@@ -145,7 +156,7 @@ void afc::FileOutputStream::write(const unsigned char * const data, const size_t
 {
 	ensureNotClosed(m_file);
 	if (fwrite(data, sizeof(unsigned char), n, m_file) != n) {
-		throwIOException("error encountered while writting to file");
+		throwException("error encountered while writting to file"_s);
 	}
 }
 
@@ -180,9 +191,8 @@ size_t afc::GZipFileInputStream::read(unsigned char * const buf, const size_t n)
 		case Z_OK:
 			break;
 		case Z_ERRNO:
-			throwIOException(msg);
 		default:
-			throwMalformedFormatException(msg);
+			throwException(msg);
 		}
 	}
 	return count;
@@ -202,17 +212,14 @@ void afc::GZipFileInputStream::reset()
 {
 	ensureNotClosed(m_file);
 	if (gzseek(m_file, 0, SEEK_SET) != 0) {
-		throwIOException("unable to reset stream");
+		throwException("unable to reset stream"_s);
 	}
 }
 
 size_t afc::GZipFileInputStream::skip(const size_t n)
 {
 	if (n < 0) {
-		// TODO replace later with string += n;
-		stringstream msg;
-		msg << "Byte amount to skip must be a non-negative value: " << n;
-		throwInvalidArgumentException(msg.str().c_str());
+		throwException("Byte amount to skip must be a non-negative value."_s);
 	}
 
 	// reading n bytes since gzseek does not allow for skipping less than n bytes in case of premature end of the file
@@ -243,7 +250,7 @@ void afc::GZipFileOutputStream::write(const unsigned char * const data, const si
 {
 	ensureNotClosed(m_file);
 	if (gzwrite(m_file, data, n) == 0) {
-		throwIOException("error encountered while writing to file");
+		throwException("error encountered while writing to file"_s);
 	}
 }
 

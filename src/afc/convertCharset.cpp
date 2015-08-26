@@ -25,6 +25,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include "cpu/primitive.h"
 #include "FastStringBuffer.hpp"
 #include "math_utils.h"
+#include "number.h"
+#include "StringRef.hpp"
 
 using namespace afc;
 
@@ -43,16 +45,33 @@ namespace
 				const int err = errno;
 				switch (err) {
 				case EMFILE:
-					throw IllegalStateException("Maximum allowed number of files descriptors are currently open by this process.");
+					throw Exception("Maximum allowed number of files descriptors are currently open by this process."_s);
 				case ENFILE:
-					throw IllegalStateException("Too many files are currently open in the system.");
+					throw Exception("Too many files are currently open in the system."_s);
 				case ENOMEM:
-					throw IllegalStateException("Insufficient storage space is available.");
+					throw Exception("Insufficient storage space is available."_s);
 				case EINVAL:
-					throw IllegalStateException(string("The conversion from ") + srcEncoding +
-							" to UTF-16LE is not supported by the implementation.");
+					{
+						const std::size_t srcEncodingSize = std::strlen(srcEncoding);
+						const std::size_t bufSize = "The conversion from "_s.size() + srcEncodingSize +
+								" to UTF-16LE is not supported by the implementation."_s.size();
+						afc::FastStringBuffer<char, afc::AllocMode::accurate> buf(bufSize);
+						buf.append("The conversion from "_s);
+						buf.append(srcEncoding, srcEncodingSize);
+						buf.append(" to UTF-16LE is not supported by the implementation."_s);
+						throw Exception(std::move(afc::String().attach(buf.detach(), bufSize)));
+					}
 				default:
-					throw IllegalStateException("Unable to initialise encoding context. errno: " + err);
+					{
+						const std::size_t errnoSize = maxPrintedSize<int, 10>();
+						const std::size_t bufCapacity = "Unable to initialise encoding context. errno: "_s.size() + errnoSize;
+						afc::FastStringBuffer<char, afc::AllocMode::accurate> buf(bufCapacity);
+						buf.append("Unable to initialise encoding context. errno: "_s);
+						buf.returnTail(afc::printNumber<10>(err, buf.borrowTail()));
+						const std::size_t bufSize = buf.size();
+
+						throw Exception(std::move(afc::String().attach(buf.detach(), bufSize)));
+					}
 				}
 			}
 		}
@@ -69,13 +88,22 @@ namespace
 				const int err = errno;
 				switch (err) {
 				case E2BIG:
-					throw IllegalStateException("There is not sufficient room at *destBuf");
+					throw Exception("There is not sufficient room at *destBuf"_s);
 				case EILSEQ:
-					throw MalformedFormatException("An invalid multibyte sequence has been encountered in the input.");
+					throw Exception("An invalid multibyte sequence has been encountered in the input."_s);
 				case EINVAL:
-					throw MalformedFormatException("An incomplete multibyte sequence has been encountered in the input.");
+					throw Exception("An incomplete multibyte sequence has been encountered in the input."_s);
 				default:
-					throw IllegalStateException("Unable to convert *srcBuf. errno: " + err);
+					{
+						const std::size_t errnoSize = maxPrintedSize<int, 10>();
+						const std::size_t bufCapacity = "Unable to convert *srcBuf. errno: "_s.size() + errnoSize;
+						afc::FastStringBuffer<char, afc::AllocMode::accurate> buf(bufCapacity);
+						buf.append("Unable to convert *srcBuf. errno: "_s);
+						buf.returnTail(afc::printNumber<10>(err, buf.borrowTail()));
+						const std::size_t bufSize = buf.size();
+
+						throw Exception(std::move(afc::String().attach(buf.detach(), bufSize)));
+					}
 				}
 			}
 			return count;
@@ -180,7 +208,7 @@ afc::U16String afc::stringToUTF16LE(const char * const src, std::size_t n, const
 
 	const std::size_t bufSize = destSize - destCharsLeft;
 	if (isOdd(bufSize)) {
-		throw MalformedFormatException("Unsupported character sequence");
+		throw Exception("Unsupported character sequence"_s);
 	}
 
 	// converting the char buffer to u16string
@@ -236,5 +264,5 @@ afc::String afc::utf16leToString(const char16_t * const src, const std::size_t n
 		return afc::String().attach(result.detach(), bufSize);
 	}
 handleMalformedSequence:
-	throw MalformedFormatException("Unsupported character sequence");
+	throw Exception("Unsupported character sequence"_s);
 }

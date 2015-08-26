@@ -24,6 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #ifdef AFC_EXCEPTIONS_ENABLED
 	#include "Exception.h"
 #endif
+#include "StringRef.hpp"
 
 namespace afc
 {
@@ -58,7 +59,7 @@ inline std::pair<Iterator, Iterator> afc::Tokeniser<CharType, Iterator>::next()
 {
 #ifdef AFC_EXCEPTIONS_ENABLED
 	if (!m_hasNext) {
-		throwException<IllegalStateException>("Tokeniser::next is called when it has not more tokens");
+		throw Exception("Tokeniser::next is called when it has not more tokens"_s);
 	}
 #endif
 
@@ -80,7 +81,7 @@ inline void afc::Tokeniser<CharType, Iterator>::next(Iterator &begin, Iterator &
 {
 #ifdef AFC_EXCEPTIONS_ENABLED
 	if (!m_hasNext) {
-		throwException<IllegalStateException>("Tokeniser::next is called when it has not more tokens");
+		throw Exception("Tokeniser::next is called when it has not more tokens"_s);
 	}
 #endif
 
@@ -101,7 +102,7 @@ inline void afc::Tokeniser<CharType, Iterator>::skip()
 {
 #ifdef AFC_EXCEPTIONS_ENABLED
 	if (!m_hasNext) {
-		throwException<IllegalStateException>("Tokeniser::skip is called when it has not more tokens");
+		throw Exception("Tokeniser::skip is called when it has not more tokens"_s);
 	}
 #endif
 

@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include <memory>
 #include <cstdlib>
 #include <functional>
+#include <ostream>
 #include "platform.h"
 #include "_demangle.h"
 
@@ -28,18 +29,10 @@ using std::function;
 
 namespace afc
 {
-	// No inline is allowed in order to prevent loosing any stacktrace information!
-#ifdef AFC_USE_STACK_TRACE
-	Exception::Exception(const string& what, const Exception * const cause)
-		: m_stackTrace(new StackTrace(1)), m_message(what) {}
-#else
-	Exception::Exception(const string& what, const Exception * const cause)
-		: m_message(what) {}
-#endif
-
-	void Exception::printStackTrace(ostream &out) const
+	void Exception::printStackTrace(std::ostream &out) const
 	{
-		static const string linePrefix("\t");
+		using std::operator<<;
+
 		const Exception &ex = *this;
 		{ unique_ptr<char, function<void (void * const)>> demangledName(demangle(typeid(ex).name()), free);
 			if (demangledName.get() != 0) {
@@ -50,7 +43,7 @@ namespace afc
 #ifdef AFC_USE_STACK_TRACE
 		if (m_stackTrace->hasInfo()) {
 			out << " at:\n";
-			m_stackTrace->print(out, linePrefix);
+			m_stackTrace->print(out, "\t");
 		}
 #else
 		out << '\n';

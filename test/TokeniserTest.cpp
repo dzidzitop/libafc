@@ -33,7 +33,7 @@ void afc::TokeniserTest::testEmptyInputString()
 	p = t.next();
 	CPPUNIT_ASSERT_EQUAL(string(""), string(p.first, p.second));
 	CPPUNIT_ASSERT(!t.hasNext());
-	CPPUNIT_ASSERT_THROW(t.next(), afc::IllegalStateException);
+	CPPUNIT_ASSERT_THROW(t.next(), afc::Exception);
 }
 
 void afc::TokeniserTest::testSingleToken()
@@ -45,7 +45,7 @@ void afc::TokeniserTest::testSingleToken()
 	p = t.next();
 	CPPUNIT_ASSERT_EQUAL(string("abcde"), string(p.first, p.second));
 	CPPUNIT_ASSERT(!t.hasNext());
-	CPPUNIT_ASSERT_THROW(t.next(), afc::IllegalStateException);
+	CPPUNIT_ASSERT_THROW(t.next(), afc::Exception);
 }
 
 void afc::TokeniserTest::testMultipleTokens()
@@ -63,7 +63,7 @@ void afc::TokeniserTest::testMultipleTokens()
 	p = t.next();
 	CPPUNIT_ASSERT_EQUAL(string("d-e"), string(p.first, p.second));
 	CPPUNIT_ASSERT(!t.hasNext());
-	CPPUNIT_ASSERT_THROW(t.next(), afc::IllegalStateException);
+	CPPUNIT_ASSERT_THROW(t.next(), afc::Exception);
 }
 
 void afc::TokeniserTest::testMultipleTokensWithEmptyToken()
@@ -81,7 +81,7 @@ void afc::TokeniserTest::testMultipleTokensWithEmptyToken()
 	p = t.next();
 	CPPUNIT_ASSERT_EQUAL(string("de"), string(p.first, p.second));
 	CPPUNIT_ASSERT(!t.hasNext());
-	CPPUNIT_ASSERT_THROW(t.next(), afc::IllegalStateException);
+	CPPUNIT_ASSERT_THROW(t.next(), afc::Exception);
 }
 
 void afc::TokeniserTest::testOnlyEmptyTokens()
@@ -99,7 +99,7 @@ void afc::TokeniserTest::testOnlyEmptyTokens()
 	p = t.next();
 	CPPUNIT_ASSERT_EQUAL(string(""), string(p.first, p.second));
 	CPPUNIT_ASSERT(!t.hasNext());
-	CPPUNIT_ASSERT_THROW(t.next(), afc::IllegalStateException);
+	CPPUNIT_ASSERT_THROW(t.next(), afc::Exception);
 }
 
 void afc::TokeniserTest::testWideStringMultipleTokens()
@@ -117,7 +117,7 @@ void afc::TokeniserTest::testWideStringMultipleTokens()
 	p = t.next();
 	CPPUNIT_ASSERT(wstring(p.first, p.second) == wstring(L"right"));
 	CPPUNIT_ASSERT(!t.hasNext());
-	CPPUNIT_ASSERT_THROW(t.next(), afc::IllegalStateException);
+	CPPUNIT_ASSERT_THROW(t.next(), afc::Exception);
 }
 
 void afc::TokeniserTest::testInputIsNotRvalue()
@@ -135,5 +135,5 @@ void afc::TokeniserTest::testInputIsNotRvalue()
 	p = t.next();
 	CPPUNIT_ASSERT_EQUAL(string("right"), string(p.first, p.second));
 	CPPUNIT_ASSERT(!t.hasNext());
-	CPPUNIT_ASSERT_THROW(t.next(), afc::IllegalStateException);
+	CPPUNIT_ASSERT_THROW(t.next(), afc::Exception);
 }

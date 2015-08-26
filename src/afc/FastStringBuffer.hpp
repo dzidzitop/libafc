@@ -310,7 +310,7 @@ inline std::size_t afc::FastStringBuffer<CharType, allocMode>::nextStorageSize(c
 			if (capacity > maxCapacity()) {
 				// The capacity requested is greater than max size of this FastStringBuffer.
 #ifdef AFC_EXCEPTIONS_ENABLED
-				throwException<OverflowException>("Capacity to reserve exceeds max size allowed.");
+				throw Exception("Capacity to reserve exceeds max size allowed."_s);
 #else
 				std::terminate();
 #endif
@@ -323,7 +323,7 @@ inline std::size_t afc::FastStringBuffer<CharType, allocMode>::nextStorageSize(c
 		if (capacity > maxCapacity()) {
 			// The capacity requested is greater than max size of this FastStringBuffer.
 #ifdef AFC_EXCEPTIONS_ENABLED
-			throwException<OverflowException>("Capacity to reserve exceeds max size allowed.");
+			throw Exception("Capacity to reserve exceeds max size allowed."_s);
 #else
 			std::terminate();
 #endif
@@ -340,7 +340,7 @@ void afc::FastStringBuffer<CharType, allocMode>::expand()
 	if (m_capacity == maxCapacity()) {
 		// The capacity requested is greater than max size of this FastStringBuffer.
 #ifdef AFC_EXCEPTIONS_ENABLED
-		throwException<OverflowException>("Capacity to reserve exceeds max size allowed.");
+		throw Exception("Capacity to reserve exceeds max size allowed."_s);
 #else
 		std::terminate();
 #endif
