@@ -41,7 +41,7 @@ namespace afc
 
 		bool hasInfo() const throw() {return m_success;}
 
-		void print(ostream &out = clog, const string &linePrefix = emptyString) const;
+		void print(ostream &out = clog, const char *linePrefix = "") const;
 
 		static const unsigned STACK_TRACE_DEPTH;
 	private:

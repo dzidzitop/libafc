@@ -65,8 +65,6 @@ namespace afc
 #endif
 	const unsigned StackTraceElement::NO_LINE = 0;
 
-	const string StackTrace::emptyString;
-
 #ifdef __GNUC__
 	void * StackTrace::rawStackTrace[STACK_TRACE_DEPTH];
 #endif
@@ -123,7 +121,7 @@ namespace afc
 		}
 	}
 
-	void StackTrace::print(ostream &out, const string &linePrefix) const
+	void StackTrace::print(ostream &out, const char * const linePrefix) const
 	{
 		if (!m_success) {
 			out << "<stack trace is unavailable>";
