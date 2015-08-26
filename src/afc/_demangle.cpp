@@ -1,5 +1,5 @@
 /* libafc - utils to facilitate C++ development.
-Copyright (C) 2010-2013 Dźmitry Laŭčuk
+Copyright (C) 2010-2015 Dźmitry Laŭčuk
 
 libafc is free software: you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by
@@ -36,7 +36,6 @@ namespace tmp { // 'basename' functions are declared in both bfd and lib c libra
 #include <cstring>
 #include <memory>
 
-using std::string;
 using std::sprintf;
 using std::vector;
 using std::strlen;
@@ -72,12 +71,12 @@ namespace
 		asymbol **syms;
 	} sym_info;
 
-	shared_ptr<string> clone(const char * const src)
+	shared_ptr<afc::String> clone(const char * const src)
 	{
 		if (src == nullptr) {
-			return shared_ptr<string>(nullptr);
+			return shared_ptr<afc::String>(nullptr);
 		}
-		return shared_ptr<string>(new string(src));
+		return shared_ptr<afc::String>(new afc::String(src));
 	}
 
 	static Status slurp_symtab (bfd * const, asymbol **&);
@@ -133,7 +132,7 @@ namespace
 				&psi->fileName, &psi->functionName, &psi->line);
 	}
 
-	Status libtrace_init(const string &fileName, bfd *&abfd, asymbol **&syms) throw()
+	Status libtrace_init(const afc::String &fileName, bfd *&abfd, asymbol **&syms) throw()
 	{
 		bfd_init();
 
@@ -199,7 +198,7 @@ namespace
 				}
 			}
 
-			string functionName;
+			afc::String functionName;
 			if (alloc != NULL) {
 				functionName = alloc;
 				free(alloc);
@@ -231,7 +230,7 @@ namespace afc
 	bool backtraceSymbols(void ** const addresses, size_t size, vector<AddrStatus> &dest) throw()
 	{
 		// TODO support shared libraries
-		const string fileName = getExecPath();
+		const afc::String fileName(getExecPath());
 
 		bfd *abfd = 0;
 		asymbol **syms = 0;

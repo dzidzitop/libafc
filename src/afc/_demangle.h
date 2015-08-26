@@ -1,5 +1,5 @@
 /* libafc - utils to facilitate C++ development.
-Copyright (C) 2010-2013 Dźmitry Laŭčuk
+Copyright (C) 2010-2015 Dźmitry Laŭčuk
 
 libafc is free software: you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by
@@ -19,9 +19,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include "platform.h"
 
 #include <cstddef>
-#include <string>
 #include <vector>
 #include <memory>
+
+#include "SimpleString.hpp"
 
 namespace afc
 {
@@ -30,12 +31,12 @@ namespace afc
 	struct AddrStatus
 	{
 		bool success;
-		std::shared_ptr<std::string> fileName;
-		std::string functionName;
+		std::shared_ptr<afc::String> fileName;
+		afc::String functionName;
 		size_t line;
 	};
 
-	bool backtraceSymbols(void ** const addresses, size_t size, std::vector<AddrStatus> &dest) throw();
+	bool backtraceSymbols(void ** const addresses, size_t size, std::vector<AddrStatus> &dest) noexcept;
 }
 
 #endif /*AFC_BACKTRACE_H_*/
