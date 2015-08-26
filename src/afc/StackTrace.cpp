@@ -1,5 +1,5 @@
 /* libafc - utils to facilitate C++ development.
-Copyright (C) 2010-2013 Dźmitry Laŭčuk
+Copyright (C) 2010-2015 Dźmitry Laŭčuk
 
 libafc is free software: you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by
@@ -134,14 +134,14 @@ namespace afc
 			out << linePrefix;
 			assert(m_elements[i] != 0);
 			const StackTraceElement &element = *m_elements[i];
-			out << (!element.m_function.empty() ? element.m_function : "<unknown>") << " <" << element.m_address;
+			out << (!element.m_function.empty() ? element.m_function.c_str() : "<unknown>") << " <" << element.m_address;
 			if (element.m_offset != 0) {
 				out.flags(ios::hex);
 				assert(element.m_offset > 0);
 				out << '+' << element.m_offset;
 			}
-			const string * const fileNamePtr = element.m_file.get();
-			out << ">\tat " << (fileNamePtr == nullptr ? "<unknown source>" : *fileNamePtr);
+			const afc::String * const fileNamePtr = element.m_file.get();
+			out << ">\tat " << (fileNamePtr == nullptr ? "<unknown source>" : fileNamePtr->c_str());
 			if (element.m_line != StackTraceElement::NO_LINE) {
 				out.flags(ios::dec);
 				out << ':' << element.m_line;

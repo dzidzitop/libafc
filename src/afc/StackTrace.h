@@ -1,5 +1,5 @@
 /* libafc - utils to facilitate C++ development.
-Copyright (C) 2010-2013 Dźmitry Laŭčuk
+Copyright (C) 2010-2015 Dźmitry Laŭčuk
 
 libafc is free software: you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by
@@ -16,10 +16,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #ifndef AFC_STACKTRACE_H_
 #define AFC_STACKTRACE_H_
 
-#include <string>
 #include <vector>
 #include <iostream>
 #include <memory>
+
+#include "SimpleString.hpp"
 
 namespace afc
 {
@@ -70,17 +71,17 @@ namespace afc
 	friend class StackTrace;
 	public:
 		// Nothing is copied. 'function' is expected to be a non-shared C-string allocated by malloc.
-		StackTraceElement(const string &function, const void * const address, const int offset,
-				const std::shared_ptr<string> file, const unsigned line)
+		StackTraceElement(const afc::String &function, const void * const address, const int offset,
+				const std::shared_ptr<afc::String> file, const unsigned line)
 			: m_function(function), m_address(address), m_offset(offset), m_file(file), m_line(line){}
 		~StackTraceElement() throw() {};
 
 		static const unsigned NO_LINE;
 	private:
-		const string m_function;
+		const afc::String m_function;
 		const void * const m_address;
 		const int m_offset;
-		const std::shared_ptr<string> m_file;
+		const std::shared_ptr<afc::String> m_file;
 		const unsigned m_line;
 	};
 }
