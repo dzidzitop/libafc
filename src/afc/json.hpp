@@ -185,6 +185,58 @@ namespace json
 
 	// TODO define noexcept
 	template<typename Iterator, typename ErrorHandler, SpacePolicy spacePolicy = spaces>
+	inline Iterator parseBoolean(Iterator begin, Iterator end, bool &dest, ErrorHandler &errorHandler)
+	{
+		Iterator i = begin;
+		if (spacePolicy != noSpaces) {
+			i = skipSpaces(i, end);
+		}
+
+		char c;
+
+		if (unlikely(i == end)) {
+			goto prematureEnd;
+		}
+
+		c = *i;
+		if (c == u8"t"[0]) {
+			if (unlikely(++i == end)) goto prematureEnd;
+			if (unlikely(*i != u8"r"[0])) goto malformedJson;
+			if (unlikely(++i == end)) goto prematureEnd;
+			if (unlikely(*i != u8"u"[0])) goto malformedJson;
+			if (unlikely(++i == end)) goto prematureEnd;
+			if (unlikely(*i != u8"e"[0])) goto malformedJson;
+			dest = true;
+		} else if (c == u8"f"[0]) {
+			if (unlikely(++i == end)) goto prematureEnd;
+			if (unlikely(*i != u8"a"[0])) goto malformedJson;
+			if (unlikely(++i == end)) goto prematureEnd;
+			if (unlikely(*i != u8"l"[0])) goto malformedJson;
+			if (unlikely(++i == end)) goto prematureEnd;
+			if (unlikely(*i != u8"s"[0])) goto malformedJson;
+			if (unlikely(++i == end)) goto prematureEnd;
+			if (unlikely(*i != u8"e"[0])) goto malformedJson;
+			dest = false;
+		} else {
+			goto malformedJson;
+		}
+
+		++i;
+
+		if (spacePolicy == spaces) {
+			i = skipSpaces(i, end);
+		}
+		return i;
+	prematureEnd:
+		errorHandler.prematureEnd();
+		return end;
+	malformedJson:
+		errorHandler.malformedJson(i);
+		return end;
+	}
+
+	// TODO define noexcept
+	template<typename Iterator, typename ErrorHandler, SpacePolicy spacePolicy = spaces>
 	inline Iterator parseColon(Iterator begin, Iterator end, ErrorHandler &errorHandler)
 	{
 		Iterator i = begin;

@@ -29,6 +29,8 @@ namespace afc
 		CPPUNIT_TEST(testEmptyObjectWithInnerSpaces);
 		CPPUNIT_TEST(testObjectWithStringProperty);
 		CPPUNIT_TEST(testObjectWithIntProperty);
+		CPPUNIT_TEST(testObjectWithBooleanProperty_True);
+		CPPUNIT_TEST(testObjectWithBooleanProperty_False);
 		CPPUNIT_TEST_SUITE_END();
 	public:
 		void testEmptyObject();
@@ -36,6 +38,8 @@ namespace afc
 		void testEmptyObjectWithInnerSpaces();
 		void testObjectWithStringProperty();
 		void testObjectWithIntProperty();
+		void testObjectWithBooleanProperty_True();
+		void testObjectWithBooleanProperty_False();
 	};
 }
 

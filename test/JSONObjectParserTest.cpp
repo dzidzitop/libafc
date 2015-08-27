@@ -259,3 +259,115 @@ void afc::JSONObjectParserTest::testObjectWithIntProperty()
 	CPPUNIT_ASSERT_EQUAL(input.end(), result);
 	CPPUNIT_ASSERT(errorHandler.valid());
 }
+
+void afc::JSONObjectParserTest::testObjectWithBooleanProperty_True()
+{
+	afc::ConstStringRef input = u8"{\"hello\":true}"_s;
+	std::string propertyName;
+	bool propertyValue = false;
+
+	ErrorHandler errorHandler;
+
+	auto objectBodyParser = [&](const char * const begin, const char * const end, ErrorHandler &errorHandler) -> const char *
+	{
+		CPPUNIT_ASSERT_EQUAL(input.begin() + 1, begin);
+		CPPUNIT_ASSERT_EQUAL(u8"\""[0], *begin);
+		CPPUNIT_ASSERT_EQUAL(input.end(), end);
+
+		auto propertyNameParser = [&](const char * const begin, const char * const end, ErrorHandler &errorHandler) -> const char *
+		{
+			CPPUNIT_ASSERT_EQUAL(input.begin() + 2, begin);
+			CPPUNIT_ASSERT_EQUAL(u8"h"[0], *begin);
+			CPPUNIT_ASSERT_EQUAL(input.end(), end);
+
+			const char * const propNameEnd = std::find(begin, end, u8"\""[0]);
+
+			CPPUNIT_ASSERT_EQUAL(input.begin() + 2 + 5, propNameEnd);
+			CPPUNIT_ASSERT_EQUAL(u8"\""[0], *propNameEnd);
+
+			propertyName.assign(begin, propNameEnd);
+
+			return propNameEnd;
+		};
+
+		const char *i = afc::json::parseString(begin, end, propertyNameParser, errorHandler);
+
+		CPPUNIT_ASSERT_EQUAL(input.begin() + 2 + 5 + 1, i);
+		CPPUNIT_ASSERT_EQUAL(u8":"[0], *i);
+
+		CPPUNIT_ASSERT_EQUAL(string("hello"), propertyName);
+		CPPUNIT_ASSERT_EQUAL(false, propertyValue);
+
+		i = afc::json::parseBoolean(++i, end, propertyValue, errorHandler);
+
+		CPPUNIT_ASSERT_EQUAL(input.begin() + 2 + 5 + 2 + 4, i);
+		CPPUNIT_ASSERT_EQUAL(u8"}"[0], *i);
+
+		CPPUNIT_ASSERT_EQUAL(string("hello"), propertyName);
+		CPPUNIT_ASSERT_EQUAL(true, propertyValue);
+
+		return i;
+	};
+
+	const char * const result = afc::json::parseObject<const char *, decltype(objectBodyParser)&, ErrorHandler &>
+			(input.begin(), input.end(), objectBodyParser, errorHandler);
+
+	CPPUNIT_ASSERT_EQUAL(input.end(), result);
+	CPPUNIT_ASSERT(errorHandler.valid());
+}
+
+void afc::JSONObjectParserTest::testObjectWithBooleanProperty_False()
+{
+	afc::ConstStringRef input = u8"{\"hello\":false}"_s;
+	std::string propertyName;
+	bool propertyValue = true;
+
+	ErrorHandler errorHandler;
+
+	auto objectBodyParser = [&](const char * const begin, const char * const end, ErrorHandler &errorHandler) -> const char *
+	{
+		CPPUNIT_ASSERT_EQUAL(input.begin() + 1, begin);
+		CPPUNIT_ASSERT_EQUAL(u8"\""[0], *begin);
+		CPPUNIT_ASSERT_EQUAL(input.end(), end);
+
+		auto propertyNameParser = [&](const char * const begin, const char * const end, ErrorHandler &errorHandler) -> const char *
+		{
+			CPPUNIT_ASSERT_EQUAL(input.begin() + 2, begin);
+			CPPUNIT_ASSERT_EQUAL(u8"h"[0], *begin);
+			CPPUNIT_ASSERT_EQUAL(input.end(), end);
+
+			const char * const propNameEnd = std::find(begin, end, u8"\""[0]);
+
+			CPPUNIT_ASSERT_EQUAL(input.begin() + 2 + 5, propNameEnd);
+			CPPUNIT_ASSERT_EQUAL(u8"\""[0], *propNameEnd);
+
+			propertyName.assign(begin, propNameEnd);
+
+			return propNameEnd;
+		};
+
+		const char *i = afc::json::parseString(begin, end, propertyNameParser, errorHandler);
+
+		CPPUNIT_ASSERT_EQUAL(input.begin() + 2 + 5 + 1, i);
+		CPPUNIT_ASSERT_EQUAL(u8":"[0], *i);
+
+		CPPUNIT_ASSERT_EQUAL(string("hello"), propertyName);
+		CPPUNIT_ASSERT_EQUAL(true, propertyValue);
+
+		i = afc::json::parseBoolean(++i, end, propertyValue, errorHandler);
+
+		CPPUNIT_ASSERT_EQUAL(input.begin() + 2 + 5 + 2 + 5, i);
+		CPPUNIT_ASSERT_EQUAL(u8"}"[0], *i);
+
+		CPPUNIT_ASSERT_EQUAL(string("hello"), propertyName);
+		CPPUNIT_ASSERT_EQUAL(false, propertyValue);
+
+		return i;
+	};
+
+	const char * const result = afc::json::parseObject<const char *, decltype(objectBodyParser)&, ErrorHandler &>
+			(input.begin(), input.end(), objectBodyParser, errorHandler);
+
+	CPPUNIT_ASSERT_EQUAL(input.end(), result);
+	CPPUNIT_ASSERT(errorHandler.valid());
+}
