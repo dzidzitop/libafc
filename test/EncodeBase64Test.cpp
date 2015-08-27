@@ -1,5 +1,5 @@
 /* libafc - utils to facilitate C++ development.
-Copyright (C) 2013-2014 Dźmitry Laŭčuk
+Copyright (C) 2013-2015 Dźmitry Laŭčuk
 
 libafc is free software: you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by
@@ -15,6 +15,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include "EncodeBase64Test.hpp"
 #include <afc/base64.hpp>
+#include <string>
+#include <iterator>
 
 using namespace std;
 
@@ -22,45 +24,72 @@ CPPUNIT_TEST_SUITE_REGISTRATION(afc::EncodeBase64Test);
 
 void afc::EncodeBase64Test::testString_EncodeEmptyString()
 {
-	CPPUNIT_ASSERT_EQUAL(string(), encodeBase64(string()));
+	string result;
+	encodeBase64("", 0, back_inserter(result));
+
+	CPPUNIT_ASSERT_EQUAL(string(), result);
 }
 
 void afc::EncodeBase64Test::testString_EncodeOctet()
 {
-	CPPUNIT_ASSERT_EQUAL(string("TQ=="), encodeBase64(string("M")));
+	string result;
+	encodeBase64("M", 1, back_inserter(result));
+
+	CPPUNIT_ASSERT_EQUAL(string("TQ=="), result);
 }
 
 void afc::EncodeBase64Test::testString_EncodeTwoOctets()
 {
-	CPPUNIT_ASSERT_EQUAL(string("TWE="), encodeBase64(string("Ma")));
+	string result;
+	encodeBase64("Ma", 2, back_inserter(result));
+
+	CPPUNIT_ASSERT_EQUAL(string("TWE="), result);
 }
 
 void afc::EncodeBase64Test::testString_EncodeTriplet()
 {
-	CPPUNIT_ASSERT_EQUAL(string("TWFu"), encodeBase64(string("Man")));
+	string result;
+	encodeBase64("Man", 3, back_inserter(result));
+
+	CPPUNIT_ASSERT_EQUAL(string("TWFu"), result);
 }
 
 void afc::EncodeBase64Test::testString_EncodeTripletAndOctet()
 {
-	CPPUNIT_ASSERT_EQUAL(string("TWFuTQ=="), encodeBase64(string("ManM")));
+	string result;
+	encodeBase64("ManM", 4, back_inserter(result));
+
+	CPPUNIT_ASSERT_EQUAL(string("TWFuTQ=="), result);
 }
 
 void afc::EncodeBase64Test::testString_EncodeTripletAndTwoOctets()
 {
-	CPPUNIT_ASSERT_EQUAL(string("TWFuTWE="), encodeBase64(string("ManMa")));
+	string result;
+	encodeBase64("ManMa", 5, back_inserter(result));
+
+	CPPUNIT_ASSERT_EQUAL(string("TWFuTWE="), result);
 }
 
 void afc::EncodeBase64Test::testString_EncodeTwoTriplets()
 {
-	CPPUNIT_ASSERT_EQUAL(string("VHJpcGxl"), encodeBase64(string("Triple")));
+	string result;
+	encodeBase64("Triple", 6, back_inserter(result));
+
+	CPPUNIT_ASSERT_EQUAL(string("VHJpcGxl"), result);
 }
 
 void afc::EncodeBase64Test::testString_EncodeTwoTripletsAndOctet()
 {
-	CPPUNIT_ASSERT_EQUAL(string("VHJpcGxlTQ=="), encodeBase64(string("TripleM")));
+	string result;
+	encodeBase64("TripleM", 7, back_inserter(result));
+
+	CPPUNIT_ASSERT_EQUAL(string("VHJpcGxlTQ=="), result);
 }
 
 void afc::EncodeBase64Test::testString_EncodeTwoTripletsAndTwoOctets()
 {
-	CPPUNIT_ASSERT_EQUAL(string("VHJpcGxlTWE="), encodeBase64(string("TripleMa")));
+	string result;
+	encodeBase64("TripleMa", 8, back_inserter(result));
+
+	CPPUNIT_ASSERT_EQUAL(string("VHJpcGxlTWE="), result);
 }

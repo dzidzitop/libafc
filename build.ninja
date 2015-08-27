@@ -31,7 +31,6 @@ rule cxx_test
 build $buildDir/_demangle.o: cxx $srcDir/afc/_demangle.cpp
 build $buildDir/assertion.o: cxx $srcDir/afc/assertion.cpp
 build $buildDir/backtrace.o: cxx $srcDir/afc/backtrace.cpp
-build $buildDir/base64.o: cxx $srcDir/afc/base64.cpp
 build $buildDir/convertCharset.o: cxx $srcDir/afc/convertCharset.cpp
 build $buildDir/dateutil.o: cxx $srcDir/afc/dateutil.cpp
 build $buildDir/Exception.o: cxx $srcDir/afc/Exception.cpp
@@ -61,7 +60,6 @@ build $buildDir/libafc.so: linkDynamic $
     $buildDir/_demangle.o $
     $buildDir/assertion.o $
     $buildDir/backtrace.o $
-    $buildDir/base64.o $
     $buildDir/convertCharset.o $
     $buildDir/dateutil.o $
     $buildDir/Exception.o $
@@ -75,7 +73,6 @@ build $buildDir/libafc.a: linkStatic $
     $buildDir/_demangle.o $
     $buildDir/assertion.o $
     $buildDir/backtrace.o $
-    $buildDir/base64.o $
     $buildDir/convertCharset.o $
     $buildDir/dateutil.o $
     $buildDir/Exception.o $
