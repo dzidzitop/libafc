@@ -73,15 +73,12 @@ template<typename InputIterator, typename OutputIterator>
 OutputIterator afc::encodeBase64(InputIterator begin, std::size_t size, OutputIterator dest)
 {
 	const std::size_t tailSize = size % 3;
-
-	struct alignas(4) {
-		char chunk[4];
-	} buf;
+	char chunk[4];
 
 	InputIterator p = begin;
 	for (std::size_t i = size - tailSize; i != 0; i -= 3) {
-		p = afc::_impl::encodeTriplet(p, buf.chunk);
-		dest = std::copy_n(buf.chunk, 4, dest);
+		p = afc::_impl::encodeTriplet(p, chunk);
+		dest = std::copy_n(chunk, 4, dest);
 	}
 
 	// Last one or two octets are encoded in a different way.
@@ -97,14 +94,14 @@ OutputIterator afc::encodeBase64(InputIterator begin, std::size_t size, OutputIt
 		}
 		tail[2] = 0;
 
-		afc::_impl::encodeTriplet(tail, buf.chunk);
+		afc::_impl::encodeTriplet(tail, chunk);
 
 		if (tailSize == 1) {
-			buf.chunk[2] = '=';
+			chunk[2] = '=';
 		}
-		buf.chunk[3] = '=';
+		chunk[3] = '=';
 
-		dest = std::copy_n(buf.chunk, 4, dest);
+		dest = std::copy_n(chunk, 4, dest);
 	}
 
 	return dest;
