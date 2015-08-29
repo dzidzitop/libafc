@@ -68,10 +68,9 @@ void afc::DateUtilTest::tearDown()
 
 void afc::DateUtilTest::testParseValidISODateTime_PositiveUTCTimeZone()
 {
-	string input("2013-10-16T20:02:26+0000");
 	time_t dest;
 
-	const bool result = parseISODateTime(input, dest);
+	const bool result = parseISODateTime("2013-10-16T20:02:26+0000", dest);
 
 	CPPUNIT_ASSERT(result);
 
@@ -87,10 +86,9 @@ void afc::DateUtilTest::testParseValidISODateTime_PositiveUTCTimeZone()
 
 void afc::DateUtilTest::testParseValidISODateTime_NegativeUTCTimeZone()
 {
-	string input("2013-10-16T20:02:26-0000");
 	time_t dest;
 
-	const bool result = parseISODateTime(input, dest);
+	const bool result = parseISODateTime("2013-10-16T20:02:26-0000", dest);
 
 	CPPUNIT_ASSERT(result);
 
@@ -106,10 +104,9 @@ void afc::DateUtilTest::testParseValidISODateTime_NegativeUTCTimeZone()
 
 void afc::DateUtilTest::testParseValidISODateTime_PositiveNonUTCTimeZone()
 {
-	string input("2013-10-16T20:02:26+0300");
 	time_t dest;
 
-	const bool result = parseISODateTime(input, dest);
+	const bool result = parseISODateTime("2013-10-16T20:02:26+0300", dest);
 
 	CPPUNIT_ASSERT(result);
 
@@ -125,10 +122,9 @@ void afc::DateUtilTest::testParseValidISODateTime_PositiveNonUTCTimeZone()
 
 void afc::DateUtilTest::testParseValidISODateTime_NegativeNonUTCTimeZone()
 {
-	string input("2013-10-16T20:02:26-0130");
 	time_t dest;
 
-	const bool result = parseISODateTime(input, dest);
+	const bool result = parseISODateTime("2013-10-16T20:02:26-0130", dest);
 
 	CPPUNIT_ASSERT(result);
 
@@ -144,10 +140,9 @@ void afc::DateUtilTest::testParseValidISODateTime_NegativeNonUTCTimeZone()
 
 void DateUtilTest::testParseValidISODateTime_DateTime_PositiveUTCTimeZone()
 {
-	string input("2013-10-16T20:02:26+0000");
 	DateTime dest;
 
-	const bool result = parseISODateTime(input, dest);
+	const bool result = parseISODateTime("2013-10-16T20:02:26+0000", dest);
 
 	CPPUNIT_ASSERT(result);
 
@@ -162,10 +157,9 @@ void DateUtilTest::testParseValidISODateTime_DateTime_PositiveUTCTimeZone()
 
 void DateUtilTest::testParseValidISODateTime_DateTime_NegativeUTCTimeZone()
 {
-	string input("2013-10-16T20:02:26-0000");
 	DateTime dest;
 
-	const bool result = parseISODateTime(input, dest);
+	const bool result = parseISODateTime("2013-10-16T20:02:26-0000", dest);
 
 	CPPUNIT_ASSERT(result);
 
@@ -180,10 +174,9 @@ void DateUtilTest::testParseValidISODateTime_DateTime_NegativeUTCTimeZone()
 
 void DateUtilTest::testParseValidISODateTime_DateTime_PositiveNonUTCTimeZone()
 {
-	string input("2013-10-16T20:02:26+0300");
 	DateTime dest;
 
-	const bool result = parseISODateTime(input, dest);
+	const bool result = parseISODateTime("2013-10-16T20:02:26+0300", dest);
 
 	CPPUNIT_ASSERT(result);
 
@@ -198,10 +191,9 @@ void DateUtilTest::testParseValidISODateTime_DateTime_PositiveNonUTCTimeZone()
 
 void DateUtilTest::testParseValidISODateTime_DateTime_NegativeNonUTCTimeZone()
 {
-	string input("2013-10-16T20:02:26-0130");
 	DateTime dest;
 
-	const bool result = parseISODateTime(input, dest);
+	const bool result = parseISODateTime("2013-10-16T20:02:26-0130", dest);
 
 	CPPUNIT_ASSERT(result);
 
@@ -216,10 +208,9 @@ void DateUtilTest::testParseValidISODateTime_DateTime_NegativeNonUTCTimeZone()
 
 void afc::DateUtilTest::testParseValidISODateTime_TimestampTZ_PositiveUTCTimeZone()
 {
-	string input("2013-10-16T20:02:26+0000");
 	TimestampTZ dest;
 
-	const bool result = parseISODateTime(input, dest);
+	const bool result = parseISODateTime("2013-10-16T20:02:26+0000", dest);
 
 	CPPUNIT_ASSERT(result);
 
@@ -238,10 +229,9 @@ void afc::DateUtilTest::testParseValidISODateTime_TimestampTZ_PositiveUTCTimeZon
 
 void afc::DateUtilTest::testParseValidISODateTime_TimestampTZ_NegativeUTCTimeZone()
 {
-	string input("2013-10-16T20:02:26-0000");
 	TimestampTZ dest;
 
-	const bool result = parseISODateTime(input, dest);
+	const bool result = parseISODateTime("2013-10-16T20:02:26-0000", dest);
 
 	CPPUNIT_ASSERT(result);
 
@@ -260,10 +250,9 @@ void afc::DateUtilTest::testParseValidISODateTime_TimestampTZ_NegativeUTCTimeZon
 
 void afc::DateUtilTest::testParseValidISODateTime_TimestampTZ_PositiveNonUTCTimeZone()
 {
-	string input("2013-10-16T20:02:26+0300");
 	TimestampTZ dest;
 
-	const bool result = parseISODateTime(input, dest);
+	const bool result = parseISODateTime("2013-10-16T20:02:26+0300", dest);
 
 	CPPUNIT_ASSERT(result);
 
@@ -282,10 +271,9 @@ void afc::DateUtilTest::testParseValidISODateTime_TimestampTZ_PositiveNonUTCTime
 
 void afc::DateUtilTest::testParseValidISODateTime_TimestampTZ_NegativeNonUTCTimeZone()
 {
-	string input("2013-10-16T20:02:26-0130");
 	TimestampTZ dest;
 
-	const bool result = parseISODateTime(input, dest);
+	const bool result = parseISODateTime("2013-10-16T20:02:26-0130", dest);
 
 	CPPUNIT_ASSERT(result);
 
@@ -327,10 +315,9 @@ void afc::DateUtilTest::test_TimestampTZ_AssignTimeT()
 
 void afc::DateUtilTest::test_TimestampTZ_CastToTm()
 {
-	string input("2013-10-16T20:02:26-0230");
 	afc::TimestampTZ ts;
 
-	const bool parseResult = parseISODateTime(input, ts);
+	const bool parseResult = parseISODateTime("2013-10-16T20:02:26-0230", ts);
 
 	CPPUNIT_ASSERT(parseResult);
 

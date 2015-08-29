@@ -49,11 +49,11 @@ namespace
 	}
 }
 
-bool afc::parseISODateTime(const string &str, time_t &dest)
+bool afc::parseISODateTime(const char * const str, time_t &dest)
 {
 	tm dateTime;
 
-	if (!parseDateTime(str.c_str(), dateTime)) {
+	if (!parseDateTime(str, dateTime)) {
 		return false;
 	}
 
@@ -73,11 +73,11 @@ bool afc::parseISODateTime(const string &str, time_t &dest)
 	return true;
 }
 
-bool afc::parseISODateTime(const string &str, afc::DateTime &dest)
+bool afc::parseISODateTime(const char * const str, afc::DateTime &dest)
 {
 	tm dateTime;
 
-	if (!parseDateTime(str.c_str(), dateTime)) {
+	if (!parseDateTime(str, dateTime)) {
 		return false;
 	}
 

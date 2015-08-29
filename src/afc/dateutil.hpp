@@ -1,5 +1,5 @@
 /* libafc - utils to facilitate C++ development.
-Copyright (C) 2013-2014 Dźmitry Laŭčuk
+Copyright (C) 2013-2015 Dźmitry Laŭčuk
 
 libafc is free software: you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by
@@ -18,7 +18,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 #include <cstddef>
 #include <ctime>
-#include <string>
 #include <cstdint>
 #include "number.h"
 
@@ -184,13 +183,8 @@ namespace afc
 
 	bool parseISODateTime(const char *str, TimestampTZ &dest);
 
-	bool parseISODateTime(const std::string &str, std::time_t &dest);
-	bool parseISODateTime(const std::string &str, DateTime &dest);
-
-	inline bool parseISODateTime(const std::string &str, TimestampTZ &dest)
-	{
-		return afc::parseISODateTime(str.c_str(), dest);
-	}
+	bool parseISODateTime(const char *str, std::time_t &dest);
+	bool parseISODateTime(const char *str, DateTime &dest);
 
 	constexpr std::size_t maxISODateTimeSize() noexcept
 	{
