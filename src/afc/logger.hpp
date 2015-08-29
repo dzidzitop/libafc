@@ -19,7 +19,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 #include <cstdio>
 #include <initializer_list>
-#include <string>
 #include <type_traits>
 
 // POSIX API.
@@ -62,11 +61,6 @@ namespace afc
 		}
 
 		inline bool logPrint(const afc::String &s, FILE * const dest) noexcept
-		{
-			return logText(s.data(), s.size(), dest);
-		}
-
-		inline bool logPrint(const std::string &s, FILE * const dest) noexcept
 		{
 			return logText(s.data(), s.size(), dest);
 		}
