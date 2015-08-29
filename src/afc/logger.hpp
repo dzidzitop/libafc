@@ -17,6 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #ifndef AFC_LOGGER_HPP_
 #define AFC_LOGGER_HPP_
 
+#include <cstddef>
 #include <cstdio>
 #include <initializer_list>
 #include <type_traits>
@@ -70,6 +71,11 @@ namespace afc
 			return std::fputs(s, dest) >= 0;
 		}
 
+		inline bool logPrint(const char * const s, std::size_t n, FILE * const dest) noexcept
+		{
+			return logText(s, n, dest);
+		}
+
 		inline bool logPrint(const std::pair<const char *, const char *> &s, FILE * const dest) noexcept
 		{
 			return logText(s.first, std::size_t(s.second - s.first), dest);
@@ -79,7 +85,11 @@ namespace afc
 		inline typename std::enable_if<std::is_floating_point<T>::value, bool>::type logPrint(T value, FILE * const dest) noexcept
 		{
 			// TODO improve performance.
-			return logPrint(std::to_string(value), dest);
+			// TODO handle buffer overflow.
+			char buf[128];
+			std::size_t n = std::snprintf(buf, 128, "%Lf", static_cast<long double>(value));
+			// TODO improve performance.
+			return logPrint(buf, n, dest);
 		}
 
 		class Printer
