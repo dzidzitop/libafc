@@ -35,7 +35,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include "StringRef.hpp"
 #ifdef AFC_EXCEPTIONS_ENABLED
 	#include <new>
-	#include "Exception.h"
 #else
 	#include <exception>
 #endif
@@ -68,12 +67,18 @@ namespace afc
 		static_assert(!std::is_array<CharType>::value, "Fixed-size arrays are not supported as CharType.");
 
 		friend class FastStringBufferTest;
+
+#ifdef AFC_EXCEPTIONS_ENABLED
+		static void badAlloc() { throw std::bad_alloc(); }
+#else
+		static void badAlloc() noexcept { std::terminate(); }
+#endif
 	private:
 		FastStringBuffer(const FastStringBuffer &) = delete;
 		FastStringBuffer &operator=(const FastStringBuffer &) = delete;
 	public:
 		FastStringBuffer() noexcept : m_buf(nullptr), m_bufEnd(nullptr), m_capacity(0) {}
-		explicit FastStringBuffer(const std::size_t initialCapacity)
+		explicit FastStringBuffer(const std::size_t initialCapacity) noexcept(noexcept(badAlloc()))
 		{
 			if (likely(initialCapacity > 0)) {
 				const std::size_t storageSize = nextStorageSize(initialCapacity);
@@ -111,13 +116,13 @@ namespace afc
 
 		~FastStringBuffer() { std::free(m_buf); };
 
-		void reserve(const std::size_t n)
+		void reserve(const std::size_t n) noexcept(noexcept(badAlloc()))
 		{
 			if (m_capacity < n) {
 				expand(n);
 			}
 		}
-		void reserveForOne()
+		void reserveForOne() noexcept(noexcept(badAlloc()))
 		{
 			if (m_buf + m_capacity == m_bufEnd) {
 				expand();
@@ -242,10 +247,10 @@ namespace afc
 		void returnTail(const Tail tail) noexcept { assert(tail <= m_buf + m_capacity); m_bufEnd = tail; };
 #endif
 	private:
-		inline void expand();
-		void expand(std::size_t capacity);
+		inline void expand() noexcept(noexcept(badAlloc()));
+		void expand(std::size_t capacity) noexcept(noexcept(badAlloc()));
 		// The expected new capacity is passed in, not the current capacity.
-		std::size_t nextStorageSize(std::size_t capacity);
+		std::size_t nextStorageSize(std::size_t capacity) noexcept(noexcept(badAlloc()));
 
 		static constexpr std::size_t maxCapacity() noexcept
 		{
@@ -257,15 +262,6 @@ namespace afc
 			 */
 			return afc::math::min<const std::size_t>(std::numeric_limits<std::size_t>::max() / sizeof(CharType) - 1,
 					std::size_t(std::numeric_limits<std::ptrdiff_t>::max()));
-		}
-
-		static void badAlloc()
-		{
-#ifdef AFC_EXCEPTIONS_ENABLED
-			throw std::bad_alloc();
-#else
-			std::terminate();
-#endif
 		}
 
 		static const CharType empty[1];
@@ -282,7 +278,7 @@ template<typename CharType, afc::AllocMode allocMode>
 const CharType afc::FastStringBuffer<CharType, allocMode>::empty[1] = {CharType(0)};
 
 template<typename CharType, afc::AllocMode allocMode>
-inline std::size_t afc::FastStringBuffer<CharType, allocMode>::nextStorageSize(const std::size_t capacity)
+inline std::size_t afc::FastStringBuffer<CharType, allocMode>::nextStorageSize(const std::size_t capacity) noexcept(noexcept(badAlloc()))
 {
 	static_assert(allocMode == afc::AllocMode::pow2 || allocMode == afc::AllocMode::accurate, "Unsupported allocMode.");
 
@@ -309,11 +305,7 @@ inline std::size_t afc::FastStringBuffer<CharType, allocMode>::nextStorageSize(c
 			// Overflow. Reducing storage size to max allowed.
 			if (capacity > maxCapacity()) {
 				// The capacity requested is greater than max size of this FastStringBuffer.
-#ifdef AFC_EXCEPTIONS_ENABLED
-				throw Exception("Capacity to reserve exceeds max size allowed."_s);
-#else
-				std::terminate();
-#endif
+				badAlloc();
 			}
 			return maxStorageSize;
 		}
@@ -322,18 +314,14 @@ inline std::size_t afc::FastStringBuffer<CharType, allocMode>::nextStorageSize(c
 	} else { // accurate mode
 		if (capacity > maxCapacity()) {
 			// The capacity requested is greater than max size of this FastStringBuffer.
-#ifdef AFC_EXCEPTIONS_ENABLED
-			throw Exception("Capacity to reserve exceeds max size allowed."_s);
-#else
-			std::terminate();
-#endif
+			badAlloc();
 		}
 		return capacity + 1;
 	}
 }
 
 template<typename CharType, afc::AllocMode allocMode>
-void afc::FastStringBuffer<CharType, allocMode>::expand()
+void afc::FastStringBuffer<CharType, allocMode>::expand() noexcept(noexcept(badAlloc()))
 {
 	static_assert(allocMode == afc::AllocMode::pow2 || allocMode == afc::AllocMode::accurate, "Unsupported allocMode.");
 
@@ -374,7 +362,7 @@ void afc::FastStringBuffer<CharType, allocMode>::expand()
 }
 
 template<typename CharType, afc::AllocMode allocMode>
-void afc::FastStringBuffer<CharType, allocMode>::expand(const std::size_t capacity)
+void afc::FastStringBuffer<CharType, allocMode>::expand(const std::size_t capacity) noexcept(noexcept(badAlloc()))
 {
 	register const std::size_t newStorageSize = nextStorageSize(capacity);
 
