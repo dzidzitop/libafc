@@ -59,7 +59,7 @@ namespace
 						buf.append("The conversion from "_s);
 						buf.append(srcEncoding, srcEncodingSize);
 						buf.append(" to UTF-16LE is not supported by the implementation."_s);
-						throw Exception(std::move(afc::String().attach(buf.detach(), bufSize)));
+						throw Exception(String::move(buf));
 					}
 				default:
 					{
@@ -68,9 +68,7 @@ namespace
 						afc::FastStringBuffer<char, afc::AllocMode::accurate> buf(bufCapacity);
 						buf.append("Unable to initialise encoding context. errno: "_s);
 						buf.returnTail(afc::printNumber<10>(err, buf.borrowTail()));
-						const std::size_t bufSize = buf.size();
-
-						throw Exception(std::move(afc::String().attach(buf.detach(), bufSize)));
+						throw Exception(String::move(buf));
 					}
 				}
 			}
@@ -100,9 +98,7 @@ namespace
 						afc::FastStringBuffer<char, afc::AllocMode::accurate> buf(bufCapacity);
 						buf.append("Unable to convert *srcBuf. errno: "_s);
 						buf.returnTail(afc::printNumber<10>(err, buf.borrowTail()));
-						const std::size_t bufSize = buf.size();
-
-						throw Exception(std::move(afc::String().attach(buf.detach(), bufSize)));
+						throw Exception(String::move(buf));
 					}
 				}
 			}
@@ -218,7 +214,7 @@ afc::U16String afc::stringToUTF16LE(const char * const src, std::size_t n, const
 		const char16_t codePoint = UInt16<>::fromBytes<endianness::LE>(&buf[i]); // a UTF16 code point
 		result.append(codePoint);
 	}
-	return afc::U16String().attach(result.detach(), bufSize / 2);
+	return afc::U16String::move(result);
 }
 
 afc::String afc::utf16leToString(const char16_t * const src, const std::size_t n, const char * const encoding)
@@ -259,10 +255,8 @@ afc::String afc::utf16leToString(const char16_t * const src, const std::size_t n
 		result.reserve(result.size() + count);
 		result.append(destBuf, count);
 	}
-	{
-		const std::size_t bufSize = result.size();
-		return afc::String().attach(result.detach(), bufSize);
-	}
+
+	return afc::String::move(result);
 handleMalformedSequence:
 	throw Exception("Unsupported character sequence"_s);
 }

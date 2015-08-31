@@ -56,7 +56,7 @@ namespace
 
 		assert(bufSize == buf.size());
 
-		throw Exception(std::move(afc::String().attach(buf.detach(), bufSize)));
+		throw Exception(afc::String::move(buf));
 	}
 
 	template<typename FileType>

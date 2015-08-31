@@ -89,6 +89,14 @@ namespace afc
 
 		~SimpleString() { std::free(const_cast<CharType *>(m_str)); };
 
+		template<typename T>
+		inline static SimpleString move(T &src)
+				noexcept(noexcept(std::declval<T>().size()) && noexcept(std::declval<T>().detach()))
+		{
+			const std::size_t size = src.size();
+			return SimpleString(src.detach(), size, 0);
+		}
+
 		explicit operator const char *() const noexcept { return m_str; }
 
 		const CharType *data() const noexcept { return m_str; }
@@ -112,6 +120,8 @@ namespace afc
 
 		void clear() noexcept { std::free(const_cast<CharType *>(m_str)); m_str = nullptr; m_size = 0; }
 	private:
+		SimpleString(CharType * const data, std::size_t n, int) noexcept : m_str(data),  m_size(n) {}
+
 		const CharType *m_str;
 		// TODO m_strEnd should support for more efficient iteration
 		std::size_t m_size;
