@@ -31,7 +31,8 @@ namespace json
 	enum SpacePolicy {
 		spaces,
 		noSpaces,
-		noTrailingSpaces,
+		leadingSpaces,
+		trailingSpaces
 	};
 
 	// TODO define noexcept
@@ -40,64 +41,66 @@ namespace json
 		return std::find_if(begin, end, [](const char c) { return !std::isspace(c); });
 	}
 
+	template<SpacePolicy spacePolicy, typename Iterator>
+	inline Iterator skipLeadingSpaces(Iterator begin, Iterator end) {
+		return (spacePolicy == spaces || spacePolicy == leadingSpaces) ?
+				skipSpaces(begin, end) :
+				begin;
+	}
+
+	template<SpacePolicy spacePolicy, typename Iterator>
+	inline Iterator skipTrailingSpaces(Iterator begin, Iterator end) {
+		return (spacePolicy == spaces || spacePolicy == trailingSpaces) ?
+				skipSpaces(begin, end) :
+				begin;
+	}
+
 	// TODO define noexcept
 	template<typename Iterator, typename ObjectBodyParser, typename ErrorHandler, SpacePolicy spacePolicy = spaces>
 	inline Iterator parseObject(Iterator begin, Iterator end, ObjectBodyParser objectBodyParser, ErrorHandler &errorHandler)
 	{
-		Iterator i = begin;
-		if (spacePolicy != noSpaces) {
-			i = skipSpaces(i, end);
-		}
+		Iterator i = skipLeadingSpaces<spacePolicy>(begin, end);
 		if (unlikely(i == end)) {
-			errorHandler.prematureEnd();
-			return end;
+			goto prematureEnd;
 		}
 		if (unlikely(*i != u8"{"[0])) {
-			errorHandler.malformedJson(i);
-			return end;
+			goto malformedJson;
 		}
 
 		i = objectBodyParser(++i, end, errorHandler);
 		if (unlikely(!errorHandler.valid())) {
 			return end;
 		}
-		// TODO check performance (excessive branches)
 		if (unlikely(i == end)) {
-			errorHandler.prematureEnd();
-			return end;
+			goto prematureEnd;
 		}
 		if (unlikely(*i != u8"}"[0])) {
-			errorHandler.malformedJson(i);
-			return end;
+			goto malformedJson;
 		}
-		++i;
-		if (spacePolicy == spaces) {
-			i = skipSpaces(i, end);
-		}
-		return i;
+		return skipTrailingSpaces<spacePolicy>(++i, end);
+	prematureEnd:
+		errorHandler.prematureEnd();
+		return end;
+	malformedJson:
+		errorHandler.malformedJson(i);
+		return end;
 	}
 
 	template<typename Iterator, typename ArrayElementParser, typename ErrorHandler, SpacePolicy spacePolicy = spaces>
 	inline Iterator parseArray(Iterator begin, Iterator end, ArrayElementParser arrayElementParser, ErrorHandler &errorHandler)
 	{
-		Iterator i = begin;
-		if (spacePolicy != noSpaces) {
-			i = skipSpaces(i, end);
-		}
+		Iterator i = skipLeadingSpaces<spacePolicy>(begin, end);
 		if (unlikely(i == end)) {
-			errorHandler.prematureEnd();
-			return end;
+			goto prematureEnd;
 		}
 		if (unlikely(*i != u8"["[0])) {
-			errorHandler.malformedJson(i);
-			return end;
+			goto malformedJson;
 		}
 		if (unlikely(++i == end)) {
-			errorHandler.prematureEnd();
-			return end;
+			goto prematureEnd;
 		}
 		if (*i == u8"]"[0]) {
-			return ++i;
+			return skipTrailingSpaces<spacePolicy>(++i, end);
 		}
 
 		for (;;) {
@@ -106,41 +109,37 @@ namespace json
 				return end;
 			}
 			if (unlikely(i == end)) {
-				errorHandler.prematureEnd();
-				return end;
+				goto prematureEnd;
 			}
 			const char c = *i;
 
 			if (c == u8"]"[0]) {
-				++i;
-				if (spacePolicy == spaces) {
-					i = skipSpaces(i, end);
-				}
-				return i;
+				return skipTrailingSpaces<spacePolicy>(++i, end);
 			}
 			if (likely(c == u8","[0])) {
 				++i;
 			} else {
-				errorHandler.malformedJson(i);
-				return end;
+				goto malformedJson;
 			}
 		}
+	prematureEnd:
+		errorHandler.prematureEnd();
+		return end;
+	malformedJson:
+		errorHandler.malformedJson(i);
+		return end;
 	}
 
 	// TODO define noexcept
 	template<typename Iterator, typename StringParser, typename ErrorHandler, SpacePolicy spacePolicy = spaces>
 	inline Iterator parseString(Iterator begin, Iterator end, StringParser stringParser, ErrorHandler &errorHandler)
 	{
-		Iterator i = begin;
-		if (spacePolicy != noSpaces) {
-			i = skipSpaces(i, end);
-		}
+		Iterator i = skipLeadingSpaces<spacePolicy>(begin, end);
 		if (unlikely(i == end)) {
-			return end;
+			goto prematureEnd;
 		}
 		if (unlikely(*i != u8"\""[0])) {
-			errorHandler.malformedJson(i);
-			return end;
+			goto malformedJson;
 		}
 
 		i = stringParser(++i, end, errorHandler);
@@ -148,49 +147,37 @@ namespace json
 			return end;
 		}
 		if (unlikely(i == end)) {
-			errorHandler.prematureEnd();
-			return end;
+			goto prematureEnd;
 		}
 		if (unlikely(*i != u8"\""[0])) {
-			errorHandler.malformedJson(i);
-			return end;
+			goto malformedJson;
 		}
-		++i;
-		if (spacePolicy == spaces) {
-			i = skipSpaces(i, end);
-		}
-		return i;
+		return skipTrailingSpaces<spacePolicy>(++i, end);
+	prematureEnd:
+		errorHandler.prematureEnd();
+		return end;
+	malformedJson:
+		errorHandler.malformedJson(i);
+		return end;
 	}
 
 	// TODO define noexcept
 	template<typename Iterator, typename NumberParser, typename ErrorHandler, SpacePolicy spacePolicy = spaces>
 	inline Iterator parseNumber(Iterator begin, Iterator end, NumberParser numberParser, ErrorHandler &errorHandler)
 	{
-		Iterator i = begin;
-		if (spacePolicy != noSpaces) {
-			i = skipSpaces(i, end);
-		}
+		Iterator i = skipLeadingSpaces<spacePolicy>(begin, end);
 
 		i = numberParser(i, end, errorHandler);
-		if (unlikely(!errorHandler.valid())) {
-			return end;
-		}
+		// i must be equal to end in case of the error. No need to check for validity.
 
-		// TODO check performance (excessive branches)
-		if (spacePolicy == spaces) {
-			i = skipSpaces(i, end);
-		}
-		return i;
+		return skipTrailingSpaces<spacePolicy>(i, end);
 	}
 
 	// TODO define noexcept
 	template<typename Iterator, typename ErrorHandler, SpacePolicy spacePolicy = spaces>
 	inline Iterator parseBoolean(Iterator begin, Iterator end, bool &dest, ErrorHandler &errorHandler)
 	{
-		Iterator i = begin;
-		if (spacePolicy != noSpaces) {
-			i = skipSpaces(i, end);
-		}
+		Iterator i = skipLeadingSpaces<spacePolicy>(begin, end);
 
 		char c;
 
@@ -221,12 +208,7 @@ namespace json
 			goto malformedJson;
 		}
 
-		++i;
-
-		if (spacePolicy == spaces) {
-			i = skipSpaces(i, end);
-		}
-		return i;
+		return skipTrailingSpaces<spacePolicy>(++i, end);
 	prematureEnd:
 		errorHandler.prematureEnd();
 		return end;
@@ -239,10 +221,7 @@ namespace json
 	template<typename Iterator, typename ErrorHandler, SpacePolicy spacePolicy = spaces>
 	inline Iterator parseColon(Iterator begin, Iterator end, ErrorHandler &errorHandler)
 	{
-		Iterator i = begin;
-		if (spacePolicy != noSpaces) {
-			i = skipSpaces(i, end);
-		}
+		Iterator i = skipLeadingSpaces<spacePolicy>(begin, end);
 		if (unlikely(i == end)) {
 			errorHandler.prematureEnd();
 			return end;
@@ -251,22 +230,17 @@ namespace json
 			errorHandler.malformedJson(i);
 			return i;
 		}
-		++i;
-		if (spacePolicy == spaces) {
-			i = skipSpaces(i, end);
-		}
-		return i;
+		return skipTrailingSpaces<spacePolicy>(++i, end);
 	}
 
 	template<typename Iterator, typename CharDestination, typename ErrorHandler>
 	inline const char *parseCharsToUTF8(Iterator begin, Iterator end, CharDestination dest, ErrorHandler &errorHandler)
 	{
-		if (unlikely(begin == end)) {
-			errorHandler.prematureEnd();
-			return end;
+		Iterator i = begin;
+		if (unlikely(i == end)) {
+			goto prematureEnd;
 		}
 
-		Iterator i = begin;
 		do {
 			char c = *i;
 
@@ -274,18 +248,16 @@ namespace json
 				return i;
 			}
 
-			++i;
 			if (likely(c != u8"\\"[0])) {
 				goto callDest;
 			}
 
+			++i;
 			if (unlikely(i == end)) {
-				errorHandler.prematureEnd();
-				return end;
+				goto prematureEnd;
 			}
 
 			c = *i;
-			++i;
 			if (c == u8"\""[0] || c == u8"\\"[0] || c == u8"/"[0]) {
 				// c is already valid.
 				goto callDest;
@@ -301,18 +273,22 @@ namespace json
 				c = u8"\t"[0];
 			} else if (c == u8"u"[0]) {
 				// TODO support unicode escapes.
-				errorHandler.malformedJson(begin);
-				return end;
+				goto malformedJson;
 			} else {
-				errorHandler.malformedJson(i);
-				return end;
+				goto malformedJson;
 			}
 
 		callDest:
 			dest(c);
-		} while (i != end);
+		} while (++i != end);
 
 		return i;
+	prematureEnd:
+		errorHandler.prematureEnd();
+		return end;
+	malformedJson:
+		errorHandler.malformedJson(i);
+		return end;
 	}
 }
 }
