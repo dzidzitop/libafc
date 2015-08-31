@@ -21,7 +21,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include <cstdio>
 #include <initializer_list>
 #include <type_traits>
-#include <utility>
 
 // POSIX API.
 #include <stdio.h>
