@@ -21,6 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 #include <algorithm>
 #include <cctype>
+#include <iterator>
+#include <type_traits>
 
 #include <afc/builtin.hpp>
 
@@ -28,6 +30,16 @@ namespace afc
 {
 namespace json
 {
+	namespace _impl
+	{
+		template<typename I>
+		constexpr bool isRandomAccessIterator() noexcept
+		{
+			typedef typename std::iterator_traits<I>::iterator_category ICategory;
+			return std::is_same<ICategory, std::random_access_iterator_tag>::value;
+		}
+	}
+
 	enum SpacePolicy {
 		spaces,
 		noSpaces,
@@ -42,7 +54,8 @@ namespace json
 	}
 
 	template<SpacePolicy spacePolicy, typename Iterator>
-	inline Iterator skipLeadingSpaces(Iterator begin, Iterator end) {
+	inline Iterator skipLeadingSpaces(Iterator begin, Iterator end)
+			noexcept(noexcept(skipSpaces<Iterator>(begin, end))) {
 		return (spacePolicy == spaces || spacePolicy == leadingSpaces) ?
 				skipSpaces(begin, end) :
 				begin;
@@ -175,7 +188,8 @@ namespace json
 
 	// TODO define noexcept
 	template<typename Iterator, typename ErrorHandler, SpacePolicy spacePolicy = spaces>
-	inline Iterator parseBoolean(Iterator begin, Iterator end, bool &dest, ErrorHandler &errorHandler)
+	inline typename std::enable_if<!_impl::isRandomAccessIterator<Iterator>(), Iterator>::type
+	parseBoolean(Iterator begin, Iterator end, bool &dest, ErrorHandler &errorHandler)
 	{
 		Iterator i = skipLeadingSpaces<spacePolicy>(begin, end);
 
@@ -209,6 +223,49 @@ namespace json
 		}
 
 		return skipTrailingSpaces<spacePolicy>(++i, end);
+	prematureEnd:
+		errorHandler.prematureEnd();
+		return end;
+	malformedJson:
+		errorHandler.malformedJson(i);
+		return end;
+	}
+
+	// TODO define noexcept
+	template<typename Iterator, typename ErrorHandler, SpacePolicy spacePolicy = spaces>
+	inline typename std::enable_if<_impl::isRandomAccessIterator<Iterator>(), Iterator>::type
+	parseBoolean(Iterator begin, Iterator end, bool &dest, ErrorHandler &errorHandler)
+	{
+		Iterator i = skipLeadingSpaces<spacePolicy>(begin, end);
+
+		char c;
+
+		auto n = end - i;
+		if (n < 4) {
+			goto prematureEnd;
+		}
+
+		c = *i;
+		if (c == u8"t"[0]) {
+			if (unlikely(*(++i) != u8"r"[0] || *(++i) != u8"u"[0] || *(++i) != u8"e"[0])) {
+				goto malformedJson;
+			}
+			++i;
+			dest = true;
+		} else if (c == u8"f"[0]) {
+			if (n < 5) {
+				goto prematureEnd;
+			}
+			if (unlikely(*(++i) != u8"a"[0] || *(++i) != u8"l"[0] || *(++i) != u8"s"[0] || *(++i) != u8"e"[0])) {
+				goto malformedJson;
+			}
+			++i;
+			dest = false;
+		} else {
+			goto malformedJson;
+		}
+
+		return skipTrailingSpaces<spacePolicy>(i, end);
 	prematureEnd:
 		errorHandler.prematureEnd();
 		return end;
