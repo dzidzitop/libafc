@@ -146,14 +146,14 @@ namespace afc
 		bool logDebugMsg(const T &message) noexcept;
 
 		template<typename... Args>
-		bool logDebug(const char *format, const Args &...args);
+		bool logDebugFmt(const char *format, const Args &...args);
 
 		#ifdef NDEBUG
 			template<typename T>
 			inline bool logDebugMsg(const T &message) noexcept { /* Nothing to do. */ return true; }
 
 			template<typename... Args>
-			inline bool logDebug(const char *format, const Args &...args) { /* Nothing to do. */ return true; }
+			inline bool logDebugFmt(const char *format, const Args &...args) { /* Nothing to do. */ return true; }
 		#else
 			template<typename T>
 			inline bool logDebugMsg(const T &message) noexcept
@@ -165,7 +165,7 @@ namespace afc
 			}
 
 			template<typename... Args>
-			inline bool logDebug(const char * const format, const Args &...args)
+			inline bool logDebugFmt(const char * const format, const Args &...args)
 			{
 				bool success = logToFile(stdout, format, args...);
 				// stdout is flushed so that the message logged becomes visible immediately.
@@ -178,7 +178,7 @@ namespace afc
 		inline bool logErrorMsg(const T &message) noexcept { return logToFileMsg(message, stderr); }
 
 		template<typename... Args>
-		inline bool logError(const char * const format, const Args &...args) { return logToFile(stderr, format, args...); }
+		inline bool logErrorFmt(const char * const format, const Args &...args) { return logToFile(stderr, format, args...); }
 	}
 }
 
