@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include <cstdio>
 #include <initializer_list>
 #include <type_traits>
+#include <utility>
 
 // POSIX API.
 #include <stdio.h>
@@ -56,7 +57,7 @@ namespace afc
 			return logText(buf, end - buf, dest);
 		}
 
-		inline bool logPrint(afc::ConstStringRef s, FILE * const dest) noexcept
+		inline bool logPrint(const afc::ConstStringRef s, FILE * const dest) noexcept
 		{
 			return logText(s.value(), s.size(), dest);
 		}
@@ -123,62 +124,67 @@ namespace afc
 			return LogPrinter<typename std::decay<const T>::type>(val);
 		}
 
-		bool logInternal(const char *format, std::initializer_list<Printer *> params, FILE *dest);
+		bool logInternalFmt(const char *format, std::initializer_list<Printer *> params, FILE *dest);
 
 		template<typename... Args>
-		inline bool logToFile(std::FILE * const dest, const char *format, const Args &...args)
+		inline bool logToFileFmt(std::FILE * const dest, const char *format, const Args &...args)
 		{
 			/* Passing polymorphic instances of Printer to logInternal.
 			 *
 			 * All the temporary objects live until logInternal returns so all pointers to
 			 * local objects passed to logInternal are valid.
 			 */
-			return logInternal(format, {logPrinter(args).address()...}, dest);
+			return logInternalFmt(format, {logPrinter(args).address()...}, dest);
 		}
 
-		template<typename T>
-		inline bool logToFileMsg(const T &message, std::FILE * const dest) noexcept
+		inline bool logToFileInternal(FILE *) noexcept { return true; }
+
+		// TODO define noexcept
+		template<typename Arg, typename... Args>
+		inline bool logToFileInternal(FILE * const dest, const Arg &arg, const Args &...args)
+		{
+			return logPrint(arg, dest) && logToFileInternal(dest, args...);
+		}
+
+		template<bool flush, typename... Args>
+		inline bool logToFile(std::FILE * const dest, const Args &...args)
+				noexcept(noexcept(logToFileInternal(dest, args...)))
 		{ FileLock fileLock(dest);
-			return logPrint(message, dest) && std::fputc('\n', dest) != EOF;
+			return logToFileInternal(dest, args...) && std::fputc('\n', dest) != EOF &&
+					flush ? std::fflush(dest) != EOF : true;
 		}
-
-		template<typename T>
-		bool logDebugMsg(const T &message) noexcept;
-
-		template<typename... Args>
-		bool logDebugFmt(const char *format, const Args &...args);
 
 		#ifdef NDEBUG
-			template<typename T>
-			inline bool logDebugMsg(const T &message) noexcept { /* Nothing to do. */ return true; }
+			template<typename... Args>
+			inline bool logDebug(const Args &...args) noexcept { /* Nothing to do. */ return true; }
 
 			template<typename... Args>
 			inline bool logDebugFmt(const char *format, const Args &...args) { /* Nothing to do. */ return true; }
 		#else
-			template<typename T>
-			inline bool logDebugMsg(const T &message) noexcept
+			template<typename... Args>
+			inline bool logDebug(const Args &...args) noexcept(noexcept(logToFile<true>(stdout, args...)))
 			{
-				bool success = logToFileMsg(message, stdout);
-				// stdout is flushed so that the message logged becomes visible immediately.
-				success &= std::fflush(stdout) != EOF;
-				return success;
+				return logToFile<true>(stdout, args...);
 			}
 
 			template<typename... Args>
 			inline bool logDebugFmt(const char * const format, const Args &...args)
 			{
-				bool success = logToFile(stdout, format, args...);
+				bool success = logToFileFmt(stdout, format, args...);
 				// stdout is flushed so that the message logged becomes visible immediately.
 				success &= std::fflush(stdout);
 				return success;
 			}
 		#endif
 
-		template<typename T>
-		inline bool logErrorMsg(const T &message) noexcept { return logToFileMsg(message, stderr); }
+		template<typename... Args>
+		inline bool logError(const Args &...args) noexcept(noexcept(logToFile<false>(stderr, args...)))
+		{
+			return logToFile<false>(stderr, args...);
+		}
 
 		template<typename... Args>
-		inline bool logErrorFmt(const char * const format, const Args &...args) { return logToFile(stderr, format, args...); }
+		inline bool logErrorFmt(const char * const format, const Args &...args) { return logToFileFmt(stderr, format, args...); }
 	}
 }
 
