@@ -207,6 +207,7 @@ namespace afc
 			return m_bufEnd - m_buf;
 		}
 
+		void resize(const std::size_t newSize) noexcept { m_bufEnd = m_buf + newSize; }
 		void clear() noexcept { m_bufEnd = m_buf; }
 		CharType *detach() noexcept { CharType * const result = m_buf; m_buf = m_bufEnd = nullptr; return result; }
 
@@ -216,7 +217,7 @@ namespace afc
 		class Tail;
 		friend class Tail;
 
-		class Tail : public std::iterator<std::output_iterator_tag, CharType>
+		class Tail : public std::iterator<std::random_access_iterator_tag, CharType>
 		{
 			friend class FastStringBuffer;
 
@@ -230,8 +231,10 @@ namespace afc
 			const CharType &operator *() const noexcept { assert(!m_returned); return *m_ptr; }
 			CharType &operator *() noexcept { assert(!m_returned); return *m_ptr; }
 
-			Tail &operator++() { assert(!m_returned); ++m_ptr; return *this; }
-			Tail operator++(int) { assert(!m_returned); Tail result(*this); ++m_ptr; return result; }
+			Tail &operator++() noexcept { assert(!m_returned); ++m_ptr; return *this; }
+			Tail operator++(int) noexcept { assert(!m_returned); Tail result(*this); ++m_ptr; return result; }
+
+			Tail operator-(const std::ptrdiff_t n) const noexcept { assert(!m_returned); return Tail(m_ptr - n); }
 		private:
 			CharType *m_ptr;
 			std::shared_ptr<long> m_copyCount;
@@ -385,23 +388,23 @@ void afc::FastStringBuffer<CharType, allocMode>::expand(const std::size_t capaci
 }
 
 #ifdef AFC_FASTSTRINGBUFFER_DEBUG
-template<typename CharType>
-afc::FastStringBuffer<CharType>::Tail::Tail(CharType *ptr)
+template<typename CharType, afc::AllocMode allocMode>
+afc::FastStringBuffer<CharType, allocMode>::Tail::Tail(CharType *ptr)
 		: m_ptr(ptr), m_copyCount(new long(1L)), m_returned(false)
 {
 	assert(ptr != nullptr);
 }
 
-template<typename CharType>
-afc::FastStringBuffer<CharType>::Tail::Tail(const Tail &o)
+template<typename CharType, afc::AllocMode allocMode>
+afc::FastStringBuffer<CharType, allocMode>::Tail::Tail(const Tail &o)
 		: m_ptr(o.m_ptr), m_copyCount(o.m_copyCount), m_returned(false)
 {
 	assert(!o.m_returned);
 	++(*m_copyCount);
 }
 
-template<typename CharType>
-afc::FastStringBuffer<CharType>::Tail::~Tail()
+template<typename CharType, afc::AllocMode allocMode>
+afc::FastStringBuffer<CharType, allocMode>::Tail::~Tail()
 {
 	if (--(*m_copyCount) == 0) {
 		assert(m_returned);
@@ -410,8 +413,9 @@ afc::FastStringBuffer<CharType>::Tail::~Tail()
 	}
 }
 
-template<typename CharType>
-typename afc::FastStringBuffer<CharType>::Tail &afc::FastStringBuffer<CharType>::Tail::operator=(const Tail &o)
+template<typename CharType, afc::AllocMode allocMode>
+typename afc::FastStringBuffer<CharType, allocMode>::Tail &
+afc::FastStringBuffer<CharType, allocMode>::Tail::operator=(const Tail &o)
 {
 	assert(!o.m_returned);
 	assert(!o.m_returned);
@@ -422,8 +426,8 @@ typename afc::FastStringBuffer<CharType>::Tail &afc::FastStringBuffer<CharType>:
 	return *this;
 }
 
-template<typename CharType>
-void afc::FastStringBuffer<CharType>::returnTail(const Tail &tail) noexcept
+template<typename CharType, afc::AllocMode allocMode>
+void afc::FastStringBuffer<CharType, allocMode>::returnTail(const Tail &tail) noexcept
 {
 	// Asserts a tail can be returned only once.
 	assert(!tail.m_returned);
