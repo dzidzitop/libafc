@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include <type_traits>
 
 #include <afc/builtin.hpp>
+#include <afc/utils.h>
 
 namespace afc
 {
@@ -288,6 +289,66 @@ namespace json
 			return i;
 		}
 		return skipTrailingSpaces<spacePolicy>(++i, end);
+	}
+
+	// TODO define noexcept
+	template<typename Iterator, typename ErrorHandler, SpacePolicy spacePolicy = spaces>
+	inline Iterator parseComma(Iterator begin, Iterator end, ErrorHandler &errorHandler)
+	{
+		Iterator i = skipLeadingSpaces<spacePolicy>(begin, end);
+		if (unlikely(i == end)) {
+			errorHandler.prematureEnd();
+			return end;
+		}
+		if (unlikely(*i != u8","[0])) {
+			errorHandler.malformedJson(i);
+			return i;
+		}
+		return skipTrailingSpaces<spacePolicy>(++i, end);
+	}
+
+	// TODO define noexcept
+	// TODO handle inner spaces accurately
+	template<typename Iterator, typename ValueParser, typename ErrorHandler, SpacePolicy spacePolicy = spaces>
+	inline Iterator parsePropertyValue(Iterator begin, Iterator end, const char * const propName,
+			const std::size_t propNameSize, ValueParser valueParser, ErrorHandler &errorHandler)
+	{
+		Iterator i = skipLeadingSpaces<spacePolicy>(begin, end);
+
+		// TODO optimise property name matching
+		const char *realPropNameBegin;
+		std::size_t realPropNameSize;
+
+		auto propNameParser = [&](const char * const begin, const char * const end, ErrorHandler &errorHandler) -> const char *
+		{
+			realPropNameBegin = begin;
+			const char * const propNameEnd = std::find(begin, end, u8"\""[0]);
+			realPropNameSize = propNameEnd - realPropNameBegin;
+			return propNameEnd;
+		};
+
+		i = afc::json::parseString<const char *, decltype(propNameParser) &, ErrorHandler, afc::json::noSpaces>
+				(i, end, propNameParser, errorHandler);
+		if (unlikely(!errorHandler.valid())) {
+			return end;
+		}
+
+		if (unlikely(!afc::equal(propName, propNameSize, realPropNameBegin, realPropNameSize))) {
+			errorHandler.malformedJson(i);
+			return end;
+		}
+
+		i = afc::json::parseColon<const char *, ErrorHandler, spacePolicy>(i, end, errorHandler);
+		if (unlikely(!errorHandler.valid())) {
+			return end;
+		}
+
+		i = valueParser(i, end, errorHandler);
+		if (unlikely(!errorHandler.valid())) {
+			return end;
+		}
+
+		return skipTrailingSpaces<spacePolicy>(i, end);
 	}
 
 	template<typename Iterator, typename CharDestination, typename ErrorHandler>
