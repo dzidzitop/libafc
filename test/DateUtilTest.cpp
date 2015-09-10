@@ -1,5 +1,5 @@
 /* libafc - utils to facilitate C++ development.
-Copyright (C) 2013-2014 Dźmitry Laŭčuk
+Copyright (C) 2013-2015 Dźmitry Laŭčuk
 
 libafc is free software: you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by
@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 CPPUNIT_TEST_SUITE_REGISTRATION(afc::DateUtilTest);
 
 #include <afc/dateutil.hpp>
+#include <afc/StringRef.hpp>
 #include <time.h>
 
 using namespace std;
@@ -274,6 +275,94 @@ void afc::DateUtilTest::testParseValidISODateTime_TimestampTZ_NegativeNonUTCTime
 	TimestampTZ dest;
 
 	const bool result = parseISODateTime("2013-10-16T20:02:26-0130", dest);
+
+	CPPUNIT_ASSERT(result);
+
+	CPPUNIT_ASSERT_EQUAL(-90L * 60, dest.getGmtOffset());
+
+	time_t t = static_cast<time_t>(dest);
+	tm dateTime;
+	gmtime_r(&t, &dateTime);
+
+	char buf[100];
+	const size_t count = std::strftime(buf, 100, "%Y-%m-%dT%H:%M:%S%z", &dateTime);
+
+	CPPUNIT_ASSERT(count != 0);
+	CPPUNIT_ASSERT_EQUAL(string("2013-10-16T21:32:26+0000"), string(buf));
+}
+
+void afc::DateUtilTest::testRangedParseValidISODateTime_TimestampTZ_PositiveUTCTimeZone()
+{
+	TimestampTZ dest;
+	ConstStringRef input = "2013-10-16T20:02:26+0000"_s;
+
+	const bool result = parseISODateTime(input.begin(), input.end(), dest);
+
+	CPPUNIT_ASSERT(result);
+
+	CPPUNIT_ASSERT_EQUAL(0L, dest.getGmtOffset());
+
+	time_t t = static_cast<time_t>(dest);
+	tm dateTime;
+	gmtime_r(&t, &dateTime);
+
+	char buf[100];
+	const size_t count = std::strftime(buf, 100, "%Y-%m-%dT%H:%M:%S%z", &dateTime);
+
+	CPPUNIT_ASSERT(count != 0);
+	CPPUNIT_ASSERT_EQUAL(string("2013-10-16T20:02:26+0000"), string(buf));
+}
+
+void afc::DateUtilTest::testRangedParseValidISODateTime_TimestampTZ_NegativeUTCTimeZone()
+{
+	TimestampTZ dest;
+	ConstStringRef input = "2013-10-16T20:02:26-0000"_s;
+
+	const bool result = parseISODateTime(input.begin(), input.end(), dest);
+
+	CPPUNIT_ASSERT(result);
+
+	CPPUNIT_ASSERT_EQUAL(0L, dest.getGmtOffset());
+
+	time_t t = static_cast<time_t>(dest);
+	tm dateTime;
+	gmtime_r(&t, &dateTime);
+
+	char buf[100];
+	const size_t count = std::strftime(buf, 100, "%Y-%m-%dT%H:%M:%S%z", &dateTime);
+
+	CPPUNIT_ASSERT(count != 0);
+	CPPUNIT_ASSERT_EQUAL(string("2013-10-16T20:02:26+0000"), string(buf));
+}
+
+void afc::DateUtilTest::testRangedParseValidISODateTime_TimestampTZ_PositiveNonUTCTimeZone()
+{
+	TimestampTZ dest;
+	ConstStringRef input = "2013-10-16T20:02:26+0300"_s;
+
+	const bool result = parseISODateTime(input.begin(), input.end(), dest);
+
+	CPPUNIT_ASSERT(result);
+
+	CPPUNIT_ASSERT_EQUAL(180L * 60, dest.getGmtOffset());
+
+	time_t t = static_cast<time_t>(dest);
+	tm dateTime;
+	gmtime_r(&t, &dateTime);
+
+	char buf[100];
+	const size_t count = std::strftime(buf, 100, "%Y-%m-%dT%H:%M:%S%z", &dateTime);
+
+	CPPUNIT_ASSERT(count != 0);
+	CPPUNIT_ASSERT_EQUAL(string("2013-10-16T17:02:26+0000"), string(buf));
+}
+
+void afc::DateUtilTest::testRangedParseValidISODateTime_TimestampTZ_NegativeNonUTCTimeZone()
+{
+	TimestampTZ dest;
+	ConstStringRef input = "2013-10-16T20:02:26-0130"_s;
+
+	const bool result = parseISODateTime(input.begin(), input.end(), dest);
 
 	CPPUNIT_ASSERT(result);
 

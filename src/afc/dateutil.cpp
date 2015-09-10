@@ -1,5 +1,5 @@
 /* libafc - utils to facilitate C++ development.
-Copyright (C) 2013-2014 Dźmitry Laŭčuk
+Copyright (C) 2013-2015 Dźmitry Laŭčuk
 
 libafc is free software: you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by
@@ -20,13 +20,33 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 #include "builtin.hpp"
 #include "ensure_ascii.hpp"
+#include "number.h"
+#include "StringRef.hpp"
 
 using namespace std;
+using afc::operator"" _s;
 
 const bool afc::helper::TimeZoneInit::initialised = []() { ::tzset(); return true; }();
 
 namespace
 {
+	template<typename T>
+	inline bool parseTwoDigits(const char *&p, T &dest) {
+		char c = *p;
+		if (unlikely(c < u8"0"[0] || c > u8"9"[0])) {
+			return false;
+		}
+		dest = 10 * (c - u8"0"[0]);
+		++p;
+		c = *p;
+		if (unlikely(c < u8"0"[0] || c > u8"9"[0])) {
+			return false;
+		}
+		dest += c - u8"0"[0];
+		++p;
+		return true;
+	}
+
 	bool parseDateTime(const char * const str, tm &dateTime)
 	{
 		/* The ASCII-compatible encodings are supported only. The pattern used depends only
@@ -44,6 +64,85 @@ namespace
 		 * this effect, assigning it explicitly.
 		 */
 		dateTime.tm_isdst = 0;
+
+		return true;
+	}
+
+	// TODO optimise performance.
+	bool parseDateTime(const char * const begin, const char * const end, tm &dateTime)
+	{
+		bool error = false;
+		auto errorHandler = [&error](const char *) { error = true; };
+		register decltype(dateTime.tm_year) year;
+		const char *p = afc::parseNumber<10, afc::ParseMode::scan>(begin, end, year, errorHandler);
+		if (unlikely(error || std::size_t(end - p) != "-XX-XXTXX:XX:XX+XXXX"_s.size() || *p != u8"-"[0])) {
+			return false;
+		}
+		dateTime.tm_year = year - 1900;
+		++p;
+
+		if (unlikely(!parseTwoDigits(p, dateTime.tm_mon))) {
+			return false;
+		}
+		--dateTime.tm_mon;
+
+		if (unlikely(*p != u8"-"[0])) {
+			return false;
+		}
+		++p;
+
+		if (unlikely(!parseTwoDigits(p, dateTime.tm_mday))) {
+			return false;
+		}
+
+		if (unlikely(*p != u8"T"[0])) {
+			return false;
+		}
+		++p;
+
+		if (unlikely(!parseTwoDigits(p, dateTime.tm_hour))) {
+			return false;
+		}
+
+		if (unlikely(*p != u8":"[0])) {
+			return false;
+		}
+		++p;
+
+		if (unlikely(!parseTwoDigits(p, dateTime.tm_min))) {
+			return false;
+		}
+
+		if (unlikely(*p != u8":"[0])) {
+			return false;
+		}
+		++p;
+
+		if (unlikely(!parseTwoDigits(p, dateTime.tm_sec))) {
+			return false;
+		}
+
+		register decltype(dateTime.tm_gmtoff) zoneMul, zoneOffsetHours, zoneOffsetMinutes;
+
+		const char c = *p;
+		if (c == u8"+"[0]) {
+			zoneMul = 60;
+		} else if (likely(c == u8"-"[0])) {
+			zoneMul = -60;
+		} else {
+			return false;
+		}
+		++p;
+
+		if (unlikely(!parseTwoDigits(p, zoneOffsetHours))) {
+			return false;
+		}
+
+		if (unlikely(!parseTwoDigits(p, zoneOffsetMinutes))) {
+			return false;
+		}
+
+		dateTime.tm_gmtoff = zoneMul * (zoneOffsetHours * 60 + zoneOffsetMinutes);
 
 		return true;
 	}
@@ -94,6 +193,33 @@ bool afc::parseISODateTime(const char * const str, TimestampTZ &dest)
 		return false;
 	}
 
+	/* 1. Flush time zone offset into seconds to make a UTC time.
+	 * 2. Make a local value out of the tm structure with the UTC time. It is shifted towards future by
+	 *    amount of negated ::timezone.
+	 * 3. Make a time_t value out of the tm structure with the local time.
+	 *
+	 * Unfortunately, this code is not portable. It compiles in Debian Wheezy with GCC 4.7.
+	 * In addition, this code cannot tolerate the system time zone changed in the middle of processing.
+	 */
+	const int gmtOffset = dateTime.tm_gmtoff;
+	dateTime.tm_sec -= gmtOffset;
+	dateTime.tm_sec -= timezone;
+	dateTime.tm_gmtoff = -timezone;
+
+	dest.setMillis(static_cast<Timestamp::time_type>(mktime(&dateTime)) * 1000);
+	dest.setGmtOffset(gmtOffset);
+	return true;
+}
+
+bool afc::parseISODateTime(const char * const begin, const char * const end, TimestampTZ &dest)
+{
+	tm dateTime;
+
+	if (unlikely(!parseDateTime(begin, end, dateTime))) {
+		return false;
+	}
+
+	// TODO make this a part of parseDateTime called above.
 	/* 1. Flush time zone offset into seconds to make a UTC time.
 	 * 2. Make a local value out of the tm structure with the UTC time. It is shifted towards future by
 	 *    amount of negated ::timezone.

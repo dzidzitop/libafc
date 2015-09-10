@@ -42,6 +42,11 @@ namespace afc
 		CPPUNIT_TEST(testParseValidISODateTime_TimestampTZ_PositiveNonUTCTimeZone);
 		CPPUNIT_TEST(testParseValidISODateTime_TimestampTZ_NegativeNonUTCTimeZone);
 
+		CPPUNIT_TEST(testRangedParseValidISODateTime_TimestampTZ_PositiveUTCTimeZone);
+		CPPUNIT_TEST(testRangedParseValidISODateTime_TimestampTZ_NegativeUTCTimeZone);
+		CPPUNIT_TEST(testRangedParseValidISODateTime_TimestampTZ_PositiveNonUTCTimeZone);
+		CPPUNIT_TEST(testRangedParseValidISODateTime_TimestampTZ_NegativeNonUTCTimeZone);
+
 		CPPUNIT_TEST(test_TimestampTZ_AssignTimeT);
 		CPPUNIT_TEST(test_TimestampTZ_CastToTm);
 		CPPUNIT_TEST_SUITE_END();
@@ -65,6 +70,11 @@ namespace afc
 		void testParseValidISODateTime_TimestampTZ_NegativeUTCTimeZone();
 		void testParseValidISODateTime_TimestampTZ_PositiveNonUTCTimeZone();
 		void testParseValidISODateTime_TimestampTZ_NegativeNonUTCTimeZone();
+
+		void testRangedParseValidISODateTime_TimestampTZ_PositiveUTCTimeZone();
+		void testRangedParseValidISODateTime_TimestampTZ_NegativeUTCTimeZone();
+		void testRangedParseValidISODateTime_TimestampTZ_PositiveNonUTCTimeZone();
+		void testRangedParseValidISODateTime_TimestampTZ_NegativeNonUTCTimeZone();
 
 		void test_TimestampTZ_AssignTimeT();
 		void test_TimestampTZ_CastToTm();

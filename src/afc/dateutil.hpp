@@ -181,6 +181,7 @@ namespace afc
 		unsigned m_millisecond;
 	};
 
+	bool parseISODateTime(const char *begin, const char *end, TimestampTZ &dest);
 	bool parseISODateTime(const char *str, TimestampTZ &dest);
 
 	bool parseISODateTime(const char *str, std::time_t &dest);
