@@ -20,7 +20,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 #include "builtin.hpp"
 #include "ensure_ascii.hpp"
-#include "number.h"
 #include "StringRef.hpp"
 
 using namespace std;
@@ -47,6 +46,39 @@ namespace
 		return true;
 	}
 
+	template<typename T>
+	inline bool parseFourDigits(const char *&p, T &dest) {
+		char c = *p;
+		if (unlikely(c < u8"0"[0] || c > u8"9"[0])) {
+			return false;
+		}
+		dest = c - u8"0"[0];
+		++p;
+		c = *p;
+		if (unlikely(c < u8"0"[0] || c > u8"9"[0])) {
+			return false;
+		}
+		dest *= 10;
+		dest += c - u8"0"[0];
+		++p;
+		c = *p;
+		if (unlikely(c < u8"0"[0] || c > u8"9"[0])) {
+			return false;
+		}
+		dest *= 10;
+		dest += c - u8"0"[0];
+		++p;
+		c = *p;
+		if (unlikely(c < u8"0"[0] || c > u8"9"[0])) {
+			return false;
+		}
+		dest *= 10;
+		dest += c - u8"0"[0];
+		++p;
+		return true;
+	}
+
+	// TODO rewrite without use of strptime for better performance
 	bool parseDateTime(const char * const str, tm &dateTime)
 	{
 		/* The ASCII-compatible encodings are supported only. The pattern used depends only
@@ -71,14 +103,18 @@ namespace
 	// TODO optimise performance.
 	bool parseDateTime(const char * const begin, const char * const end, tm &dateTime)
 	{
-		bool error = false;
-		auto errorHandler = [&error](const char *) { error = true; };
-		register decltype(dateTime.tm_year) year;
-		const char *p = afc::parseNumber<10, afc::ParseMode::scan>(begin, end, year, errorHandler);
-		if (unlikely(error || std::size_t(end - p) != "-XX-XXTXX:XX:XX+XXXX"_s.size() || *p != u8"-"[0])) {
+		register const char *p = begin;
+		if (unlikely(std::size_t(end - p) != "XXXX-XX-XXTXX:XX:XX+XXXX"_s.size())) {
 			return false;
 		}
-		dateTime.tm_year = year - 1900;
+		if (unlikely(!parseFourDigits(p, dateTime.tm_year))) {
+			return false;
+		}
+		dateTime.tm_year -= 1900;
+
+		if (unlikely(*p != u8"-"[0])) {
+			return false;
+		}
 		++p;
 
 		if (unlikely(!parseTwoDigits(p, dateTime.tm_mon))) {

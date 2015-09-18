@@ -181,6 +181,7 @@ namespace afc
 		unsigned m_millisecond;
 	};
 
+	// TODO support expanded ISO date format (create another function for this).
 	bool parseISODateTime(const char *begin, const char *end, TimestampTZ &dest);
 	bool parseISODateTime(const char *str, TimestampTZ &dest);
 
