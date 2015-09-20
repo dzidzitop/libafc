@@ -36,6 +36,7 @@ build $buildDir/dateutil.o: cxx $srcDir/afc/dateutil.cpp
 build $buildDir/Exception.o: cxx $srcDir/afc/Exception.cpp
 build $buildDir/libintl.o: cc $srcDir/afc/libintl.c
 build $buildDir/logger.o: cxx $srcDir/afc/logger.cpp
+build $buildDir/number.o: cxx $srcDir/afc/number.cpp
 build $buildDir/path_util.o: cxx $srcDir/afc/path_util.cpp
 build $buildDir/StackTrace.o: cxx $srcDir/afc/StackTrace.cpp
 build $buildDir/stream.o: cxx $srcDir/afc/stream.cpp
@@ -65,6 +66,7 @@ build $buildDir/libafc.so: linkDynamic $
     $buildDir/Exception.o $
     $buildDir/libintl.o $
     $buildDir/logger.o $
+    $buildDir/number.o $
     $buildDir/path_util.o $
     $buildDir/StackTrace.o $
     $buildDir/stream.o
@@ -78,6 +80,7 @@ build $buildDir/libafc.a: linkStatic $
     $buildDir/Exception.o $
     $buildDir/libintl.o $
     $buildDir/logger.o $
+    $buildDir/number.o $
     $buildDir/path_util.o $
     $buildDir/StackTrace.o $
     $buildDir/stream.o
