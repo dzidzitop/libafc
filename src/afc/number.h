@@ -29,14 +29,67 @@ namespace afc
 {
 	namespace number_limits
 	{
-		const unsigned MIN_BASE = 2;
-		const unsigned MAX_BASE = 36;
+		constexpr unsigned char MIN_BASE = 2;
+		constexpr unsigned char MAX_BASE = 36;
 	}
+
+	enum class ParseMode
+	{
+		scan,
+		all
+	};
+
+	// TODO think how to declare noexcept
+	template<typename OutputIterator>
+	OutputIterator octetToHex(const unsigned char o, const OutputIterator dest);
+
+	template<unsigned char base, typename T>
+	constexpr std::size_t printedSize(T val) noexcept;
+
+	template<typename T, unsigned char base>
+	constexpr std::size_t maxPrintedSize() noexcept;
+
+	template<unsigned char base, typename T>
+	constexpr std::size_t digitCount(const T val) noexcept;
+
+	template<unsigned char base, typename T>
+	constexpr std::size_t maxDigitCount() noexcept;
+
+	// TODO use std::enable_if
+	template<unsigned char base, typename T>
+	constexpr char digitToChar(const T digit) noexcept;
+
+	// A hex digit must be passed in.
+	template<typename T>
+	constexpr char hexToChar(const T digit) noexcept { return digitToChar<16>(digit); }
+
+	/* TODO modify iterator-based afc::printNumber so that it is possible to avoid copying digits
+	 * to the intermediate buffer (in the reverse order).
+	 */
+	// TODO think of defining conditional noexcept.
+	template<unsigned char base, typename T, typename OutputIterator>
+	OutputIterator printNumber(const T value, OutputIterator dest);
+
+	// TODO test this for all types and bases
+	// TODO optimise performance (especially for binary bases)
+	template<unsigned char base, typename T, typename Appender>
+	void appendNumber(const T value, Appender appender);
+
+	// TODO think of defining conditional noexcept.
+	template<unsigned char base, afc::ParseMode parseMode = ParseMode::all,
+			typename T, typename Iterator, typename ErrorHandler>
+	Iterator parseNumber(Iterator begin, Iterator end, T &result, ErrorHandler errorHandler);
+
+	template<typename T, typename Iterator>
+	Iterator printTwoDigits(const T value, Iterator dest);
+
+	template<typename T, typename Iterator>
+	Iterator printFourDigits(const T value, Iterator dest);
 
 	namespace _impl
 	{
 		// Return value is negated for negative limits.
-		template<typename T, int base, bool positive>
+		template<typename T, unsigned char base, bool positive>
 		constexpr T safeLimit() noexcept
 		{
 			return positive ?
@@ -63,134 +116,108 @@ namespace afc
 		static const char digitChars[number_limits::MAX_BASE];
 		static const unsigned char asciiToDigit[256];
 	};
+}
 
-	enum class ParseMode
-	{
-		scan,
-		all
-	};
+template<typename OutputIterator>
+inline OutputIterator afc::octetToHex(const unsigned char o, const OutputIterator dest)
+{
+	assert(o >= 0 && o <= 0xff);
+	OutputIterator end = dest;
+	const char *p = afc::numdata<>::octetToHexTable[o];
+	*end = *p;
+	++end;
+	*end = *(p + 1);
+	++end;
+	return end;
+}
 
-	// TODO think how to declare noexcept
-	template<typename OutputIterator>
-	OutputIterator octetToHex(const unsigned char o, const OutputIterator dest)
-	{
-		assert(o >= 0 && o <= 0xff);
-		OutputIterator end = dest;
-		const char *p = afc::numdata<>::octetToHexTable[o];
-		*end = *p;
-		++end;
-		*end = *(p + 1);
-		++end;
-		return end;
-	}
+template<unsigned char base, typename T>
+constexpr std::size_t afc::printedSize(T val) noexcept
+{
+	static_assert(std::is_integral<T>::value, "T must be an integral type.");
+	static_assert(std::is_unsigned<T>::value, "T must be an unsigned type.");
 
-	template<unsigned char base, typename T>
-	constexpr std::size_t printedSize(T val) noexcept
-	{
-		static_assert(std::is_integral<T>::value, "T must be an integral type.");
-		static_assert(std::is_unsigned<T>::value, "T must be an unsigned type.");
+	return val < base ? 1 : 1 + printedSize<base, T>(val / base);
+}
 
-		return val < base ? 1 : 1 + printedSize<base, T>(val / base);
-	}
+template<typename T, unsigned char base>
+constexpr std::size_t afc::maxPrintedSize() noexcept
+{
+	static_assert(std::is_integral<T>::value, "T must be an integral type.");
 
-	template<typename T, unsigned char base>
-	constexpr std::size_t maxPrintedSize() noexcept
-	{
-		static_assert(std::is_integral<T>::value, "T must be an integral type.");
+	typedef typename std::make_unsigned<T>::type UnsignedT;
+	return std::is_signed<T>::value ?
+			// One character for sign.
+			printedSize<base>(std::numeric_limits<UnsignedT>::max()) + 1 :
+			printedSize<base>(std::numeric_limits<UnsignedT>::max());
+}
 
-		typedef typename std::make_unsigned<T>::type UnsignedT;
-		return std::is_signed<T>::value ?
-				// One character for sign.
-				printedSize<base>(std::numeric_limits<UnsignedT>::max()) + 1 :
-				printedSize<base>(std::numeric_limits<UnsignedT>::max());
-	}
+template<unsigned char base, typename T>
+constexpr std::size_t afc::digitCount(const T val) noexcept
+{
+	static_assert(std::is_integral<T>::value, "An integral type is expected.");
+	static_assert(base >= 2, "Base must be greater than or equal to two.");
+	return (val < 0 && val > -static_cast<T>(base)) || (val >= 0 && val < base) ?
+			1 : 1 + digitCount<base, T>(val / base);
+}
 
-	template<unsigned char base, typename T>
-	constexpr std::size_t digitCount(const T val)
-	{
-		static_assert(std::is_integral<T>::value, "An integral type is expected.");
-		static_assert(base >= 2, "Base must be greater than or equal to two.");
-		return (val < 0 && val > -static_cast<T>(base)) || (val >= 0 && val < base) ?
-				1 : 1 + digitCount<base, T>(val / base);
-	}
+template<unsigned char base, typename T>
+constexpr std::size_t afc::maxDigitCount() noexcept
+{
+	static_assert(std::is_integral<T>::value, "T must be an integral type.");
 
-	template<unsigned char base, typename T>
-	constexpr std::size_t maxDigitCount()
-	{
-		static_assert(std::is_integral<T>::value, "T must be an integral type.");
-
-		/* The min signed value contains at least as many digits as the max signed value
-		 * for all signed type representations allowed in C++11. However, calculating
-		 * it for both min and max just in case something changes. It is free of charge
-		 * anyway.
-		 */
-		return std::is_signed<T>::value ?
-				afc::math::max(digitCount<base>(std::numeric_limits<T>::min()), digitCount<base>(std::numeric_limits<T>::min())) :
-				digitCount<base>(std::numeric_limits<T>::max());
-	}
-
-	// TODO use std::enable_if
-	template<unsigned char base, typename T>
-	constexpr char digitToChar(const T digit) noexcept
-	{
-		static_assert(std::is_integral<T>::value, "T must be an integral type.");
-		static_assert(base >= afc::number_limits::MIN_BASE && base <= afc::number_limits::MAX_BASE, "Unsupported base.");
-
-		return base <= 10 ? '0' + digit : afc::numdata<>::digitChars[digit];
-	};
-
-	// A hex digit must be passed in.
-	template<typename T>
-	constexpr char hexToChar(const T digit) noexcept { return digitToChar<16>(digit); }
-
-	/* TODO modify iterator-based afc::printNumber so that it is possible to avoid copying digits
-	 * to the intermediate buffer (in the reverse order).
+	/* The min signed value contains at least as many digits as the max signed value
+	 * for all signed type representations allowed in C++11. However, calculating
+	 * it for both min and max just in case something changes. It is free of charge
+	 * anyway.
 	 */
-	// TODO think of defining conditional noexcept.
-	template<unsigned char base, typename T, typename OutputIterator>
-	OutputIterator printNumber(const T value, OutputIterator dest);
+	return std::is_signed<T>::value ?
+			afc::math::max(digitCount<base>(std::numeric_limits<T>::min()), digitCount<base>(std::numeric_limits<T>::min())) :
+			digitCount<base>(std::numeric_limits<T>::max());
+}
 
-	// TODO test this for all types and bases
-	// TODO optimise performance (especially for binary bases)
-	template<unsigned char base, typename T, typename Appender>
-	inline void appendNumber(const T value, Appender appender)
-	{
-		char buf[maxPrintedSize<T, base>()];
+template<unsigned char base, typename T>
+constexpr char afc::digitToChar(const T digit) noexcept
+{
+	static_assert(std::is_integral<T>::value, "T must be an integral type.");
+	static_assert(base >= afc::number_limits::MIN_BASE && base <= afc::number_limits::MAX_BASE, "Unsupported base.");
 
-		char * const begin = &buf[0];
-		char * const end = printNumber<base>(value, begin);
-		appender(begin, end);
-	}
+	return base <= 10 ? '0' + digit : afc::numdata<>::digitChars[digit];
+}
 
-	// TODO think of defining conditional noexcept.
-	template<unsigned char base, afc::ParseMode parseMode = ParseMode::all,
-			typename T, typename Iterator, typename ErrorHandler>
-	Iterator parseNumber(Iterator begin, Iterator end, T &result, ErrorHandler errorHandler);
+template<unsigned char base, typename T, typename Appender>
+inline void afc::appendNumber(const T value, Appender appender)
+{
+	char buf[maxPrintedSize<T, base>()];
 
-	template<typename T, typename Iterator>
-	inline Iterator printTwoDigits(const T value, Iterator dest)
-	{
-		assert(value >= 0 && value < 100);
+	char * const begin = &buf[0];
+	char * const end = printNumber<base>(value, begin);
+	appender(begin, end);
+}
 
-		const std::uint_fast8_t high = value / 10;
-		const std::uint_fast8_t low = value - high * 10;
-		*dest = afc::digitToChar<10>(high);
-		++dest;
-		*dest = afc::digitToChar<10>(low);
-		++dest;
-		return dest;
-	}
+template<typename T, typename Iterator>
+inline Iterator afc::printTwoDigits(const T value, Iterator dest)
+{
+	assert(value >= 0 && value < 100);
 
-	template<typename T, typename Iterator>
-	inline Iterator printFourDigits(const T value, Iterator dest)
-	{
-		assert(value >= 0 && value <= 9999);
+	const std::uint_fast8_t high = value / 10;
+	const std::uint_fast8_t low = value - high * 10;
+	*dest = afc::digitToChar<10>(high);
+	++dest;
+	*dest = afc::digitToChar<10>(low);
+	++dest;
+	return dest;
+}
 
-		const std::uint_fast16_t hundreds = value / 100;
-		dest = afc::printTwoDigits(hundreds, dest);
-		dest = afc::printTwoDigits(value - hundreds * 100, dest);
-		return dest;
-	}
+template<typename T, typename Iterator>
+inline Iterator afc::printFourDigits(const T value, Iterator dest)
+{
+	assert(value >= 0 && value <= 9999);
+
+	const std::uint_fast16_t hundreds = value / 100;
+	dest = afc::printTwoDigits(hundreds, dest);
+	dest = afc::printTwoDigits(value - hundreds * 100, dest);
+	return dest;
 }
 
 template<unsigned char base, typename T, typename Iterator>
