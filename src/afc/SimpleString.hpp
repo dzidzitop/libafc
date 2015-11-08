@@ -51,8 +51,7 @@ namespace afc
 		static_assert(std::is_pod<CharType>::value, "POD char types are supported only.");
 	public:
 		SimpleString() noexcept : m_str(nullptr), m_size(0) {}
-		SimpleString(const SimpleString &str) noexcept(noexcept(afc::badAlloc()))
-				: SimpleString(str.m_str, str.m_size) {}
+		SimpleString(const SimpleString &str) noexcept(noexcept(afc::badAlloc()));
 		SimpleString(SimpleString &&str) noexcept
 				: m_str(str.m_str), m_size(str.m_size) { str.m_str = nullptr; str.m_size = 0; }
 		inline explicit SimpleString(const CharType *str) noexcept(noexcept(afc::badAlloc()));
@@ -151,6 +150,22 @@ afc::SimpleString<CharType>::SimpleString(const CharType * const str) noexcept(n
 		badAlloc();
 	}
 	std::copy_n(str, m_size, const_cast<CharType *>(m_str));
+}
+
+template<typename CharType>
+afc::SimpleString<CharType>::SimpleString(const SimpleString &str) noexcept(noexcept(afc::badAlloc()))
+{
+	const std::size_t strSize = str.m_size;
+	if (strSize == 0) {
+		m_str = nullptr;
+		m_size = 0;
+	} else {
+		m_str = static_cast<CharType *>(std::malloc(strSize * sizeof(CharType) + 1));
+		if (unlikely(m_str == nullptr)) {
+			badAlloc();
+		}
+		std::copy_n(str.m_str, strSize, const_cast<CharType *>(m_str));
+	}
 }
 
 template<typename CharType>
