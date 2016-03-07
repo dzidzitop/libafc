@@ -1,5 +1,5 @@
 /* libafc - utils to facilitate C++ development.
-Copyright (C) 2015 Dźmitry Laŭčuk
+Copyright (C) 2015-2016 Dźmitry Laŭčuk
 
 libafc is free software: you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by
@@ -155,7 +155,7 @@ afc::SimpleString<CharType>::SimpleString(const CharType * const str) noexcept(n
 template<typename CharType>
 afc::SimpleString<CharType>::SimpleString(const SimpleString &str) noexcept(noexcept(afc::badAlloc()))
 {
-	const std::size_t strSize = str.m_size;
+	const register std::size_t strSize = str.m_size;
 	if (strSize == 0) {
 		m_str = nullptr;
 		m_size = 0;
@@ -165,6 +165,7 @@ afc::SimpleString<CharType>::SimpleString(const SimpleString &str) noexcept(noex
 			badAlloc();
 		}
 		std::copy_n(str.m_str, strSize, const_cast<CharType *>(m_str));
+		m_size = strSize;
 	}
 }
 

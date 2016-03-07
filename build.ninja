@@ -1,7 +1,7 @@
 srcDir=src
 testDir=test
 buildDir=build
-cxxFlags=-Wall -fPIC -std=c++11 -O3 -march=native -ffunction-sections -fdata-sections -DNDEBUG
+cxxFlags=-Wall -fPIC -std=c++11 -O3 -g0 -march=native -ffunction-sections -fdata-sections -DNDEBUG
 ccFlags=-Wall -fPIC -O3 -march=native -ffunction-sections -fdata-sections -DNDEBUG
 ldFlags=
 cxxFlags_test=-I"$srcDir" -I"$srcDir/algo" -I"$srcDir/cpu" -Wall -std=c++11 -g0 -O3
@@ -50,6 +50,7 @@ build $buildDir/JSONObjectParserTest.o: cxx_test $testDir/JSONObjectParserTest.c
 build $buildDir/MathUtilsTest.o: cxx_test $testDir/MathUtilsTest.cpp
 build $buildDir/NumberTest.o: cxx_test $testDir/NumberTest.cpp
 build $buildDir/RepositoryTest.o: cxx_test $testDir/RepositoryTest.cpp
+build $buildDir/StringTest.o: cxx_test $testDir/StringTest.cpp
 build $buildDir/StringUtilTest.o: cxx_test $testDir/StringUtilTest.cpp
 build $buildDir/TokeniserTest.o: cxx_test $testDir/TokeniserTest.cpp
 build $buildDir/UrlBuilderTest.o: cxx_test $testDir/UrlBuilderTest.cpp
@@ -93,6 +94,7 @@ build $buildDir/libafc_test: bin $
     $buildDir/MathUtilsTest.o $
     $buildDir/NumberTest.o $
     $buildDir/RepositoryTest.o $
+    $buildDir/StringTest.o $
     $buildDir/StringUtilTest.o $
     $buildDir/TokeniserTest.o $
     $buildDir/UrlBuilderTest.o $
