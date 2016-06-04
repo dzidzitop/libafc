@@ -328,6 +328,7 @@ namespace json
 			return propNameEnd;
 		};
 
+		// TODO support forward iterators; combine scanning and comparing into a single loop.
 		i = afc::json::parseString<const char *, decltype(propNameParser) &, ErrorHandler, afc::json::noSpaces>
 				(i, end, propNameParser, errorHandler);
 		if (unlikely(!errorHandler.valid())) {
