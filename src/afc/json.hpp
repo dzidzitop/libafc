@@ -321,6 +321,7 @@ namespace json
 
 		auto propNameParser = [&](const char * const begin, const char * const end, ErrorHandler &errorHandler) -> const char *
 		{
+			// TODO support quotation marks in property name (make it optional for better performance.
 			realPropNameBegin = begin;
 			const char * const propNameEnd = std::find(begin, end, u8"\""[0]);
 			realPropNameSize = propNameEnd - realPropNameBegin;
