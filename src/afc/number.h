@@ -1,5 +1,5 @@
 /* libafc - utils to facilitate C++ development.
-Copyright (C) 2010-2015 Dźmitry Laŭčuk
+Copyright (C) 2010-2016 Dźmitry Laŭčuk
 
 libafc is free software: you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by
@@ -55,7 +55,6 @@ namespace afc
 	template<unsigned char base, typename T>
 	constexpr std::size_t maxDigitCount() noexcept;
 
-	// TODO use std::enable_if
 	template<unsigned char base, typename T>
 	constexpr char digitToChar(const T digit) noexcept;
 
@@ -63,9 +62,6 @@ namespace afc
 	template<typename T>
 	constexpr char hexToChar(const T digit) noexcept { return digitToChar<16>(digit); }
 
-	/* TODO modify iterator-based afc::printNumber so that it is possible to avoid copying digits
-	 * to the intermediate buffer (in the reverse order).
-	 */
 	// TODO think of defining conditional noexcept.
 	template<unsigned char base, typename T, typename OutputIterator>
 	OutputIterator printNumber(const T value, OutputIterator dest);
@@ -228,9 +224,11 @@ Iterator afc::printNumber(const T value, register Iterator dest)
 
 	typedef typename std::make_unsigned<T>::type UnsignedT;
 
-	// TODO use direct order and bulk append.
+	/* TODO modify iterator-based afc::printNumber so that it is possible to avoid copying digits
+	 * to the intermediate buffer (in the reverse order).
+	 */
 
-	// The buffer that contains digits in the reverse order. The greatest digit is not stored here.
+	// The buffer that contains digits in the reverse order. The highest digit is not stored here.
 	char digits[maxDigitCount<base, T>() - 1];
 	std::size_t i = 0;
 
