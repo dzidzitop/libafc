@@ -1,5 +1,5 @@
 /* libafc - utils to facilitate C++ development.
-Copyright (C) 2010-2015 Dźmitry Laŭčuk
+Copyright (C) 2010-2016 Dźmitry Laŭčuk
 
 libafc is free software: you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by
@@ -83,6 +83,18 @@ namespace afc
 		template<typename... Args, typename = typename std::enable_if<std::is_constructible<T, Args...>::value>::type>
 		Optional(Args &&...args) : m_hasValue(true) { new (&m_data.value) T(std::forward<Args>(args)...); }
 
+		Optional &operator=(const Optional &o) = delete;
+		Optional &operator=(Optional &&o)
+		{
+			if (m_hasValue) {
+				m_data.value = std::move(o.m_data.value);
+			} else {
+				new (&m_data.value) T(std::move(o.m_data.value));
+				m_hasValue = true;
+			}
+			return *this;
+		}
+
 		~Optional() { if (m_hasValue) { m_data.value.~T(); } }
 
 		static Optional none() { return Optional(static_cast<Data *>(nullptr)); }
@@ -98,7 +110,7 @@ namespace afc
 
 			T value;
 		} m_data;
-		const bool m_hasValue;
+		bool m_hasValue;
 
 		Optional(Data *) : m_hasValue(false) {}
 	};
