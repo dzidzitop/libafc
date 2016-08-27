@@ -72,7 +72,7 @@ namespace afc
 	public:
 		// Nothing is copied. 'function' is expected to be a non-shared C-string allocated by malloc.
 		StackTraceElement(const afc::String &function, const void * const address, const int offset,
-				const std::shared_ptr<afc::String> file, const unsigned line)
+				const std::shared_ptr<afc::String> &file, const unsigned line)
 			: m_function(function), m_address(address), m_offset(offset), m_file(file), m_line(line){}
 		~StackTraceElement() throw() {};
 
