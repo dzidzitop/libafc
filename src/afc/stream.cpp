@@ -1,5 +1,5 @@
 /* libafc - utils to facilitate C++ development.
-Copyright (C) 2011-2015 Dźmitry Laŭčuk
+Copyright (C) 2011-2016 Dźmitry Laŭčuk
 
 libafc is free software: you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by
@@ -19,7 +19,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include <cstddef>
 #include <cstring>
 #include <functional>
-#include <sstream>
 #include <utility>
 
 #include "Exception.h"
@@ -218,10 +217,6 @@ void afc::GZipFileInputStream::reset()
 
 size_t afc::GZipFileInputStream::skip(const size_t n)
 {
-	if (n < 0) {
-		throwException("Byte amount to skip must be a non-negative value."_s);
-	}
-
 	// reading n bytes since gzseek does not allow for skipping less than n bytes in case of premature end of the file
 	unsigned char buf[gZipSkipChunkSize];
 	size_t skipped = 0;
