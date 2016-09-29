@@ -1,5 +1,5 @@
 /* libafc - utils to facilitate C++ development.
-Copyright (C) 2014-2015 Dźmitry Laŭčuk
+Copyright (C) 2014-2016 Dźmitry Laŭčuk
 
 libafc is free software: you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by
@@ -69,8 +69,10 @@ namespace afc
 		friend class FastStringBufferTest;
 
 #ifdef AFC_EXCEPTIONS_ENABLED
+		[[noreturn]]
 		static void badAlloc() { throw std::bad_alloc(); }
 #else
+		[[noreturn]]
 		static void badAlloc() noexcept { std::terminate(); }
 #endif
 	private:
