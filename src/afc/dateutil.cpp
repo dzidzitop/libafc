@@ -1,5 +1,5 @@
 /* libafc - utils to facilitate C++ development.
-Copyright (C) 2013-2015 Dźmitry Laŭčuk
+Copyright (C) 2013-2016 Dźmitry Laŭčuk
 
 libafc is free software: you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by
@@ -179,6 +179,8 @@ namespace
 		}
 
 		dateTime.tm_gmtoff = zoneMul * (zoneOffsetHours * 60 + zoneOffsetMinutes);
+
+		dateTime.tm_isdst = -1; // It's unknown if DST is in effect.
 
 		return true;
 	}
