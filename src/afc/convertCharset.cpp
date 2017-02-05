@@ -1,5 +1,5 @@
 /* libafc - utils to facilitate C++ development.
-Copyright (C) 2013-2015 Dźmitry Laŭčuk
+Copyright (C) 2013-2017 Dźmitry Laŭčuk
 
 libafc is free software: you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by
@@ -138,6 +138,7 @@ afc::String afc::convertToUtf8(const char * const src, std::size_t n, const char
 
 	const std::size_t bufSize = destSize - destCharsLeft;
 
+	// TODO move destBuf instead of copying it.
 	return afc::String(destBuf.get(), bufSize);
 }
 
@@ -172,6 +173,7 @@ afc::String afc::convertFromUtf8(const char * const src, const std::size_t n, co
 
 	const std::size_t bufSize = destSize - destCharsLeft;
 
+	// TODO move destBuf instead of copying it.
 	return afc::String(destBuf.get(), bufSize);
 }
 
