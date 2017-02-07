@@ -42,6 +42,7 @@ build $buildDir/stream.o: cxx $srcDir/afc/stream.cpp
 
 build $buildDir/run_tests.o: cxx_test $testDir/run_tests.cpp
 build $buildDir/CompileTimeMathTest.o: cxx_test $testDir/CompileTimeMathTest.cpp
+build $buildDir/ConvertCharsetTest.o: cxx_test $testDir/ConvertCharsetTest.cpp
 build $buildDir/DateUtilTest.o: cxx_test $testDir/DateUtilTest.cpp
 build $buildDir/EncodeBase64Test.o: cxx_test $testDir/EncodeBase64Test.cpp
 build $buildDir/FastDivisionTest.o: cxx_test $testDir/FastDivisionTest.cpp
@@ -86,6 +87,7 @@ build $buildDir/libafc.a: linkStatic $
 build $buildDir/libafc_test: bin $
     $buildDir/run_tests.o $
     $buildDir/CompileTimeMathTest.o $
+    $buildDir/ConvertCharsetTest.o $
     $buildDir/DateUtilTest.o $
     $buildDir/EncodeBase64Test.o $
     $buildDir/FastDivisionTest.o $
