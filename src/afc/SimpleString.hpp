@@ -1,5 +1,5 @@
 /* libafc - utils to facilitate C++ development.
-Copyright (C) 2015-2016 Dźmitry Laŭčuk
+Copyright (C) 2015-2017 Dźmitry Laŭčuk
 
 libafc is free software: you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by
@@ -133,6 +133,7 @@ namespace afc
 	inline Iterator copy(const SimpleString<CharType> &s, Iterator dest) { return std::copy_n(s.data(), s.size(), dest); }
 
 	typedef SimpleString<char> String;
+	typedef SimpleString<char> U8String;
 	typedef SimpleString<char16_t> U16String;
 }
 

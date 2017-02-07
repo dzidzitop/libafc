@@ -109,7 +109,7 @@ namespace
 	};
 }
 
-afc::String afc::convertToUtf8(const char * const src, const char * const encoding)
+afc::U8String afc::convertToUtf8(const char * const src, const char * const encoding)
 {
 	assert(src != nullptr);
 	assert(encoding != nullptr);
@@ -117,7 +117,7 @@ afc::String afc::convertToUtf8(const char * const src, const char * const encodi
 	return convertToUtf8(src, std::strlen(src), encoding);
 }
 
-afc::String afc::convertToUtf8(const char * const src, std::size_t n, const char * const encoding)
+afc::U8String afc::convertToUtf8(const char * const src, std::size_t n, const char * const encoding)
 {
 	assert(src != nullptr);
 	assert(encoding != nullptr);
