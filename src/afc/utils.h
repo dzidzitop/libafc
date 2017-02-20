@@ -29,8 +29,8 @@ namespace afc
 {
 	inline afc::String systemCharset(void) { return afc::String(nl_langinfo(CODESET)); }
 
-	afc::String convertToUtf8(const char *src, const char *encoding);
-	afc::String convertToUtf8(const char *src, std::size_t n, const char *encoding);
+	afc::U8String convertToUtf8(const char *src, const char *encoding);
+	afc::U8String convertToUtf8(const char *src, std::size_t n, const char *encoding);
 	afc::String convertFromUtf8(const char *src, const char *encoding);
 	afc::String convertFromUtf8(const char *src, std::size_t n, const char *encoding);
 
