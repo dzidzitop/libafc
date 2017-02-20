@@ -56,6 +56,11 @@ namespace afc
 			return logText(buf, end - buf, dest);
 		}
 
+		inline bool logPrint(const char c, FILE * const dest) noexcept
+		{
+			return std::fputc(c, dest) >= 0;
+		}
+
 		inline bool logPrint(const afc::ConstStringRef s, FILE * const dest) noexcept
 		{
 			return logText(s.value(), s.size(), dest);
