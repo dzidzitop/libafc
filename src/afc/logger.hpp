@@ -71,6 +71,12 @@ namespace afc
 			return logText(s.data(), s.size(), dest);
 		}
 
+		inline bool logPrint(const bool b, FILE * const dest) noexcept
+		{
+			using afc::operator"" _s;
+			return logPrint(b ? "true"_s : "false"_s, dest);
+		}
+
 		inline bool logPrint(const char * const s, FILE * const dest) noexcept
 		{
 			return std::fputs(s, dest) >= 0;
