@@ -136,15 +136,16 @@ namespace afc
 
 		bool logInternalFmt(const char *format, std::initializer_list<Printer *> params, FILE *dest);
 
-		template<typename... Args>
+		template<bool flush, typename... Args>
 		inline bool logToFileFmt(std::FILE * const dest, const char *format, const Args &...args)
-		{
+		{ FileLock fileLock(dest);
 			/* Passing polymorphic instances of Printer to logInternal.
 			 *
 			 * All the temporary objects live until logInternal returns so all pointers to
 			 * local objects passed to logInternal are valid.
 			 */
-			return logInternalFmt(format, {logPrinter(args).address()...}, dest);
+			return logInternalFmt(format, {logPrinter(args).address()...}, dest) &
+					(flush ? std::fflush(dest) != EOF : true);
 		}
 
 		inline bool logToFileInternal(FILE *) noexcept { return true; }
@@ -160,8 +161,8 @@ namespace afc
 		inline bool logToFile(std::FILE * const dest, const Args &...args)
 				noexcept(noexcept(logToFileInternal(dest, args...)))
 		{ FileLock fileLock(dest);
-			return logToFileInternal(dest, args...) && std::fputc('\n', dest) != EOF &&
-					flush ? std::fflush(dest) != EOF : true;
+			return (logToFileInternal(dest, args...) && std::fputc('\n', dest) != EOF) &
+					(flush ? std::fflush(dest) != EOF : true);
 		}
 
 		#ifdef NDEBUG
@@ -180,10 +181,7 @@ namespace afc
 			template<typename... Args>
 			inline bool logDebugFmt(const char * const format, const Args &...args)
 			{
-				bool success = logToFileFmt(stdout, format, args...);
-				// stdout is flushed so that the message logged becomes visible immediately.
-				success &= std::fflush(stdout);
-				return success;
+				return logToFileFmt<true>(stdout, format, args...);
 			}
 		#endif
 
@@ -194,7 +192,30 @@ namespace afc
 		}
 
 		template<typename... Args>
-		inline bool logErrorFmt(const char * const format, const Args &...args) { return logToFileFmt(stderr, format, args...); }
+		inline bool logErrorFmt(const char * const format, const Args &...args)
+		{
+			return logToFileFmt<false>(stderr, format, args...);
+		}
+
+		#ifdef AFC_TRACE
+			template<typename... Args>
+			inline bool logTrace(const Args &...args) noexcept(noexcept(logToFile<true>(stdout, args...)))
+			{
+				return logToFile<true>(stdout, args...);
+			}
+
+			template<typename... Args>
+			inline bool logTraceFmt(const char * const format, const Args &...args)
+			{
+				return logToFileFmt<true>(stdout, format, args...);
+			}
+		#else
+			template<typename... Args>
+			inline bool logTrace(const Args &...args) noexcept { /* Nothing to do. */ return true; }
+
+			template<typename... Args>
+			inline bool logTraceFmt(const char *format, const Args &...args) { /* Nothing to do. */ return true; }
+		#endif
 	}
 }
 

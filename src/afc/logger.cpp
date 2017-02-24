@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include "builtin.hpp"
 
 bool afc::logger::logInternalFmt(const char *format, std::initializer_list<Printer *> params, std::FILE * const dest)
-{ FileLock fileLock(dest);
+{
 	auto paramPtr = params.begin();
 	const char *start = format;
 
