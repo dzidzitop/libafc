@@ -1,5 +1,5 @@
 /* libafc - utils to facilitate C++ development.
-Copyright (C) 2013-2015 Dźmitry Laŭčuk
+Copyright (C) 2013-2017 Dźmitry Laŭčuk
 
 libafc is free software: you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by
@@ -49,9 +49,14 @@ namespace afc
 		}
 
 		template<typename T>
-		inline typename std::enable_if<std::is_integral<T>::value, bool>::type logPrint(T value, FILE * const dest) noexcept
+		inline typename std::enable_if<!std::is_integral<typename std::decay<T>::type>::value, bool>::type logPrint(T &&value, FILE *dest);
+
+		template<typename T>
+		inline typename std::enable_if<std::is_integral<typename std::decay<T>::type>::value, bool>::type logPrint(T &&value, FILE * const dest) noexcept
 		{
-			char buf[afc::maxPrintedSize<T, 10>()];
+			using U = typename std::decay<T>::type;
+
+			char buf[afc::maxPrintedSize<U, 10>()];
 			char *end = afc::printNumber<10>(value, buf);
 			return logText(buf, end - buf, dest);
 		}
