@@ -1,5 +1,5 @@
 /* libafc - utils to facilitate C++ development.
-Copyright (C) 2013-2015 Dźmitry Laŭčuk
+Copyright (C) 2013-2017 Dźmitry Laŭčuk
 
 libafc is free software: you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by
@@ -16,6 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #ifndef AFCDATEUTIL_HPP_
 #define AFCDATEUTIL_HPP_
 
+#include "logger.hpp"
 #include <cstddef>
 #include <ctime>
 #include <cstdint>
@@ -230,6 +231,28 @@ namespace afc
 				}
 			}
 			return dest;
+		}
+	}
+
+	// A timestamp view to log by afc::logger facilities.
+	struct ISODateTimeView
+	{
+		ISODateTimeView(const Timestamp &tsRef) : ref(tsRef) {}
+
+		const Timestamp &ref;
+	};
+
+	namespace logger
+	{
+		template<>
+		inline bool logPrint<const afc::ISODateTimeView &>(const afc::ISODateTimeView &val, std::FILE * const dest)
+		{
+			afc::TimestampTZ ts;
+			ts = static_cast<std::time_t>(val.ref);
+			char buf[afc::maxISODateTimeSize()];
+			char * const p = &buf[0];
+			char * const q = afc::formatISODateTime(ts, p);
+			return afc::logger::logText(p, q - p, dest);
 		}
 	}
 }
