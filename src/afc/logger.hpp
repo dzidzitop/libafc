@@ -17,9 +17,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #ifndef AFC_LOGGER_HPP_
 #define AFC_LOGGER_HPP_
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdio>
 #include <initializer_list>
+#include "number.h"
 #include <type_traits>
 
 // POSIX API.
@@ -106,6 +108,28 @@ namespace afc
 			std::size_t n = std::snprintf(buf, 128, "%Lf", static_cast<long double>(value));
 			// TODO improve performance.
 			return logPrint(buf, n, dest);
+		}
+
+		// A hex-encoded view of binary data of constexpr size to be logged.
+		template<std::size_t n>
+		struct HexEncodedN
+		{
+			HexEncodedN(const unsigned char data[]) : val(data) {}
+
+			const unsigned char * const val;
+		};
+
+		template<std::size_t n>
+		inline bool logPrint(const HexEncodedN<n> &value, std::FILE * const dest)
+		{
+			if (n > 0) {
+				char buf[n];
+				char *p = &buf[0];
+				std::for_each(value.val, value.val + n,
+						[&p](const unsigned char b) { p = afc::octetToHex(b, p); });
+				return logText(buf, 2 * n, dest);
+			}
+			return true;
 		}
 
 		class Printer
