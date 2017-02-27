@@ -100,7 +100,7 @@ namespace afc
 		}
 
 		template<typename T>
-		inline typename std::enable_if<std::is_floating_point<T>::value, bool>::type logPrint(T value, FILE * const dest) noexcept
+		inline typename std::enable_if<std::is_floating_point<T>::value, bool>::type logPrint(const T &value, FILE * const dest) noexcept
 		{
 			// TODO improve performance.
 			// TODO handle buffer overflow.
