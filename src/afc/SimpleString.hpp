@@ -85,7 +85,7 @@ namespace afc
 
 		SimpleString &attach(const CharType * const str, const std::size_t strSize) noexcept
 				{ std::free(const_cast<CharType *>(m_str)); m_str = str; m_size = strSize; return *this; }
-		CharType *detach() noexcept { CharType * const buf = m_str; m_str = nullptr; m_size = 0; return buf; }
+		const CharType *detach() noexcept { const CharType * const buf = m_str; m_str = nullptr; m_size = 0; return buf; }
 
 		~SimpleString() { std::free(const_cast<CharType *>(m_str)); };
 
