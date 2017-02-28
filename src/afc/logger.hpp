@@ -123,11 +123,11 @@ namespace afc
 		inline bool logPrint(const HexEncodedN<n> &value, std::FILE * const dest)
 		{
 			if (n > 0) {
-				char buf[n];
+				char buf[2 * n];
 				char *p = &buf[0];
 				std::for_each(value.val, value.val + n,
 						[&p](const unsigned char b) { p = afc::octetToHex(b, p); });
-				return logText(buf, 2 * n, dest);
+				return logText(buf, sizeof(buf), dest);
 			}
 			return true;
 		}
