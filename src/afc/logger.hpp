@@ -173,8 +173,12 @@ namespace afc
 			 * All the temporary objects live until logInternal returns so all pointers to
 			 * local objects passed to logInternal are valid.
 			 */
-			return logInternalFmt(format, {logPrinter(args).address()...}, dest) &
-					(flush ? std::fflush(dest) != EOF : true);
+			bool success = logInternalFmt(format, {logPrinter(args).address()...}, dest);
+			if (flush) {
+				// Flushing the buffer even if logging payload fails.
+				success &= (std::fflush(dest) != EOF);
+			}
+			return success;
 		}
 
 		inline bool logToFileInternal(FILE *) noexcept { return true; }
@@ -190,8 +194,12 @@ namespace afc
 		inline bool logToFile(std::FILE * const dest, const Args &...args)
 				noexcept(noexcept(logToFileInternal(dest, args...)))
 		{ FileLock fileLock(dest);
-			return (logToFileInternal(dest, args...) && std::fputc('\n', dest) != EOF) &
-					(flush ? std::fflush(dest) != EOF : true);
+			bool success = (logToFileInternal(dest, args...) && std::fputc('\n', dest) != EOF);
+			if (flush) {
+				// Flushing the buffer even if logging payload fails.
+				success &= (std::fflush(dest) != EOF);
+			}
+			return success;
 		}
 
 		#ifdef NDEBUG
