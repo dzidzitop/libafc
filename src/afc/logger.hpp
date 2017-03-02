@@ -28,6 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include <stdio.h>
 
 #include "ensure_ascii.hpp" // needed to ensure that '\n' != EOF.
+#include "FastStringBuffer.hpp"
 #include "number.h"
 #include "SimpleString.hpp"
 #include "StringRef.hpp"
@@ -71,6 +72,11 @@ namespace afc
 		inline bool logPrint(const afc::ConstStringRef s, FILE * const dest) noexcept
 		{
 			return logText(s.value(), s.size(), dest);
+		}
+
+		inline bool logPrint(const afc::FastStringBuffer<char> &s, FILE * const dest) noexcept
+		{
+			return logText(s.data(), s.size(), dest);
 		}
 
 		inline bool logPrint(const afc::String &s, FILE * const dest) noexcept
