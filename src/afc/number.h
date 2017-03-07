@@ -1,5 +1,5 @@
 /* libafc - utils to facilitate C++ development.
-Copyright (C) 2010-2016 Dźmitry Laŭčuk
+Copyright (C) 2010-2017 Dźmitry Laŭčuk
 
 libafc is free software: you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by
@@ -168,7 +168,7 @@ constexpr std::size_t afc::maxDigitCount() noexcept
 	 * anyway.
 	 */
 	return std::is_signed<T>::value ?
-			afc::math::max(digitCount<base>(std::numeric_limits<T>::min()), digitCount<base>(std::numeric_limits<T>::min())) :
+			afc::math::max(digitCount<base>(std::numeric_limits<T>::min()), digitCount<base>(std::numeric_limits<T>::max())) :
 			digitCount<base>(std::numeric_limits<T>::max());
 }
 
