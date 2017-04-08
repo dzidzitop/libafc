@@ -1,5 +1,5 @@
 /* libafc - utils to facilitate C++ development.
-Copyright (C) 2014-2016 Dźmitry Laŭčuk
+Copyright (C) 2014-2017 Dźmitry Laŭčuk
 
 libafc is free software: you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by
@@ -195,7 +195,9 @@ namespace afc
 		}
 
 		CharType *begin() noexcept { return m_buf; }
+		const CharType *begin() const noexcept { return m_buf; }
 		CharType *end() noexcept { return m_bufEnd; }
+		const CharType *end() const noexcept { return m_bufEnd; }
 
 		std::size_t capacity() const noexcept
 		{
