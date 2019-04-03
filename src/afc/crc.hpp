@@ -33,7 +33,8 @@ namespace afc
 	template<typename Iterator>
 	std::uint_fast64_t crc64(Iterator begin, Iterator end)
 	{
-		static_assert(std::is_same<typename std::decay<decltype(*std::declval<Iterator>())>::type, unsigned char>::value, "Not an unsigned char iterator.");
+		using DataType = typename std::decay<decltype(*std::declval<Iterator>())>::type;
+		static_assert(std::is_same<DataType, unsigned char>::value, "Not an unsigned char iterator.");
 
 		std::uint_fast64_t crc = 0;
 
