@@ -106,9 +106,10 @@ const std::uint_fast64_t afc::crc64_impl::lookupTable[0x100] = {
 		tableVal(0xfc), tableVal(0xfd), tableVal(0xfe), tableVal(0xff)
 };
 
-std::uint_fast64_t afc::crc64(const unsigned char * const data, const std::size_t n)
+std::uint_fast64_t afc::crc64Update(const std::uint_fast64_t currentCrc,
+		const unsigned char * const data, const std::size_t n)
 {
-	std::uint_fast64_t crc = 0;
+	std::uint_fast64_t crc = currentCrc;
 
 	for (std::size_t i= 0; i < n; ++i) {
 		crc = (crc >> 8) ^ afc::crc64_impl::lookupTable[(data[i] ^ crc) & 0xff];

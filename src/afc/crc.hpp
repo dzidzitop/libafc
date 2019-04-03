@@ -28,15 +28,20 @@ namespace afc
 		extern const std::uint_fast64_t lookupTable[0x100];
 	}
 
-	std::uint_fast64_t crc64(const unsigned char *data, std::size_t n);
+	std::uint_fast64_t crc64Update(std::uint_fast64_t currentCrc, const unsigned char *data, std::size_t n);
+
+	inline std::uint_fast64_t crc64(const unsigned char * const data, const std::size_t n)
+	{
+		return crc64Update(0, data, n);
+	}
 
 	template<typename Iterator>
-	std::uint_fast64_t crc64(Iterator begin, Iterator end)
+	std::uint_fast64_t crc64Update(const std::uint_fast64_t currentCrc, Iterator begin, Iterator end)
 	{
 		using DataType = typename std::decay<decltype(*std::declval<Iterator>())>::type;
 		static_assert(std::is_same<DataType, unsigned char>::value, "Not an unsigned char iterator.");
 
-		std::uint_fast64_t crc = 0;
+		std::uint_fast64_t crc = currentCrc;
 
 		for (Iterator p = begin; p != end; ++p) {
 			crc = (crc >> 8) ^ afc::crc64_impl::lookupTable[(*p ^ crc) & 0xff];
@@ -44,6 +49,9 @@ namespace afc
 
 		return crc;
 	}
+
+	template<typename Iterator>
+	std::uint_fast64_t crc64(Iterator begin, Iterator end) { return crc64Update(0, begin, end); }
 }
 
 #endif /* AFC_CRC_HPP_ */

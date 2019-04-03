@@ -47,6 +47,22 @@ void afc::CrcTest::testCrc64()
 	}
 }
 
+void afc::CrcTest::testCrc64Update()
+{
+	{
+		unsigned char data[] = {};
+		CPPUNIT_ASSERT_EQUAL(std::uint_fast64_t(0xff443322), afc::crc64Update(0xff443322, data, sizeof(data)));
+	}
+
+	{
+		unsigned char data1[] = {0x99, 0xeb, 0x96, 0xdd, 0x94, 0xc8, 0x8e};
+		unsigned char data2[] = {0x97, 0x5b, 0x58, 0x5d, 0x2f, 0x28, 0x78, 0x5e, 0x36};
+		std::uint_fast64_t crc = crc64Update(0, data1, sizeof(data1));
+		crc = crc64Update(crc, data2, sizeof(data2));
+		CPPUNIT_ASSERT_EQUAL(0xdb7ac38f63413c4eu, crc);
+	}
+}
+
 void afc::CrcTest::testCrc64_Iterator()
 {
 	{
@@ -78,5 +94,27 @@ void afc::CrcTest::testCrc64_Iterator()
 		unsigned char data[] =
 				{0x99, 0xeb, 0x96, 0xdd, 0x94, 0xc8, 0x8e, 0x97, 0x5b, 0x58, 0x5d, 0x2f, 0x28, 0x78, 0x5e, 0x36};
 		CPPUNIT_ASSERT_EQUAL(0xdb7ac38f63413c4eu, afc::crc64(&data[0], &data[0] + sizeof(data)));
+	}
+}
+
+void afc::CrcTest::testCrc64Update_Iterator()
+{
+	{
+		CPPUNIT_ASSERT_EQUAL(std::uint_fast64_t(0x345aa),
+				afc::crc64Update(0x345aa, static_cast<unsigned char *>(nullptr),
+						static_cast<unsigned char *>(nullptr)));
+	}
+
+	{
+		unsigned char nodata;
+		CPPUNIT_ASSERT_EQUAL(std::uint_fast64_t(0x123456), afc::crc64Update(0x123456, &nodata, &nodata));
+	}
+
+	{
+		unsigned char data1[] = {0x99, 0xeb, 0x96, 0xdd, 0x94, 0xc8, 0x8e, 0x97};
+		unsigned char data2[] = {0x5b, 0x58, 0x5d, 0x2f, 0x28, 0x78, 0x5e, 0x36};
+		std::uint_fast64_t crc = afc::crc64Update(0, &data1[0], &data1[0] + sizeof(data1));
+		crc = crc64Update(crc, &data2[0], &data2[0] + sizeof(data2));
+		CPPUNIT_ASSERT_EQUAL(0xdb7ac38f63413c4eu, crc);
 	}
 }
