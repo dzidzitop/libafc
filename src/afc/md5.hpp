@@ -1,5 +1,5 @@
 /* libafc - utils to facilitate C++ development.
-Copyright (C) 2014-2015 Dźmitry Laŭčuk
+Copyright (C) 2014-2019 Dźmitry Laŭčuk
 
 libafc is free software: you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by
@@ -61,4 +61,4 @@ namespace afc
 	}
 }
 
-#endif /* AFCMD5_HPP_ */
+#endif /* AFC_MD5_HPP_ */
