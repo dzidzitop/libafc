@@ -46,3 +46,37 @@ void afc::CrcTest::testCrc64()
 		CPPUNIT_ASSERT_EQUAL(0xdb7ac38f63413c4eu, afc::crc64(data, sizeof(data)));
 	}
 }
+
+void afc::CrcTest::testCrc64_Iterator()
+{
+	{
+		CPPUNIT_ASSERT_EQUAL(std::uint_fast64_t(0),
+				afc::crc64(static_cast<unsigned char *>(nullptr), static_cast<unsigned char *>(nullptr)));
+	}
+
+	{
+		unsigned char nodata;
+		CPPUNIT_ASSERT_EQUAL(std::uint_fast64_t(0), afc::crc64(&nodata, &nodata));
+	}
+
+	{
+		unsigned char data[] = {0x80};
+		CPPUNIT_ASSERT_EQUAL(0xc96c5795d7870f42u, afc::crc64(&data[0], &data[0] + sizeof(data)));
+	}
+
+	{
+		unsigned char data[] = {0xde, 0xad};
+		CPPUNIT_ASSERT_EQUAL(0x44277f18417c45a5u, afc::crc64(&data[0], &data[0] + sizeof(data)));
+	}
+
+	{
+		unsigned char data[] = {0xde, 0xad, 0xbe, 0xef};
+		CPPUNIT_ASSERT_EQUAL(0xfc232c18806871afu, afc::crc64(&data[0], &data[0] + sizeof(data)));
+	}
+
+	{
+		unsigned char data[] =
+				{0x99, 0xeb, 0x96, 0xdd, 0x94, 0xc8, 0x8e, 0x97, 0x5b, 0x58, 0x5d, 0x2f, 0x28, 0x78, 0x5e, 0x36};
+		CPPUNIT_ASSERT_EQUAL(0xdb7ac38f63413c4eu, afc::crc64(&data[0], &data[0] + sizeof(data)));
+	}
+}

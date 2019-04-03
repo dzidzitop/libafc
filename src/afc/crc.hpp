@@ -18,6 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 #include <cstddef>
 #include <cstdint>
+#include <type_traits>
+#include <utility>
 
 namespace afc
 {
@@ -27,6 +29,20 @@ namespace afc
 	}
 
 	std::uint_fast64_t crc64(const unsigned char *data, std::size_t n);
+
+	template<typename Iterator>
+	std::uint_fast64_t crc64(Iterator begin, Iterator end)
+	{
+		static_assert(std::is_same<typename std::decay<decltype(*std::declval<Iterator>())>::type, unsigned char>::value, "Not an unsigned char iterator.");
+
+		std::uint_fast64_t crc = 0;
+
+		for (Iterator p = begin; p != end; ++p) {
+			crc = (crc >> 8) ^ afc::crc64_impl::lookupTable[(*p ^ crc) & 0xff];
+		}
+
+		return crc;
+	}
 }
 
 #endif /* AFC_CRC_HPP_ */

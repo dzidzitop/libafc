@@ -28,6 +28,7 @@ namespace afc
 		CPPUNIT_TEST_SUITE_END();
 	public:
 		void testCrc64();
+		void testCrc64_Iterator();
 	};
 }
 
