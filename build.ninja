@@ -32,6 +32,7 @@ build $buildDir/_demangle.o: cxx $srcDir/afc/_demangle.cpp
 build $buildDir/assertion.o: cxx $srcDir/afc/assertion.cpp
 build $buildDir/backtrace.o: cxx $srcDir/afc/backtrace.cpp
 build $buildDir/convertCharset.o: cxx $srcDir/afc/convertCharset.cpp
+build $buildDir/crc.o: cxx $srcDir/afc/crc.cpp
 build $buildDir/dateutil.o: cxx $srcDir/afc/dateutil.cpp
 build $buildDir/Exception.o: cxx $srcDir/afc/Exception.cpp
 build $buildDir/libintl.o: cc $srcDir/afc/libintl.c
@@ -43,6 +44,7 @@ build $buildDir/stream.o: cxx $srcDir/afc/stream.cpp
 build $buildDir/run_tests.o: cxx_test $testDir/run_tests.cpp
 build $buildDir/CompileTimeMathTest.o: cxx_test $testDir/CompileTimeMathTest.cpp
 build $buildDir/ConvertCharsetTest.o: cxx_test $testDir/ConvertCharsetTest.cpp
+build $buildDir/CrcTest.o: cxx_test $testDir/CrcTest.cpp
 build $buildDir/DateUtilTest.o: cxx_test $testDir/DateUtilTest.cpp
 build $buildDir/EncodeBase64Test.o: cxx_test $testDir/EncodeBase64Test.cpp
 build $buildDir/FastDivisionTest.o: cxx_test $testDir/FastDivisionTest.cpp
@@ -63,6 +65,7 @@ build $buildDir/libafc.so: linkDynamic $
     $buildDir/assertion.o $
     $buildDir/backtrace.o $
     $buildDir/convertCharset.o $
+    $buildDir/crc.o $
     $buildDir/dateutil.o $
     $buildDir/Exception.o $
     $buildDir/libintl.o $
@@ -76,6 +79,7 @@ build $buildDir/libafc.a: linkStatic $
     $buildDir/assertion.o $
     $buildDir/backtrace.o $
     $buildDir/convertCharset.o $
+    $buildDir/crc.o $
     $buildDir/dateutil.o $
     $buildDir/Exception.o $
     $buildDir/libintl.o $
@@ -88,6 +92,7 @@ build $buildDir/libafc_test: bin $
     $buildDir/run_tests.o $
     $buildDir/CompileTimeMathTest.o $
     $buildDir/ConvertCharsetTest.o $
+    $buildDir/CrcTest.o $
     $buildDir/DateUtilTest.o $
     $buildDir/EncodeBase64Test.o $
     $buildDir/FastDivisionTest.o $
