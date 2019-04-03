@@ -1,5 +1,5 @@
 /* libafc - utils to facilitate C++ development.
-Copyright (C) 2014-2017 Dźmitry Laŭčuk
+Copyright (C) 2014-2019 Dźmitry Laŭčuk
 
 libafc is free software: you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by
@@ -211,7 +211,14 @@ namespace afc
 			return m_bufEnd - m_buf;
 		}
 
-		void resize(const std::size_t newSize) noexcept { m_bufEnd = m_buf + newSize; }
+		void resize(const std::size_t newSize) noexcept
+		{
+			// assert() can throw an exception, but this is fine with debug code.
+			assert(m_buf != nullptr || newSize == 0);
+			assert(newSize <= m_capacity);
+
+			m_bufEnd = m_buf + newSize;
+		}
 		void clear() noexcept { m_bufEnd = m_buf; }
 		CharType *detach() noexcept { CharType * const result = m_buf; m_buf = m_bufEnd = nullptr; return result; }
 
