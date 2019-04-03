@@ -16,6 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #ifndef AFC_CRC_HPP_
 #define AFC_CRC_HPP_
 
+#include <cassert>
 #include <cstddef>
 #include <cstdint>
 #include <type_traits>
@@ -40,6 +41,8 @@ namespace afc
 	{
 		using DataType = typename std::decay<decltype(*std::declval<Iterator>())>::type;
 		static_assert(std::is_same<DataType, unsigned char>::value, "Not an unsigned char iterator.");
+
+		assert(currentCrc == currentCrc & 0xffffffffffffffff);
 
 		std::uint_fast64_t crc = currentCrc;
 
