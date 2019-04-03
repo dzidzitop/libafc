@@ -26,7 +26,7 @@ namespace afc
 		extern const std::uint_fast64_t lookupTable[0x100];
 	}
 
-	std::uint_fast64_t crc64(const unsigned char * const data, std::size_t n);
+	std::uint_fast64_t crc64(const unsigned char *data, std::size_t n);
 }
 
 #endif /* AFC_CRC_HPP_ */
