@@ -630,9 +630,13 @@ std::uint_fast64_t afc::crc64Update(const std::uint_fast64_t currentCrc,
 {
 	assert(currentCrc == (currentCrc & 0xffffffffffffffff));
 
-	std::uint_fast64_t crc = currentCrc;
+	const std::size_t fastN = n & ~size_t(0x07); // n - n % 8
 
-	for (std::size_t i= 0; i < n; ++i) {
+	// Calculating fast for as much data as possible.
+	std::uint_fast64_t crc = crc64Update_FastAligned64(currentCrc, data, fastN);
+
+	// The rest of the data is calculated using the slow version of CRC64.
+	for (std::size_t i= fastN; i < n; ++i) {
 		crc = (crc >> 8) ^ afc::crc64_impl::lookupTable[(data[i] ^ crc) & 0xff];
 	}
 
