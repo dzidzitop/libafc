@@ -26,10 +26,33 @@ namespace afc
 {
 	namespace crc64_impl
 	{
+		// CRC64 of xx
 		extern const std::uint_fast64_t lookupTable[0x100];
+		// CRC64 of xx00
+		extern const std::uint_fast64_t lookupTable2[0x100];
+		// CRC64 of xx0000
+		extern const std::uint_fast64_t lookupTable3[0x100];
+		// CRC64 of xx000000
+		extern const std::uint_fast64_t lookupTable4[0x100];
+		// CRC64 of xx00000000
+		extern const std::uint_fast64_t lookupTable5[0x100];
+		// CRC64 of xx0000000000
+		extern const std::uint_fast64_t lookupTable6[0x100];
+		// CRC64 of xx000000000000
+		extern const std::uint_fast64_t lookupTable7[0x100];
+		// CRC64 of xx00000000000000
+		extern const std::uint_fast64_t lookupTable8[0x100];
 	}
 
 	std::uint_fast64_t crc64Update(std::uint_fast64_t currentCrc, const unsigned char *data, std::size_t n);
+
+	// Each data chunk must be aligned by 4 octets. The result will be incorrect otherwise!
+	std::uint_fast64_t crc64Update_FastAligned32(std::uint_fast64_t currentCrc,
+			const unsigned char *data, std::size_t n);
+
+	// Each data chunk must be aligned by 8 octets. The result will be incorrect otherwise!
+	std::uint_fast64_t crc64Update_FastAligned64(std::uint_fast64_t currentCrc,
+			const unsigned char *data, std::size_t n);
 
 	inline std::uint_fast64_t crc64(const unsigned char * const data, const std::size_t n)
 	{
@@ -42,7 +65,7 @@ namespace afc
 		using DataType = typename std::decay<decltype(*std::declval<Iterator>())>::type;
 		static_assert(std::is_same<DataType, unsigned char>::value, "Not an unsigned char iterator.");
 
-		assert(currentCrc == currentCrc & 0xffffffffffffffff);
+		assert(currentCrc == (currentCrc & 0xffffffffffffffff));
 
 		std::uint_fast64_t crc = currentCrc;
 
