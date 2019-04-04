@@ -72,6 +72,28 @@ namespace
 	{
 		return (tableVal7(index) >> 8) ^ tableVal(tableVal7(index) & 0xff);
 	}
+
+	inline std::uint_fast64_t crc64FastAligned64Impl(const std::uint_fast64_t currentCrc,
+			const unsigned char * const data, const std::size_t n)
+	{
+		assert(currentCrc == (currentCrc & 0xffffffffffffffff));
+		assert(n % 8 == 0);
+
+		std::uint_fast64_t crc = currentCrc;
+
+		for (std::size_t i = 0; i < n; i += 8) {
+			crc = afc::crc64_impl::lookupTable8[(data[i] ^ crc) & 0xff] ^
+					afc::crc64_impl::lookupTable7[(data[i + 1] ^ (crc >> 8)) & 0xff] ^
+					afc::crc64_impl::lookupTable6[(data[i + 2] ^ (crc >> 16)) & 0xff] ^
+					afc::crc64_impl::lookupTable5[(data[i + 3] ^ (crc >> 24)) & 0xff] ^
+					afc::crc64_impl::lookupTable4[(data[i + 4] ^ (crc >> 32)) & 0xff] ^
+					afc::crc64_impl::lookupTable3[(data[i + 5] ^ (crc >> 40)) & 0xff] ^
+					afc::crc64_impl::lookupTable2[(data[i + 6] ^ (crc >> 48)) & 0xff] ^
+					afc::crc64_impl::lookupTable[(data[i + 7] ^ (crc >> 56)) & 0xff];
+		}
+
+		return crc;
+	}
 }
 
 // CRC64 value for each 00 00 00 00 00 00 00 xx.
@@ -626,7 +648,7 @@ std::uint_fast64_t afc::crc64Update(const std::uint_fast64_t currentCrc,
 	const std::size_t fastN = n & ~size_t(0x07); // n - n % 8
 
 	// Calculating fast for as much data as possible.
-	std::uint_fast64_t crc = crc64Update_FastAligned64(currentCrc, data, fastN);
+	std::uint_fast64_t crc = crc64FastAligned64Impl(currentCrc, data, fastN);
 
 	// The rest of the data is calculated using the slow version of CRC64.
 	for (std::size_t i= fastN; i < n; ++i) {
@@ -658,21 +680,5 @@ std::uint_fast64_t afc::crc64Update_FastAligned32(const std::uint_fast64_t curre
 std::uint_fast64_t afc::crc64Update_FastAligned64(const std::uint_fast64_t currentCrc,
 		const unsigned char * const data, const std::size_t n)
 {
-	assert(currentCrc == (currentCrc & 0xffffffffffffffff));
-	assert(n % 8 == 0);
-
-	std::uint_fast64_t crc = currentCrc;
-
-	for (std::size_t i = 0; i < n; i += 8) {
-		crc = afc::crc64_impl::lookupTable8[(data[i] ^ crc) & 0xff] ^
-				afc::crc64_impl::lookupTable7[(data[i + 1] ^ (crc >> 8)) & 0xff] ^
-				afc::crc64_impl::lookupTable6[(data[i + 2] ^ (crc >> 16)) & 0xff] ^
-				afc::crc64_impl::lookupTable5[(data[i + 3] ^ (crc >> 24)) & 0xff] ^
-				afc::crc64_impl::lookupTable4[(data[i + 4] ^ (crc >> 32)) & 0xff] ^
-				afc::crc64_impl::lookupTable3[(data[i + 5] ^ (crc >> 40)) & 0xff] ^
-				afc::crc64_impl::lookupTable2[(data[i + 6] ^ (crc >> 48)) & 0xff] ^
-				afc::crc64_impl::lookupTable[(data[i + 7] ^ (crc >> 56)) & 0xff];
-	}
-
-	return crc;
+	return crc64FastAligned64Impl(currentCrc, data, n);
 }
