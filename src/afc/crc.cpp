@@ -18,18 +18,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 namespace
 {
-	/* x^64 + x^62 + x^57 + x^55 + x^54 + x^53 + x^52 + x^47 + x^46 + x^45 + x^40 +
-	 * x^39 + x^38 + x^37 + x^35 + x^33 + x^32 + x^31 + x^29 + x^27 + x^24 + x^23 +
-	 * x^22 + x^21 + x^19 + x^17 + x^13 + x^12 + x^10 + x^9  + x^7  + x^4  + x^1  + 1;
-	 */
-	const std::uint_fast64_t polynome = 0xc96c5795d7870f42;
-
-
 	constexpr std::uint_fast64_t tableValLoop(const std::uint_fast64_t crc, const unsigned char iteration)
 	{
 		// Emulating 'for (int i = 0; i < 8; ++i)' with crc recalculated on each iteration.
 		return iteration == 8 ? crc :
-				tableValLoop((crc & 1) ? (crc >> 1) ^ polynome : crc >> 1, iteration + 1);
+				tableValLoop((crc & 1) ? (crc >> 1) ^ afc::crc64_impl::polynome_reversed : crc >> 1, iteration + 1);
 	}
 
 	// for sequence xx

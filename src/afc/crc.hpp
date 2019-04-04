@@ -26,6 +26,12 @@ namespace afc
 {
 	namespace crc64_impl
 	{
+		/* x^64 + x^62 + x^57 + x^55 + x^54 + x^53 + x^52 + x^47 + x^46 + x^45 + x^40 +
+		 * x^39 + x^38 + x^37 + x^35 + x^33 + x^32 + x^31 + x^29 + x^27 + x^24 + x^23 +
+		 * x^22 + x^21 + x^19 + x^17 + x^13 + x^12 + x^10 + x^9  + x^7  + x^4  + x^1  + 1;
+		 */
+		constexpr std::uint_fast64_t polynome_reversed = 0xc96c5795d7870f42;
+
 		// CRC64 of xx
 		extern const std::uint_fast64_t lookupTable[0x100];
 		// CRC64 of xx00
@@ -54,6 +60,7 @@ namespace afc
 	std::uint_fast64_t crc64Update_FastAligned64(std::uint_fast64_t currentCrc,
 			const unsigned char *data, std::size_t n);
 
+	// CRC-64 ECMA with LSB bit order.
 	inline std::uint_fast64_t crc64(const unsigned char * const data, const std::size_t n)
 	{
 		return crc64Update(0, data, n);
