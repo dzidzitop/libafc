@@ -53,11 +53,11 @@ namespace afc
 	std::uint_fast64_t crc64Update(std::uint_fast64_t currentCrc, const unsigned char *data, std::size_t n);
 
 	// Each data chunk must be aligned by 4 octets. The result will be incorrect otherwise!
-	std::uint_fast64_t crc64Update_FastAligned32(std::uint_fast64_t currentCrc,
+	std::uint_fast64_t crc64Update_Fast32(std::uint_fast64_t currentCrc,
 			const unsigned char *data, std::size_t n);
 
 	// Each data chunk must be aligned by 8 octets. The result will be incorrect otherwise!
-	std::uint_fast64_t crc64Update_FastAligned64(std::uint_fast64_t currentCrc,
+	std::uint_fast64_t crc64Update_Fast64(std::uint_fast64_t currentCrc,
 			const unsigned char *data, std::size_t n);
 
 	// CRC-64 ECMA with LSB bit order.

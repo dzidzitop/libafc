@@ -74,22 +74,24 @@ namespace
 		return (tableVal7(index) >> 8) ^ tableVal(tableVal7(index) & 0xff);
 	}
 
-	/* In the classic CRC table method CPU must wait for a single input octet processed
-         * before it can start processing the next one. This can be improved.
-         *
-         * CRC is a linear function. This implies that CRC(XYZ) = CRC(X00 xor Y0 xor Z) =
+	/* Processes 64 bits per iteration.
+	 *
+	 * In the classic CRC table method CPU must wait for a single input octet processed
+	 * before it can start processing the next one. This can be improved.
+	 *
+	 * CRC is a linear function. This implies that CRC(XYZ) = CRC(X00 xor Y0 xor Z) =
 	 * CRC(X00) xor CRC(YO) xor CRC(Z). Therefore, we can use tables with pre-calculated
 	 * CRC for each X(0..0)n, 256 items each. If we have tables for up to X0000000 (8 bytes)
 	 * then we can expand the CRC table method to process 64 bits of the input data
 	 * independently. CPUs can take advantage of this because in this case there are much
-         * less data dependencies per iteration.
+	 * less data dependencies per iteration.
 	 *
 	 * Note, however, that CPUs with few registers can start using stack intensively.
 	 * In addition, 16K+ of datas cache size is needed to keep tables which can be
 	 * an overhead for some CPUs. So check if this method boosts performance and consider
 	 * processing data in less chunks if it is more efficient in your conditions.
 	 */
-	inline std::uint_fast64_t crc64FastAligned64Impl(std::uint_fast64_t currentCrc,
+	inline std::uint_fast64_t crc64Fast64Impl(std::uint_fast64_t currentCrc,
 			const unsigned char * const data, const std::size_t n)
 	{
 		assert(currentCrc == (currentCrc & 0xffffffffffffffff));
@@ -669,7 +671,7 @@ std::uint_fast64_t afc::crc64Update(const std::uint_fast64_t currentCrc,
 
 	if (fastN > 0) {
 		// Calculating fast for as much data as possible.
-		crc = crc64FastAligned64Impl(crc, data, fastN);
+		crc = crc64Fast64Impl(crc, data, fastN);
 	}
 
 	// The rest of the data is calculated using the slow version of CRC64.
@@ -680,7 +682,7 @@ std::uint_fast64_t afc::crc64Update(const std::uint_fast64_t currentCrc,
 	return crc;
 }
 
-std::uint_fast64_t afc::crc64Update_FastAligned32(const std::uint_fast64_t currentCrc,
+std::uint_fast64_t afc::crc64Update_Fast32(const std::uint_fast64_t currentCrc,
 		const unsigned char * const data, const std::size_t n)
 {
 	assert(currentCrc == (currentCrc & 0xffffffffffffffff));
@@ -699,11 +701,11 @@ std::uint_fast64_t afc::crc64Update_FastAligned32(const std::uint_fast64_t curre
 	return crc;
 }
 
-std::uint_fast64_t afc::crc64Update_FastAligned64(const std::uint_fast64_t currentCrc,
+std::uint_fast64_t afc::crc64Update_Fast64(const std::uint_fast64_t currentCrc,
 		const unsigned char * const data, const std::size_t n)
 {
 	if (likely(n > 0)) {
-		return crc64FastAligned64Impl(currentCrc, data, n);
+		return crc64Fast64Impl(currentCrc, data, n);
 	} else {
 		return currentCrc;
 	}
