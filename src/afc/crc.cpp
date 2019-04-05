@@ -16,6 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 #include "crc.hpp"
 #include "builtin.hpp"
+#include <climits>
 
 namespace
 {
@@ -109,6 +110,42 @@ namespace
 					afc::crc64_impl::lookupTable3[(data[i + 5] ^ (crc >> 40)) & 0xff] ^
 					afc::crc64_impl::lookupTable2[(data[i + 6] ^ (crc >> 48)) & 0xff] ^
 					afc::crc64_impl::lookupTable[(data[i + 7] ^ (crc >> 56)) & 0xff];
+			i += 8;
+		} while (i < n);
+
+		return crc;
+	}
+
+	/* Works as crc64Fast64Impl() but does more efficient xor of the next data chunk and current crc
+	 * relying on that the platform is little-endian.
+	 *
+	 * This implementation is not portable and it is also a non-standard C++ code.
+	 */
+	inline std::uint_fast64_t crc64Fast64Aligned8Impl(std::uint_fast64_t currentCrc,
+			const unsigned char * const data, const std::size_t n)
+	{
+		assert(afc::PLATFORM_BYTE_ORDER == afc::endianness::LE);
+		assert(sizeof(std::uint_fast64_t) == 8 && CHAR_BIT == 8);
+		assert((static_cast<std::uintptr_t>(data) & ~std::uintptr_t(0x07)) == static_cast<std::uintptr_t>(data));
+		assert(currentCrc == (currentCrc & 0xffffffffffffffff));
+		assert(n > 0);
+		assert(n % 8 == 0);
+
+		std::size_t crc = currentCrc;
+		std::size_t i = 0;
+		do {
+			// Reading the data chunk as an uint64 value to xor it with crc at once.
+			std::uint_fast64_t chunk = *reinterpret_cast<const std::uint_fast64_t *>(data + i);
+			chunk ^= crc;
+			const unsigned char *chunkAsBytes = reinterpret_cast<const unsigned char *>(&chunk);
+			crc = afc::crc64_impl::lookupTable8[chunkAsBytes[0]] ^
+					afc::crc64_impl::lookupTable7[chunkAsBytes[1]] ^
+					afc::crc64_impl::lookupTable6[chunkAsBytes[2]] ^
+					afc::crc64_impl::lookupTable5[chunkAsBytes[3]] ^
+					afc::crc64_impl::lookupTable4[chunkAsBytes[4]] ^
+					afc::crc64_impl::lookupTable3[chunkAsBytes[5]] ^
+					afc::crc64_impl::lookupTable2[chunkAsBytes[6]] ^
+					afc::crc64_impl::lookupTable[chunkAsBytes[7]];
 			i += 8;
 		} while (i < n);
 
@@ -672,6 +709,28 @@ std::uint_fast64_t afc::crc64Update(const std::uint_fast64_t currentCrc,
 	if (fastN > 0) {
 		// Calculating fast for as much data as possible.
 		crc = crc64Fast64Impl(crc, data, fastN);
+	}
+
+	// The rest of the data is calculated using the slow version of CRC64.
+	for (std::size_t i = fastN; i < n; ++i) {
+		crc = (crc >> 8) ^ afc::crc64_impl::lookupTable[(data[i] ^ crc) & 0xff];
+	}
+
+	return crc;
+}
+
+std::uint_fast64_t afc::crc64Update_Aligned8Impl(const std::uint_fast64_t currentCrc,
+		const unsigned char * const data, const std::size_t n)
+{
+	assert(currentCrc == (currentCrc & 0xffffffffffffffff));
+
+	const std::size_t fastN = n & ~std::size_t(0x07); // n - n % 8
+
+	std::uint_fast64_t crc = currentCrc;
+
+	if (fastN > 0) {
+		// Calculating fast for as much data as possible.
+		crc = crc64Fast64Aligned8Impl(crc, data, fastN);
 	}
 
 	// The rest of the data is calculated using the slow version of CRC64.

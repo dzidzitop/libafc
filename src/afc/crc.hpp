@@ -16,6 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #ifndef AFC_CRC_HPP_
 #define AFC_CRC_HPP_
 
+#include "cpu/primitive.h"
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
@@ -52,6 +53,18 @@ namespace afc
 
 	std::uint_fast64_t crc64Update(std::uint_fast64_t currentCrc, const unsigned char *data, std::size_t n);
 
+	std::uint_fast64_t crc64Update_Aligned8Impl(std::uint_fast64_t currentCrc, const unsigned char *data,
+			std::size_t n);
+
+	inline std::uint_fast64_t crc64Update_Aligned8(const std::uint_fast64_t currentCrc, const unsigned char *data,
+			const std::size_t n) {
+		if (afc::PLATFORM_BYTE_ORDER == afc::endianness::LE) {
+			return crc64Update_Aligned8Impl(currentCrc, data, n);
+		} else {
+			return crc64Update(currentCrc, data, n);
+		}
+	}
+
 	// Each data chunk must be aligned by 4 octets. The result will be incorrect otherwise!
 	std::uint_fast64_t crc64Update_Fast32(std::uint_fast64_t currentCrc,
 			const unsigned char *data, std::size_t n);
@@ -60,10 +73,20 @@ namespace afc
 	std::uint_fast64_t crc64Update_Fast64(std::uint_fast64_t currentCrc,
 			const unsigned char *data, std::size_t n);
 
-	// CRC-64 ECMA with LSB bit order.
+	// CRC-64 ECMA with LSB-first bit order (reversed).
 	inline std::uint_fast64_t crc64(const unsigned char * const data, const std::size_t n)
 	{
 		return crc64Update(0, data, n);
+	}
+
+	/* CRC-64 ECMA with LSB-first bit order (reversed).
+	 *
+	 * It works on data aligned to 8-byte boundary only. On little-endian platforms this can
+	 * gain some performance boost.
+	 */
+	inline std::uint_fast64_t crc64_Aligned8(const unsigned char * const data, const std::size_t n)
+	{
+		return crc64Update_Aligned8(0, data, n);
 	}
 
 	template<typename Iterator>
