@@ -15,6 +15,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 #include "crc.hpp"
+#include "builtin.hpp"
 
 namespace
 {
@@ -73,15 +74,31 @@ namespace
 		return (tableVal7(index) >> 8) ^ tableVal(tableVal7(index) & 0xff);
 	}
 
-	inline std::uint_fast64_t crc64FastAligned64Impl(const std::uint_fast64_t currentCrc,
+	/* In the classic CRC table method CPU must wait for a single input octet processed
+         * before it can start processing the next one. This can be improved.
+         *
+         * CRC is a linear function. This implies that CRC(XYZ) = CRC(X00 xor Y0 xor Z) =
+	 * CRC(X00) xor CRC(YO) xor CRC(Z). Therefore, we can use tables with pre-calculated
+	 * CRC for each X(0..0)n, 256 items each. If we have tables for up to X0000000 (8 bytes)
+	 * then we can expand the CRC table method to process 64 bits of the input data
+	 * independently. CPUs can take advantage of this because in this case there are much
+         * less data dependencies per iteration.
+	 *
+	 * Note, however, that CPUs with few registers can start using stack intensively.
+	 * In addition, 16K+ of datas cache size is needed to keep tables which can be
+	 * an overhead for some CPUs. So check if this method boosts performance and consider
+	 * processing data in less chunks if it is more efficient in your conditions.
+	 */
+	inline std::uint_fast64_t crc64FastAligned64Impl(std::uint_fast64_t currentCrc,
 			const unsigned char * const data, const std::size_t n)
 	{
 		assert(currentCrc == (currentCrc & 0xffffffffffffffff));
+		assert(n > 0);
 		assert(n % 8 == 0);
 
-		std::uint_fast64_t crc = currentCrc;
-
-		for (std::size_t i = 0; i < n; i += 8) {
+		std::size_t crc = currentCrc;
+		std::size_t i = 0;
+		do {
 			crc = afc::crc64_impl::lookupTable8[(data[i] ^ crc) & 0xff] ^
 					afc::crc64_impl::lookupTable7[(data[i + 1] ^ (crc >> 8)) & 0xff] ^
 					afc::crc64_impl::lookupTable6[(data[i + 2] ^ (crc >> 16)) & 0xff] ^
@@ -90,7 +107,8 @@ namespace
 					afc::crc64_impl::lookupTable3[(data[i + 5] ^ (crc >> 40)) & 0xff] ^
 					afc::crc64_impl::lookupTable2[(data[i + 6] ^ (crc >> 48)) & 0xff] ^
 					afc::crc64_impl::lookupTable[(data[i + 7] ^ (crc >> 56)) & 0xff];
-		}
+			i += 8;
+		} while (i < n);
 
 		return crc;
 	}
@@ -647,11 +665,15 @@ std::uint_fast64_t afc::crc64Update(const std::uint_fast64_t currentCrc,
 
 	const std::size_t fastN = n & ~size_t(0x07); // n - n % 8
 
-	// Calculating fast for as much data as possible.
-	std::uint_fast64_t crc = crc64FastAligned64Impl(currentCrc, data, fastN);
+	std::uint_fast64_t crc = currentCrc;
+
+	if (fastN > 0) {
+		// Calculating fast for as much data as possible.
+		crc = crc64FastAligned64Impl(crc, data, fastN);
+	}
 
 	// The rest of the data is calculated using the slow version of CRC64.
-	for (std::size_t i= fastN; i < n; ++i) {
+	for (std::size_t i = fastN; i < n; ++i) {
 		crc = (crc >> 8) ^ afc::crc64_impl::lookupTable[(data[i] ^ crc) & 0xff];
 	}
 
@@ -680,5 +702,9 @@ std::uint_fast64_t afc::crc64Update_FastAligned32(const std::uint_fast64_t curre
 std::uint_fast64_t afc::crc64Update_FastAligned64(const std::uint_fast64_t currentCrc,
 		const unsigned char * const data, const std::size_t n)
 {
-	return crc64FastAligned64Impl(currentCrc, data, n);
+	if (likely(n > 0)) {
+		return crc64FastAligned64Impl(currentCrc, data, n);
+	} else {
+		return currentCrc;
+	}
 }
