@@ -137,15 +137,14 @@ namespace
 			// Reading the data chunk as an uint64 value to xor it with crc at once.
 			std::uint_fast64_t chunk = *reinterpret_cast<const std::uint_fast64_t *>(data + i);
 			chunk ^= crc;
-			const unsigned char *chunkAsBytes = reinterpret_cast<const unsigned char *>(&chunk);
-			crc = afc::crc64_impl::lookupTable8[chunkAsBytes[0]] ^
-					afc::crc64_impl::lookupTable7[chunkAsBytes[1]] ^
-					afc::crc64_impl::lookupTable6[chunkAsBytes[2]] ^
-					afc::crc64_impl::lookupTable5[chunkAsBytes[3]] ^
-					afc::crc64_impl::lookupTable4[chunkAsBytes[4]] ^
-					afc::crc64_impl::lookupTable3[chunkAsBytes[5]] ^
-					afc::crc64_impl::lookupTable2[chunkAsBytes[6]] ^
-					afc::crc64_impl::lookupTable[chunkAsBytes[7]];
+			crc = afc::crc64_impl::lookupTable8[chunk & 0xff] ^
+					afc::crc64_impl::lookupTable7[(chunk >> 8) & 0xff] ^
+					afc::crc64_impl::lookupTable6[(chunk >> 16) & 0xff] ^
+					afc::crc64_impl::lookupTable5[(chunk >> 24) & 0xff] ^
+					afc::crc64_impl::lookupTable4[(chunk >> 32) & 0xff] ^
+					afc::crc64_impl::lookupTable3[(chunk >> 40) & 0xff] ^
+					afc::crc64_impl::lookupTable2[(chunk >> 48) & 0xff] ^
+					afc::crc64_impl::lookupTable[(chunk >> 56) & 0xff];
 			i += 8;
 		} while (i < n);
 
