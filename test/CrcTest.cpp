@@ -118,3 +118,56 @@ void afc::CrcTest::testCrc64Update_Iterator()
 		CPPUNIT_ASSERT_EQUAL(0xdb7ac38f63413c4eu, crc);
 	}
 }
+
+void afc::CrcTest::testCrc64_Aligned8()
+{
+	{
+		alignas(8)
+		unsigned char data[] = {};
+		CPPUNIT_ASSERT_EQUAL(std::uint_fast64_t(0), afc::crc64_Aligned8(data, sizeof(data)));
+	}
+
+	{
+		alignas(8)
+		unsigned char data[] = {0x80};
+		CPPUNIT_ASSERT_EQUAL(0xc96c5795d7870f42u, afc::crc64_Aligned8(data, sizeof(data)));
+	}
+
+	{
+		alignas(8)
+		unsigned char data[] = {0xde, 0xad};
+		CPPUNIT_ASSERT_EQUAL(0x44277f18417c45a5u, afc::crc64_Aligned8(data, sizeof(data)));
+	}
+
+	{
+		alignas(8)
+		unsigned char data[] = {0xde, 0xad, 0xbe, 0xef};
+		CPPUNIT_ASSERT_EQUAL(0xfc232c18806871afu, afc::crc64_Aligned8(data, sizeof(data)));
+	}
+
+	{
+		alignas(8)
+		unsigned char data[] =
+				{0x99, 0xeb, 0x96, 0xdd, 0x94, 0xc8, 0x8e, 0x97, 0x5b, 0x58, 0x5d, 0x2f, 0x28, 0x78, 0x5e, 0x36};
+		CPPUNIT_ASSERT_EQUAL(0xdb7ac38f63413c4eu, afc::crc64_Aligned8(data, sizeof(data)));
+	}
+}
+
+void afc::CrcTest::testCrc64Update_Aligned8()
+{
+	{
+		alignas(8)
+		unsigned char data[] = {};
+		CPPUNIT_ASSERT_EQUAL(std::uint_fast64_t(0xff443322), afc::crc64Update_Aligned8(0xff443322, data, sizeof(data)));
+	}
+
+	{
+		alignas(8)
+		unsigned char data1[] = {0x99, 0xeb, 0x96, 0xdd, 0x94, 0xc8, 0x8e};
+		alignas(8)
+		unsigned char data2[] = {0x97, 0x5b, 0x58, 0x5d, 0x2f, 0x28, 0x78, 0x5e, 0x36};
+		std::uint_fast64_t crc = crc64Update_Aligned8(0, data1, sizeof(data1));
+		crc = crc64Update_Aligned8(crc, data2, sizeof(data2));
+		CPPUNIT_ASSERT_EQUAL(0xdb7ac38f63413c4eu, crc);
+	}
+}
