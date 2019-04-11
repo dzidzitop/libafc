@@ -28,12 +28,16 @@ namespace afc
 		CPPUNIT_TEST(testCrc64Update);
 		CPPUNIT_TEST(testCrc64_Iterator);
 		CPPUNIT_TEST(testCrc64Update_Iterator);
+		CPPUNIT_TEST(testCrc64_Aligned8);
+		CPPUNIT_TEST(testCrc64Update_Aligned8);
 		CPPUNIT_TEST_SUITE_END();
 	public:
 		void testCrc64();
 		void testCrc64Update();
 		void testCrc64_Iterator();
 		void testCrc64Update_Iterator();
+		void testCrc64_Aligned8();
+		void testCrc64Update_Aligned8();
 	};
 }
 
