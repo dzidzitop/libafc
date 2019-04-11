@@ -34,22 +34,8 @@ namespace afc
 		 */
 		constexpr std::uint_fast64_t polynome_reversed = 0xc96c5795d7870f42;
 
-		// CRC64 of xx
-		extern const std::uint_fast64_t lookupTable[0x100];
-		// CRC64 of xx00
-		extern const std::uint_fast64_t lookupTable2[0x100];
-		// CRC64 of xx0000
-		extern const std::uint_fast64_t lookupTable3[0x100];
-		// CRC64 of xx000000
-		extern const std::uint_fast64_t lookupTable4[0x100];
-		// CRC64 of xx00000000
-		extern const std::uint_fast64_t lookupTable5[0x100];
-		// CRC64 of xx0000000000
-		extern const std::uint_fast64_t lookupTable6[0x100];
-		// CRC64 of xx000000000000
-		extern const std::uint_fast64_t lookupTable7[0x100];
-		// CRC64 of xx00000000000000
-		extern const std::uint_fast64_t lookupTable8[0x100];
+		// CRC64 of xx00..00 where first index is the number zero bytes that follow xx.
+		extern const std::uint_fast64_t lookupTables[8][0x100];
 	}
 
 	std::uint_fast64_t crc64Update(std::uint_fast64_t currentCrc, const unsigned char *data, std::size_t n);
@@ -102,7 +88,7 @@ namespace afc
 		std::uint_fast64_t crc = currentCrc;
 
 		for (Iterator p = begin; p != end; ++p) {
-			crc = (crc >> 8) ^ afc::crc64_impl::lookupTable[(*p ^ crc) & 0xff];
+			crc = (crc >> 8) ^ afc::crc64_impl::lookupTables[0][(*p ^ crc) & 0xff];
 		}
 
 		return crc;
