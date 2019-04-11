@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 #include "cpu/primitive.h"
 #include <cassert>
+#include <climits>
 #include <cstddef>
 #include <cstdint>
 #include <type_traits>
@@ -58,7 +59,8 @@ namespace afc
 
 	inline std::uint_fast64_t crc64Update_Aligned8(const std::uint_fast64_t currentCrc, const unsigned char *data,
 			const std::size_t n) {
-		if (afc::PLATFORM_BYTE_ORDER == afc::endianness::LE) {
+		if (afc::PLATFORM_BYTE_ORDER == afc::endianness::LE && sizeof(std::uint_fast64_t) == 8 && CHAR_BIT == 8) {
+			// An optimised version that works only for little-endian platforms with 64-bit std::uint_fast64_t.
 			return crc64Update_Aligned8Impl(currentCrc, data, n);
 		} else {
 			return crc64Update(currentCrc, data, n);
