@@ -1,5 +1,5 @@
 /* libafc - utils to facilitate C++ development.
-Copyright (C) 2010-2017 Dźmitry Laŭčuk
+Copyright (C) 2010-2019 Dźmitry Laŭčuk
 
 libafc is free software: you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by
@@ -75,6 +75,9 @@ namespace afc
 	template<unsigned char base, afc::ParseMode parseMode = ParseMode::all,
 			typename T, typename Iterator, typename ErrorHandler>
 	Iterator parseNumber(Iterator begin, Iterator end, T &result, ErrorHandler errorHandler);
+
+	template<unsigned char base, afc::ParseMode parseMode = ParseMode::all, typename T, typename ErrorHandler>
+	const char *parseNumber(const char *input, T &result, ErrorHandler errorHandler);
 
 	template<typename T, typename Iterator>
 	Iterator printTwoDigits(const T value, Iterator dest);
@@ -312,6 +315,118 @@ Iterator afc::parseNumber(Iterator begin, Iterator end, T &dest, ErrorHandler er
 		if (c > 0xff) {
 			goto error;
 		}
+		const T digit = afc::numdata<>::asciiToDigit[static_cast<unsigned char>(c)];
+		if (unlikely(digit >= base)) {
+			switch (parseMode) {
+			case ParseMode::all: goto error;
+			case ParseMode::scan: goto loopEnd;
+			}
+		}
+
+		if (likely(result <= safeLimit)) {
+			result *= base;
+			result += digit;
+		} else {
+			T mulLimit;
+			T addLimit;
+			if (std::is_signed<T>::value) {
+				if (sign < 0) {
+					mulLimit = _impl::mulLimit<T, base, false>();
+					addLimit = std::numeric_limits<T>::min();
+				} else {
+					mulLimit = _impl::mulLimit<T, base, true>();
+					addLimit = -std::numeric_limits<T>::max();
+				}
+			} else {
+				mulLimit = _impl::mulLimit<T, base, true>();
+				addLimit = std::numeric_limits<T>::max();
+			}
+
+			if (likely(result <= mulLimit)) {
+				result *= base;
+				if (std::is_signed<T>::value) {
+					if (likely(addLimit + result + digit <= 0)) {
+						result += digit;
+						continue;
+					}
+				} else {
+					if (likely(result <= addLimit - digit)) {
+						result += digit;
+						continue;
+					}
+				}
+			}
+			goto error;
+		}
+	}
+loopEnd:
+	if (std::is_signed<T>::value) {
+		result *= sign; // Works even for min value for all sign encoding schemes.
+	}
+	dest = result;
+	return p;
+error:
+	errorHandler(p);
+	return p;
+}
+
+// TODO optimise performance
+template<unsigned char base, afc::ParseMode parseMode, typename T, typename ErrorHandler>
+const char *afc::parseNumber(const char * const input, T &dest, ErrorHandler errorHandler)
+{
+	static_assert(std::is_integral<T>::value, "Integral types are supported only.");
+	static_assert(base >= afc::number_limits::MIN_BASE && base <= afc::number_limits::MAX_BASE, "Unsupported base.");
+	static_assert(parseMode == ParseMode::all || parseMode == ParseMode::scan, "Unsupported parsing mode.");
+
+
+	T sign;
+	T safeLimit;
+	T result;
+
+	const char *p = input;
+
+	char c = *p;
+	if (c == '\0') {
+		goto error;
+	}
+	++p;
+
+	if (std::is_signed<T>::value) {
+		if (c == u8"-"[0]) {
+			c = *p;
+			if (c == '\0') {
+				goto error;
+			}
+			++p;
+
+			sign = -1;
+			safeLimit = _impl::safeLimit<T, base, false>();
+		} else {
+			sign = 1;
+			safeLimit = _impl::safeLimit<T, base, true>();
+		}
+	} else {
+		safeLimit = _impl::safeLimit<T, base, true>();
+	}
+
+	if (c > 0xff) {
+		goto error;
+	}
+	result = afc::numdata<>::asciiToDigit[static_cast<unsigned char>(c)];
+	if (unlikely(result >= base)) {
+		goto error;
+	}
+
+	for (;;) {
+		c = *p;
+		if (c > 0xff) {
+			goto error;
+		}
+		if (c == '\0') {
+			break;
+		}
+		++p;
+
 		const T digit = afc::numdata<>::asciiToDigit[static_cast<unsigned char>(c)];
 		if (unlikely(digit >= base)) {
 			switch (parseMode) {

@@ -1,5 +1,5 @@
 /* libafc - utils to facilitate C++ development.
-Copyright (C) 2010-2015 Dźmitry Laŭčuk
+Copyright (C) 2010-2019 Dźmitry Laŭčuk
 
 libafc is free software: you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by
@@ -91,30 +91,30 @@ void afc::NumberTest::testParseNumber_DecimalInts()
 		ConstStringRef positiveNumber = "1053"_s;
 		int parsedPositiveNumber = 1;
 
-		const char * const iteraporPositiveNumber = parseNumber<10>(positiveNumber.begin(), positiveNumber.end(),
+		const char * const iteratorPositiveNumber = parseNumber<10>(positiveNumber.begin(), positiveNumber.end(),
 				parsedPositiveNumber, [](const char *) { CPPUNIT_FAIL(""); });
 		CPPUNIT_ASSERT_EQUAL(1053, parsedPositiveNumber);
-		CPPUNIT_ASSERT_EQUAL(positiveNumber.end(), iteraporPositiveNumber);
+		CPPUNIT_ASSERT_EQUAL(positiveNumber.end(), iteratorPositiveNumber);
 	}
 
 	{
 		ConstStringRef negativeNumber = "-12366"_s;
 		int parsedNegativeNumber = 1;
 
-		const char * const iteraporNegativeNumber = parseNumber<10>(negativeNumber.begin(), negativeNumber.end(),
+		const char * const iteratorNegativeNumber = parseNumber<10>(negativeNumber.begin(), negativeNumber.end(),
 				parsedNegativeNumber, [](const char *) { CPPUNIT_FAIL(""); });
 		CPPUNIT_ASSERT_EQUAL(-12366, parsedNegativeNumber);
-		CPPUNIT_ASSERT_EQUAL(negativeNumber.end(), iteraporNegativeNumber);
+		CPPUNIT_ASSERT_EQUAL(negativeNumber.end(), iteratorNegativeNumber);
 	}
 
 	{
 		ConstStringRef zero = "0"_s;
 		int parsedZero = 1;
 
-		const char * const iteraporZero = parseNumber<10>(zero.begin(), zero.end(),
+		const char * const iteratorZero = parseNumber<10>(zero.begin(), zero.end(),
 				parsedZero, [](const char *) { CPPUNIT_FAIL(""); });
 		CPPUNIT_ASSERT_EQUAL(0, parsedZero);
-		CPPUNIT_ASSERT_EQUAL(zero.end(), iteraporZero);
+		CPPUNIT_ASSERT_EQUAL(zero.end(), iteratorZero);
 	}
 
 	{
@@ -142,8 +142,8 @@ void afc::NumberTest::testParseNumber_DecimalInts()
 		string overflow(std::to_string(static_cast<long long>(std::numeric_limits<int>::max()) + 1));
 		int parsedNumber = 0;
 
-		string::iterator result = parseNumber<10>(overflow.begin(), overflow.end(),
-				parsedNumber, [&](string::iterator) { errorReported = true; });
+		parseNumber<10>(overflow.begin(), overflow.end(), parsedNumber,
+				[&](string::iterator) { errorReported = true; });
 		CPPUNIT_ASSERT(errorReported);
 	}
 
@@ -152,8 +152,8 @@ void afc::NumberTest::testParseNumber_DecimalInts()
 		string underflow(std::to_string(static_cast<long long>(std::numeric_limits<int>::min()) - 1));
 		int parsedNumber = 0;
 
-		string::iterator result = parseNumber<10>(underflow.begin(), underflow.end(),
-				parsedNumber, [&](string::iterator) { errorReported = true; });
+		parseNumber<10>(underflow.begin(), underflow.end(), parsedNumber,
+				[&](string::iterator) { errorReported = true; });
 		CPPUNIT_ASSERT(errorReported);
 	}
 }
@@ -164,20 +164,20 @@ void afc::NumberTest::testParseNumber_DecimalUnsignedInts()
 		ConstStringRef positiveNumber = "1053"_s;
 		unsigned parsedPositiveNumber = 1;
 
-		const char * const iteraporPositiveNumber = parseNumber<10>(positiveNumber.begin(), positiveNumber.end(),
+		const char * const iteratorPositiveNumber = parseNumber<10>(positiveNumber.begin(), positiveNumber.end(),
 				parsedPositiveNumber, [](const char *) { CPPUNIT_FAIL(""); });
 		CPPUNIT_ASSERT_EQUAL(1053u, parsedPositiveNumber);
-		CPPUNIT_ASSERT_EQUAL(positiveNumber.end(), iteraporPositiveNumber);
+		CPPUNIT_ASSERT_EQUAL(positiveNumber.end(), iteratorPositiveNumber);
 	}
 
 	{
 		ConstStringRef zero = "0"_s;
 		unsigned parsedZero = 1;
 
-		const char * const iteraporZero = parseNumber<10>(zero.begin(), zero.end(),
+		const char * const iteratorZero = parseNumber<10>(zero.begin(), zero.end(),
 				parsedZero, [](const char *) { CPPUNIT_FAIL(""); });
 		CPPUNIT_ASSERT_EQUAL(0u, parsedZero);
-		CPPUNIT_ASSERT_EQUAL(zero.end(), iteraporZero);
+		CPPUNIT_ASSERT_EQUAL(zero.end(), iteratorZero);
 	}
 
 	{
@@ -195,8 +195,8 @@ void afc::NumberTest::testParseNumber_DecimalUnsignedInts()
 		string overflow(std::to_string(static_cast<unsigned long long>(std::numeric_limits<unsigned>::max()) + 1));
 		unsigned parsedNumber = 0;
 
-		string::iterator result = parseNumber<10>(overflow.begin(), overflow.end(),
-				parsedNumber, [&](string::iterator) { errorReported = true; });
+		parseNumber<10>(overflow.begin(), overflow.end(), parsedNumber,
+				[&](string::iterator) { errorReported = true; });
 		CPPUNIT_ASSERT(errorReported);
 	}
 }
@@ -207,30 +207,30 @@ void afc::NumberTest::testParseNumber_HexInts()
 		ConstStringRef positiveNumber = "F3aB"_s;
 		int parsedPositiveNumber = 1;
 
-		const char * const iteraporPositiveNumber = parseNumber<16>(positiveNumber.begin(), positiveNumber.end(),
+		const char * const iteratorPositiveNumber = parseNumber<16>(positiveNumber.begin(), positiveNumber.end(),
 				parsedPositiveNumber, [](const char *) { CPPUNIT_FAIL("parse error"); });
 		CPPUNIT_ASSERT_EQUAL(0xf3ab, parsedPositiveNumber);
-		CPPUNIT_ASSERT_EQUAL(positiveNumber.end(), iteraporPositiveNumber);
+		CPPUNIT_ASSERT_EQUAL(positiveNumber.end(), iteratorPositiveNumber);
 	}
 
 	{
 		ConstStringRef negativeNumber = "-1f9e"_s;
 		int parsedNegativeNumber = 1;
 
-		const char * const iteraporNegativeNumber = parseNumber<16>(negativeNumber.begin(), negativeNumber.end(),
+		const char * const iteratorNegativeNumber = parseNumber<16>(negativeNumber.begin(), negativeNumber.end(),
 				parsedNegativeNumber, [](const char *) { CPPUNIT_FAIL("parse error"); });
 		CPPUNIT_ASSERT_EQUAL(-0x1f9e, parsedNegativeNumber);
-		CPPUNIT_ASSERT_EQUAL(negativeNumber.end(), iteraporNegativeNumber);
+		CPPUNIT_ASSERT_EQUAL(negativeNumber.end(), iteratorNegativeNumber);
 	}
 
 	{
 		ConstStringRef zero = "0"_s;
 		int parsedZero = 1;
 
-		const char * const iteraporZero = parseNumber<16>(zero.begin(), zero.end(),
+		const char * const iteratorZero = parseNumber<16>(zero.begin(), zero.end(),
 				parsedZero, [](const char *) { CPPUNIT_FAIL("parse error"); });
 		CPPUNIT_ASSERT_EQUAL(0, parsedZero);
-		CPPUNIT_ASSERT_EQUAL(zero.end(), iteraporZero);
+		CPPUNIT_ASSERT_EQUAL(zero.end(), iteratorZero);
 	}
 }
 
@@ -240,19 +240,188 @@ void afc::NumberTest::testParseNumber_HexUnsignedInts()
 		ConstStringRef positiveNumber = "e05D"_s;
 		unsigned parsedPositiveNumber = 1;
 
-		const char * const iteraporPositiveNumber = parseNumber<16>(positiveNumber.begin(), positiveNumber.end(),
+		const char * const iteratorPositiveNumber = parseNumber<16>(positiveNumber.begin(), positiveNumber.end(),
 				parsedPositiveNumber, [](const char *) { CPPUNIT_FAIL("parse error"); });
 		CPPUNIT_ASSERT_EQUAL(0xe05du, parsedPositiveNumber);
-		CPPUNIT_ASSERT_EQUAL(positiveNumber.end(), iteraporPositiveNumber);
+		CPPUNIT_ASSERT_EQUAL(positiveNumber.end(), iteratorPositiveNumber);
 	}
 
 	{
 		ConstStringRef zero = "0"_s;
 		unsigned parsedZero = 1;
 
-		const char * const iteraporZero = parseNumber<16>(zero.begin(), zero.end(),
+		const char * const iteratorZero = parseNumber<16>(zero.begin(), zero.end(),
 				parsedZero, [](const char *) { CPPUNIT_FAIL("parse error"); });
 		CPPUNIT_ASSERT_EQUAL(0u, parsedZero);
-		CPPUNIT_ASSERT_EQUAL(zero.end(), iteraporZero);
+		CPPUNIT_ASSERT_EQUAL(zero.end(), iteratorZero);
+	}
+}
+
+void afc::NumberTest::testParseNumberCString_DecimalInts()
+{
+	{
+		ConstStringRef positiveNumber = "1053"_s;
+		int parsedPositiveNumber = 1;
+
+		const char * const iteratorPositiveNumber = parseNumber<10>(positiveNumber.begin(),
+				parsedPositiveNumber, [](const char *) { CPPUNIT_FAIL(""); });
+		CPPUNIT_ASSERT_EQUAL(1053, parsedPositiveNumber);
+		CPPUNIT_ASSERT_EQUAL((unsigned long long) positiveNumber.end(), (unsigned long long) iteratorPositiveNumber);
+	}
+
+	{
+		ConstStringRef negativeNumber = "-12366"_s;
+		int parsedNegativeNumber = 1;
+
+		const char * const iteratorNegativeNumber = parseNumber<10>(negativeNumber.begin(),
+				parsedNegativeNumber, [](const char *) { CPPUNIT_FAIL(""); });
+		CPPUNIT_ASSERT_EQUAL(-12366, parsedNegativeNumber);
+		CPPUNIT_ASSERT_EQUAL(negativeNumber.end(), iteratorNegativeNumber);
+	}
+
+	{
+		ConstStringRef zero = "0"_s;
+		int parsedZero = 1;
+
+		const char * const iteratorZero = parseNumber<10>(zero.begin(),
+				parsedZero, [](const char *) { CPPUNIT_FAIL(""); });
+		CPPUNIT_ASSERT_EQUAL(0, parsedZero);
+		CPPUNIT_ASSERT_EQUAL(zero.end(), iteratorZero);
+	}
+
+	{
+		string maxInt(std::to_string(std::numeric_limits<int>::max()));
+		int parsedNumber = 0;
+
+		const char * const result = parseNumber<10>(maxInt.c_str(),
+				parsedNumber, [](const char *) { CPPUNIT_FAIL(""); });
+		CPPUNIT_ASSERT_EQUAL(std::numeric_limits<int>::max(), parsedNumber);
+		CPPUNIT_ASSERT(maxInt.c_str() + maxInt.size() == result);
+	}
+
+	{
+		string minInt(std::to_string(std::numeric_limits<int>::min()));
+		int parsedNumber = 0;
+
+		const char * const result = parseNumber<10>(minInt.c_str(),
+				parsedNumber, [](const char *) { CPPUNIT_FAIL(""); });
+		CPPUNIT_ASSERT_EQUAL(std::numeric_limits<int>::min(), parsedNumber);
+		CPPUNIT_ASSERT(minInt.c_str() + minInt.size() == result);
+	}
+
+	if (std::numeric_limits<long long>::max() > std::numeric_limits<int>::max()) {
+		bool errorReported = false;
+		string overflow(std::to_string(static_cast<long long>(std::numeric_limits<int>::max()) + 1));
+		int parsedNumber = 0;
+
+		parseNumber<10>(overflow.c_str(), parsedNumber, [&](const char *) { errorReported = true; });
+		CPPUNIT_ASSERT(errorReported);
+	}
+
+	if (std::numeric_limits<long long>::min() < std::numeric_limits<int>::min()) {
+		bool errorReported = false;
+		string underflow(std::to_string(static_cast<long long>(std::numeric_limits<int>::min()) - 1));
+		int parsedNumber = 0;
+
+		parseNumber<10>(underflow.c_str(), parsedNumber, [&](const char *) { errorReported = true; });
+		CPPUNIT_ASSERT(errorReported);
+	}
+}
+
+void afc::NumberTest::testParseNumberCString_DecimalUnsignedInts()
+{
+	{
+		ConstStringRef positiveNumber = "1053"_s;
+		unsigned parsedPositiveNumber = 1;
+
+		const char * const iteratorPositiveNumber = parseNumber<10>(positiveNumber.begin(),
+				parsedPositiveNumber, [](const char *) { CPPUNIT_FAIL(""); });
+		CPPUNIT_ASSERT_EQUAL(1053u, parsedPositiveNumber);
+		CPPUNIT_ASSERT_EQUAL(positiveNumber.end(), iteratorPositiveNumber);
+	}
+
+	{
+		ConstStringRef zero = "0"_s;
+		unsigned parsedZero = 1;
+
+		const char * const iteratorZero = parseNumber<10>(zero.begin(),
+				parsedZero, [](const char *) { CPPUNIT_FAIL(""); });
+		CPPUNIT_ASSERT_EQUAL(0u, parsedZero);
+		CPPUNIT_ASSERT_EQUAL(zero.end(), iteratorZero);
+	}
+
+	{
+		string maxUInt(std::to_string(std::numeric_limits<unsigned>::max()));
+		unsigned parsedNumber = 0;
+
+		const char * const result = parseNumber<10>(maxUInt.c_str(),
+				parsedNumber, [](const char *) { CPPUNIT_FAIL(""); });
+		CPPUNIT_ASSERT_EQUAL(std::numeric_limits<unsigned>::max(), parsedNumber);
+		CPPUNIT_ASSERT(maxUInt.c_str() + maxUInt.size() == result);
+	}
+
+	if (std::numeric_limits<unsigned long long>::max() > std::numeric_limits<unsigned>::max()) {
+		bool errorReported = false;
+		string overflow(std::to_string(static_cast<unsigned long long>(std::numeric_limits<unsigned>::max()) + 1));
+		unsigned parsedNumber = 0;
+
+		parseNumber<10>(overflow.c_str(), parsedNumber, [&](const char *) { errorReported = true; });
+		CPPUNIT_ASSERT(errorReported);
+	}
+}
+
+void afc::NumberTest::testParseNumberCString_HexInts()
+{
+	{
+		ConstStringRef positiveNumber = "F3aB"_s;
+		int parsedPositiveNumber = 1;
+
+		const char * const iteratorPositiveNumber = parseNumber<16>(positiveNumber.begin(),
+				parsedPositiveNumber, [](const char *) { CPPUNIT_FAIL("parse error"); });
+		CPPUNIT_ASSERT_EQUAL(0xf3ab, parsedPositiveNumber);
+		CPPUNIT_ASSERT_EQUAL(positiveNumber.end(), iteratorPositiveNumber);
+	}
+
+	{
+		ConstStringRef negativeNumber = "-1f9e"_s;
+		int parsedNegativeNumber = 1;
+
+		const char * const iteratorNegativeNumber = parseNumber<16>(negativeNumber.begin(),
+				parsedNegativeNumber, [](const char *) { CPPUNIT_FAIL("parse error"); });
+		CPPUNIT_ASSERT_EQUAL(-0x1f9e, parsedNegativeNumber);
+		CPPUNIT_ASSERT_EQUAL(negativeNumber.end(), iteratorNegativeNumber);
+	}
+
+	{
+		ConstStringRef zero = "0"_s;
+		int parsedZero = 1;
+
+		const char * const iteratorZero = parseNumber<16>(zero.begin(),
+				parsedZero, [](const char *) { CPPUNIT_FAIL("parse error"); });
+		CPPUNIT_ASSERT_EQUAL(0, parsedZero);
+		CPPUNIT_ASSERT_EQUAL(zero.end(), iteratorZero);
+	}
+}
+
+void afc::NumberTest::testParseNumberCString_HexUnsignedInts()
+{
+	{
+		ConstStringRef positiveNumber = "e05D"_s;
+		unsigned parsedPositiveNumber = 1;
+
+		const char * const iteratorPositiveNumber = parseNumber<16>(positiveNumber.begin(),
+				parsedPositiveNumber, [](const char *) { CPPUNIT_FAIL("parse error"); });
+		CPPUNIT_ASSERT_EQUAL(0xe05du, parsedPositiveNumber);
+		CPPUNIT_ASSERT_EQUAL(positiveNumber.end(), iteratorPositiveNumber);
+	}
+
+	{
+		ConstStringRef zero = "0"_s;
+		unsigned parsedZero = 1;
+
+		const char * const iteratorZero = parseNumber<16>(zero.begin(),
+				parsedZero, [](const char *) { CPPUNIT_FAIL("parse error"); });
+		CPPUNIT_ASSERT_EQUAL(0u, parsedZero);
+		CPPUNIT_ASSERT_EQUAL(zero.end(), iteratorZero);
 	}
 }
