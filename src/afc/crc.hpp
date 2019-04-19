@@ -63,6 +63,12 @@ namespace afc
 		{
 			return suitableForFastAligned8() && alignof(std::max_align_t) >= 8;
 		}
+
+		// Calculates CRC64 LSB remainer for the next 8 bits.
+		inline std::uint_fast64_t crc64ReverseStep(std::uint_fast64_t crc, const unsigned char x)
+		{
+			return (crc >> 8) ^ afc::crc64Reversed_impl::lookupTable[(x ^ crc) & 0xff];
+		}
 	}
 
 	std::uint_fast64_t crc64ReversedUpdate(std::uint_fast64_t currentCrc, const unsigned char *data, std::size_t n);
@@ -116,7 +122,7 @@ namespace afc
 		std::uint_fast64_t crc = currentCrc;
 
 		for (Iterator p = begin; p != end; ++p) {
-			crc = (crc >> 8) ^ afc::crc64Reversed_impl::lookupTable[(*p ^ crc) & 0xff];
+			crc = afc::crc64Reversed_impl::crc64ReverseStep(crc, *p);
 		}
 
 		return crc;

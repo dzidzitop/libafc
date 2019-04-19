@@ -171,7 +171,7 @@ namespace
 
 		// The rest of the data is calculated using the slow version of CRC64.
 		for (std::size_t i = fastN; i < n; ++i) {
-			crc = (crc >> 8) ^ afc::crc64Reversed_impl::lookupTable[(data[i] ^ crc) & 0xff];
+			crc = afc::crc64Reversed_impl::crc64ReverseStep(crc, data[i]);
 		}
 
 		return crc;
@@ -736,7 +736,7 @@ std::uint_fast64_t afc::crc64ReversedUpdate(const std::uint_fast64_t currentCrc,
 			std::size_t slowPreN = n - remainingN;
 			// Processing non-aligned data.
 			for (std::size_t i = 0; i < slowPreN; ++i) {
-				crc = (crc >> 8) ^ afc::crc64Reversed_impl::lookupTable[(data[i] ^ crc) & 0xff];
+				crc = afc::crc64Reversed_impl::crc64ReverseStep(crc, data[i]);
 			}
 
 			return crc64ReversedUpdate_Aligned8Impl_Inline(
@@ -744,7 +744,7 @@ std::uint_fast64_t afc::crc64ReversedUpdate(const std::uint_fast64_t currentCrc,
 		} else {
 			// There is no aligned data. Going the slow way.
 			for (std::size_t i = 0; i < n; ++i) {
-				crc = (crc >> 8) ^ afc::crc64Reversed_impl::lookupTable[(data[i] ^ crc) & 0xff];
+				crc = afc::crc64Reversed_impl::crc64ReverseStep(crc, data[i]);
 			}
 		}
 	} else {
@@ -759,7 +759,7 @@ std::uint_fast64_t afc::crc64ReversedUpdate(const std::uint_fast64_t currentCrc,
 
 		// The rest of the data is calculated using the slow version of CRC64.
 		for (std::size_t i = fastN; i < n; ++i) {
-			crc = (crc >> 8) ^ afc::crc64Reversed_impl::lookupTable[(data[i] ^ crc) & 0xff];
+			crc = afc::crc64Reversed_impl::crc64ReverseStep(crc, data[i]);
 		}
 	}
 
