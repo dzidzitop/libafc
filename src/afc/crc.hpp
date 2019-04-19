@@ -50,6 +50,19 @@ namespace afc
 		extern const std::uint_fast64_t lookupTable7[0x100];
 		// CRC64 of xx00000000000000
 		extern const std::uint_fast64_t lookupTable8[0x100];
+
+		// Indicates if aligned-8 data processing can be implemented in this platform.
+		constexpr bool suitableForFastAligned8()
+		{
+			return afc::PLATFORM_BYTE_ORDER == afc::endianness::LE &&
+					sizeof(std::uint_fast64_t) == 8 && CHAR_BIT == 8;
+		}
+
+		// Indicates if aligned-8 data can be exctracted from an arbitrary unsigned char data chunk.
+		constexpr bool suitableForAutoFastAligned8()
+		{
+			return suitableForFastAligned8() && alignof(std::max_align_t) >= 8;
+		}
 	}
 
 	std::uint_fast64_t crc64ReversedUpdate(std::uint_fast64_t currentCrc, const unsigned char *data, std::size_t n);
@@ -59,7 +72,7 @@ namespace afc
 
 	inline std::uint_fast64_t crc64ReversedUpdate_Aligned8(const std::uint_fast64_t currentCrc,
 			const unsigned char *data, const std::size_t n) {
-		if (afc::PLATFORM_BYTE_ORDER == afc::endianness::LE && sizeof(std::uint_fast64_t) == 8 && CHAR_BIT == 8) {
+		if (afc::crc64Reversed_impl::suitableForFastAligned8()) {
 			// An optimised version that works only for little-endian platforms with 64-bit std::uint_fast64_t.
 			return crc64ReversedUpdate_Aligned8Impl(currentCrc, data, n);
 		} else {

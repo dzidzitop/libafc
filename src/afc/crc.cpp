@@ -725,12 +725,11 @@ const std::uint_fast64_t afc::crc64Reversed_impl::lookupTable8[0x100] = {
 std::uint_fast64_t afc::crc64ReversedUpdate(const std::uint_fast64_t currentCrc,
 		const unsigned char * const data, const std::size_t n)
 {
-	static_assert(alignof(std::max_align_t) >= 8, "alignment by 8 is unsupported");
 	assert(currentCrc == (currentCrc & 0xffffffffffffffff));
 
 	std::uint_fast64_t crc = currentCrc;
 
-	if (afc::PLATFORM_BYTE_ORDER == afc::endianness::LE) {
+	if (afc::crc64Reversed_impl::suitableForAutoFastAligned8()) {
 		void *alignedData = const_cast<void *>(reinterpret_cast<const void *>(data));
 		std::size_t remainingN = n;
 		if (std::align(8, 1, alignedData, remainingN)) {
