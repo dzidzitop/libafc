@@ -16,6 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 #include "crc.hpp"
 #include "builtin.hpp"
+#include <memory>
 
 namespace
 {
@@ -150,6 +151,28 @@ namespace
 					lookupTable[(chunk >> 56) & 0xff];
 			i += 8;
 		} while (i < n);
+
+		return crc;
+	}
+
+	inline std::uint_fast64_t crc64ReversedUpdate_Aligned8Impl_Inline(const std::uint_fast64_t currentCrc,
+			const unsigned char * const data, const std::size_t n)
+	{
+		assert(currentCrc == (currentCrc & 0xffffffffffffffff));
+
+		const std::size_t fastN = n & ~std::size_t(0x07); // n - n % 8
+
+		std::uint_fast64_t crc = currentCrc;
+
+		if (fastN > 0) {
+			// Calculating fast for as much data as possible.
+			crc = crc64Fast64Aligned8Impl(crc, data, fastN);
+		}
+
+		// The rest of the data is calculated using the slow version of CRC64.
+		for (std::size_t i = fastN; i < n; ++i) {
+			crc = (crc >> 8) ^ afc::crc64Reversed_impl::lookupTable[(data[i] ^ crc) & 0xff];
+		}
 
 		return crc;
 	}
@@ -702,20 +725,43 @@ const std::uint_fast64_t afc::crc64Reversed_impl::lookupTable8[0x100] = {
 std::uint_fast64_t afc::crc64ReversedUpdate(const std::uint_fast64_t currentCrc,
 		const unsigned char * const data, const std::size_t n)
 {
+	static_assert(alignof(std::max_align_t) >= 8, "alignment by 8 is unsupported");
 	assert(currentCrc == (currentCrc & 0xffffffffffffffff));
-
-	const std::size_t fastN = n & ~size_t(0x07); // n - n % 8
 
 	std::uint_fast64_t crc = currentCrc;
 
-	if (fastN > 0) {
-		// Calculating fast for as much data as possible.
-		crc = crc64Fast64Impl(crc, data, fastN);
-	}
+	if (afc::PLATFORM_BYTE_ORDER == afc::endianness::LE) {
+		void *alignedData = const_cast<void *>(reinterpret_cast<const void *>(data));
+		std::size_t remainingN = n;
+		if (std::align(8, 1, alignedData, remainingN)) {
+			std::size_t slowPreN = n - remainingN;
+			// Processing non-aligned data.
+			for (std::size_t i = 0; i < slowPreN; ++i) {
+				crc = (crc >> 8) ^ afc::crc64Reversed_impl::lookupTable[(data[i] ^ crc) & 0xff];
+			}
 
-	// The rest of the data is calculated using the slow version of CRC64.
-	for (std::size_t i = fastN; i < n; ++i) {
-		crc = (crc >> 8) ^ afc::crc64Reversed_impl::lookupTable[(data[i] ^ crc) & 0xff];
+			return crc64ReversedUpdate_Aligned8Impl_Inline(
+					crc, reinterpret_cast<const unsigned char *>(alignedData), remainingN);
+		} else {
+			// There is no aligned data. Going the slow way.
+			for (std::size_t i = 0; i < n; ++i) {
+				crc = (crc >> 8) ^ afc::crc64Reversed_impl::lookupTable[(data[i] ^ crc) & 0xff];
+			}
+		}
+	} else {
+		const std::size_t fastN = n & ~size_t(0x07); // n - n % 8
+
+		std::uint_fast64_t crc = currentCrc;
+
+		if (fastN > 0) {
+			// Calculating fast for as much data as possible.
+			crc = crc64Fast64Impl(crc, data, fastN);
+		}
+
+		// The rest of the data is calculated using the slow version of CRC64.
+		for (std::size_t i = fastN; i < n; ++i) {
+			crc = (crc >> 8) ^ afc::crc64Reversed_impl::lookupTable[(data[i] ^ crc) & 0xff];
+		}
 	}
 
 	return crc;
@@ -724,23 +770,7 @@ std::uint_fast64_t afc::crc64ReversedUpdate(const std::uint_fast64_t currentCrc,
 std::uint_fast64_t afc::crc64ReversedUpdate_Aligned8Impl(const std::uint_fast64_t currentCrc,
 		const unsigned char * const data, const std::size_t n)
 {
-	assert(currentCrc == (currentCrc & 0xffffffffffffffff));
-
-	const std::size_t fastN = n & ~std::size_t(0x07); // n - n % 8
-
-	std::uint_fast64_t crc = currentCrc;
-
-	if (fastN > 0) {
-		// Calculating fast for as much data as possible.
-		crc = crc64Fast64Aligned8Impl(crc, data, fastN);
-	}
-
-	// The rest of the data is calculated using the slow version of CRC64.
-	for (std::size_t i = fastN; i < n; ++i) {
-		crc = (crc >> 8) ^ afc::crc64Reversed_impl::lookupTable[(data[i] ^ crc) & 0xff];
-	}
-
-	return crc;
+	return crc64ReversedUpdate_Aligned8Impl_Inline(currentCrc, data, n);
 }
 
 std::uint_fast64_t afc::crc64ReversedUpdate_Fast32(const std::uint_fast64_t currentCrc,
