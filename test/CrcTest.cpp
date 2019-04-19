@@ -18,147 +18,148 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 CPPUNIT_TEST_SUITE_REGISTRATION(afc::CrcTest);
 
-void afc::CrcTest::testCrc64()
+void afc::CrcTest::testCrc64Reversed()
 {
 	{
 		unsigned char data[] = {};
-		CPPUNIT_ASSERT_EQUAL(std::uint_fast64_t(0), afc::crc64(data, sizeof(data)));
+		CPPUNIT_ASSERT_EQUAL(std::uint_fast64_t(0), afc::crc64Reversed(data, sizeof(data)));
 	}
 
 	{
 		unsigned char data[] = {0x80};
-		CPPUNIT_ASSERT_EQUAL(0xc96c5795d7870f42u, afc::crc64(data, sizeof(data)));
+		CPPUNIT_ASSERT_EQUAL(0xc96c5795d7870f42u, afc::crc64Reversed(data, sizeof(data)));
 	}
 
 	{
 		unsigned char data[] = {0xde, 0xad};
-		CPPUNIT_ASSERT_EQUAL(0x44277f18417c45a5u, afc::crc64(data, sizeof(data)));
+		CPPUNIT_ASSERT_EQUAL(0x44277f18417c45a5u, afc::crc64Reversed(data, sizeof(data)));
 	}
 
 	{
 		unsigned char data[] = {0xde, 0xad, 0xbe, 0xef};
-		CPPUNIT_ASSERT_EQUAL(0xfc232c18806871afu, afc::crc64(data, sizeof(data)));
+		CPPUNIT_ASSERT_EQUAL(0xfc232c18806871afu, afc::crc64Reversed(data, sizeof(data)));
 	}
 
 	{
 		unsigned char data[] =
 				{0x99, 0xeb, 0x96, 0xdd, 0x94, 0xc8, 0x8e, 0x97, 0x5b, 0x58, 0x5d, 0x2f, 0x28, 0x78, 0x5e, 0x36};
-		CPPUNIT_ASSERT_EQUAL(0xdb7ac38f63413c4eu, afc::crc64(data, sizeof(data)));
+		CPPUNIT_ASSERT_EQUAL(0xdb7ac38f63413c4eu, afc::crc64Reversed(data, sizeof(data)));
 	}
 }
 
-void afc::CrcTest::testCrc64Update()
+void afc::CrcTest::testCrc64ReversedUpdate()
 {
 	{
 		unsigned char data[] = {};
-		CPPUNIT_ASSERT_EQUAL(std::uint_fast64_t(0xff443322), afc::crc64Update(0xff443322, data, sizeof(data)));
+		CPPUNIT_ASSERT_EQUAL(std::uint_fast64_t(0xff443322), afc::crc64ReversedUpdate(0xff443322, data, sizeof(data)));
 	}
 
 	{
 		unsigned char data1[] = {0x99, 0xeb, 0x96, 0xdd, 0x94, 0xc8, 0x8e};
 		unsigned char data2[] = {0x97, 0x5b, 0x58, 0x5d, 0x2f, 0x28, 0x78, 0x5e, 0x36};
-		std::uint_fast64_t crc = crc64Update(0, data1, sizeof(data1));
-		crc = crc64Update(crc, data2, sizeof(data2));
+		std::uint_fast64_t crc = crc64ReversedUpdate(0, data1, sizeof(data1));
+		crc = crc64ReversedUpdate(crc, data2, sizeof(data2));
 		CPPUNIT_ASSERT_EQUAL(0xdb7ac38f63413c4eu, crc);
 	}
 }
 
-void afc::CrcTest::testCrc64_Iterator()
+void afc::CrcTest::testCrc64Reversed_Iterator()
 {
 	{
 		CPPUNIT_ASSERT_EQUAL(std::uint_fast64_t(0),
-				afc::crc64(static_cast<unsigned char *>(nullptr), static_cast<unsigned char *>(nullptr)));
+				afc::crc64Reversed(static_cast<unsigned char *>(nullptr), static_cast<unsigned char *>(nullptr)));
 	}
 
 	{
 		unsigned char nodata;
-		CPPUNIT_ASSERT_EQUAL(std::uint_fast64_t(0), afc::crc64(&nodata, &nodata));
+		CPPUNIT_ASSERT_EQUAL(std::uint_fast64_t(0), afc::crc64Reversed(&nodata, &nodata));
 	}
 
 	{
 		unsigned char data[] = {0x80};
-		CPPUNIT_ASSERT_EQUAL(0xc96c5795d7870f42u, afc::crc64(&data[0], &data[0] + sizeof(data)));
+		CPPUNIT_ASSERT_EQUAL(0xc96c5795d7870f42u, afc::crc64Reversed(&data[0], &data[0] + sizeof(data)));
 	}
 
 	{
 		unsigned char data[] = {0xde, 0xad};
-		CPPUNIT_ASSERT_EQUAL(0x44277f18417c45a5u, afc::crc64(&data[0], &data[0] + sizeof(data)));
+		CPPUNIT_ASSERT_EQUAL(0x44277f18417c45a5u, afc::crc64Reversed(&data[0], &data[0] + sizeof(data)));
 	}
 
 	{
 		unsigned char data[] = {0xde, 0xad, 0xbe, 0xef};
-		CPPUNIT_ASSERT_EQUAL(0xfc232c18806871afu, afc::crc64(&data[0], &data[0] + sizeof(data)));
+		CPPUNIT_ASSERT_EQUAL(0xfc232c18806871afu, afc::crc64Reversed(&data[0], &data[0] + sizeof(data)));
 	}
 
 	{
 		unsigned char data[] =
 				{0x99, 0xeb, 0x96, 0xdd, 0x94, 0xc8, 0x8e, 0x97, 0x5b, 0x58, 0x5d, 0x2f, 0x28, 0x78, 0x5e, 0x36};
-		CPPUNIT_ASSERT_EQUAL(0xdb7ac38f63413c4eu, afc::crc64(&data[0], &data[0] + sizeof(data)));
+		CPPUNIT_ASSERT_EQUAL(0xdb7ac38f63413c4eu, afc::crc64Reversed(&data[0], &data[0] + sizeof(data)));
 	}
 }
 
-void afc::CrcTest::testCrc64Update_Iterator()
+void afc::CrcTest::testCrc64ReversedUpdate_Iterator()
 {
 	{
 		CPPUNIT_ASSERT_EQUAL(std::uint_fast64_t(0x345aa),
-				afc::crc64Update(0x345aa, static_cast<unsigned char *>(nullptr),
+				afc::crc64ReversedUpdate(0x345aa, static_cast<unsigned char *>(nullptr),
 						static_cast<unsigned char *>(nullptr)));
 	}
 
 	{
 		unsigned char nodata;
-		CPPUNIT_ASSERT_EQUAL(std::uint_fast64_t(0x123456), afc::crc64Update(0x123456, &nodata, &nodata));
+		CPPUNIT_ASSERT_EQUAL(std::uint_fast64_t(0x123456), afc::crc64ReversedUpdate(0x123456, &nodata, &nodata));
 	}
 
 	{
 		unsigned char data1[] = {0x99, 0xeb, 0x96, 0xdd, 0x94, 0xc8, 0x8e, 0x97};
 		unsigned char data2[] = {0x5b, 0x58, 0x5d, 0x2f, 0x28, 0x78, 0x5e, 0x36};
-		std::uint_fast64_t crc = afc::crc64Update(0, &data1[0], &data1[0] + sizeof(data1));
-		crc = crc64Update(crc, &data2[0], &data2[0] + sizeof(data2));
+		std::uint_fast64_t crc = afc::crc64ReversedUpdate(0, &data1[0], &data1[0] + sizeof(data1));
+		crc = crc64ReversedUpdate(crc, &data2[0], &data2[0] + sizeof(data2));
 		CPPUNIT_ASSERT_EQUAL(0xdb7ac38f63413c4eu, crc);
 	}
 }
 
-void afc::CrcTest::testCrc64_Aligned8()
+void afc::CrcTest::testCrc64Reversed_Aligned8()
 {
 	{
 		alignas(8)
 		unsigned char data[] = {};
-		CPPUNIT_ASSERT_EQUAL(std::uint_fast64_t(0), afc::crc64_Aligned8(data, sizeof(data)));
+		CPPUNIT_ASSERT_EQUAL(std::uint_fast64_t(0), afc::crc64Reversed_Aligned8(data, sizeof(data)));
 	}
 
 	{
 		alignas(8)
 		unsigned char data[] = {0x80};
-		CPPUNIT_ASSERT_EQUAL(0xc96c5795d7870f42u, afc::crc64_Aligned8(data, sizeof(data)));
+		CPPUNIT_ASSERT_EQUAL(0xc96c5795d7870f42u, afc::crc64Reversed_Aligned8(data, sizeof(data)));
 	}
 
 	{
 		alignas(8)
 		unsigned char data[] = {0xde, 0xad};
-		CPPUNIT_ASSERT_EQUAL(0x44277f18417c45a5u, afc::crc64_Aligned8(data, sizeof(data)));
+		CPPUNIT_ASSERT_EQUAL(0x44277f18417c45a5u, afc::crc64Reversed_Aligned8(data, sizeof(data)));
 	}
 
 	{
 		alignas(8)
 		unsigned char data[] = {0xde, 0xad, 0xbe, 0xef};
-		CPPUNIT_ASSERT_EQUAL(0xfc232c18806871afu, afc::crc64_Aligned8(data, sizeof(data)));
+		CPPUNIT_ASSERT_EQUAL(0xfc232c18806871afu, afc::crc64Reversed_Aligned8(data, sizeof(data)));
 	}
 
 	{
 		alignas(8)
 		unsigned char data[] =
 				{0x99, 0xeb, 0x96, 0xdd, 0x94, 0xc8, 0x8e, 0x97, 0x5b, 0x58, 0x5d, 0x2f, 0x28, 0x78, 0x5e, 0x36};
-		CPPUNIT_ASSERT_EQUAL(0xdb7ac38f63413c4eu, afc::crc64_Aligned8(data, sizeof(data)));
+		CPPUNIT_ASSERT_EQUAL(0xdb7ac38f63413c4eu, afc::crc64Reversed_Aligned8(data, sizeof(data)));
 	}
 }
 
-void afc::CrcTest::testCrc64Update_Aligned8()
+void afc::CrcTest::testCrc64ReversedUpdate_Aligned8()
 {
 	{
 		alignas(8)
 		unsigned char data[] = {};
-		CPPUNIT_ASSERT_EQUAL(std::uint_fast64_t(0xff443322), afc::crc64Update_Aligned8(0xff443322, data, sizeof(data)));
+		CPPUNIT_ASSERT_EQUAL(std::uint_fast64_t(0xff443322),
+				afc::crc64ReversedUpdate_Aligned8(0xff443322, data, sizeof(data)));
 	}
 
 	{
@@ -166,8 +167,8 @@ void afc::CrcTest::testCrc64Update_Aligned8()
 		unsigned char data1[] = {0x99, 0xeb, 0x96, 0xdd, 0x94, 0xc8, 0x8e};
 		alignas(8)
 		unsigned char data2[] = {0x97, 0x5b, 0x58, 0x5d, 0x2f, 0x28, 0x78, 0x5e, 0x36};
-		std::uint_fast64_t crc = crc64Update_Aligned8(0, data1, sizeof(data1));
-		crc = crc64Update_Aligned8(crc, data2, sizeof(data2));
+		std::uint_fast64_t crc = crc64ReversedUpdate_Aligned8(0, data1, sizeof(data1));
+		crc = crc64ReversedUpdate_Aligned8(crc, data2, sizeof(data2));
 		CPPUNIT_ASSERT_EQUAL(0xdb7ac38f63413c4eu, crc);
 	}
 }

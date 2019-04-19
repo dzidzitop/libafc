@@ -23,7 +23,7 @@ namespace
 	{
 		// Emulating 'for (int i = 0; i < 8; ++i)' with crc recalculated on each iteration.
 		return iteration == 8 ? crc :
-				tableValLoop((crc & 1) ? (crc >> 1) ^ afc::crc64_impl::polynome_reversed : crc >> 1, iteration + 1);
+				tableValLoop((crc & 1) ? (crc >> 1) ^ afc::crc64Reversed_impl::polynome : crc >> 1, iteration + 1);
 	}
 
 	// for sequence xx
@@ -94,6 +94,8 @@ namespace
 	inline std::uint_fast64_t crc64Fast64Impl(std::uint_fast64_t currentCrc,
 			const unsigned char * const data, const std::size_t n)
 	{
+		using namespace afc::crc64Reversed_impl;
+
 		assert(currentCrc == (currentCrc & 0xffffffffffffffff));
 		assert(n > 0);
 		assert(n % 8 == 0);
@@ -101,14 +103,14 @@ namespace
 		std::size_t crc = currentCrc;
 		std::size_t i = 0;
 		do {
-			crc = afc::crc64_impl::lookupTable8[(data[i] ^ crc) & 0xff] ^
-					afc::crc64_impl::lookupTable7[(data[i + 1] ^ (crc >> 8)) & 0xff] ^
-					afc::crc64_impl::lookupTable6[(data[i + 2] ^ (crc >> 16)) & 0xff] ^
-					afc::crc64_impl::lookupTable5[(data[i + 3] ^ (crc >> 24)) & 0xff] ^
-					afc::crc64_impl::lookupTable4[(data[i + 4] ^ (crc >> 32)) & 0xff] ^
-					afc::crc64_impl::lookupTable3[(data[i + 5] ^ (crc >> 40)) & 0xff] ^
-					afc::crc64_impl::lookupTable2[(data[i + 6] ^ (crc >> 48)) & 0xff] ^
-					afc::crc64_impl::lookupTable[(data[i + 7] ^ (crc >> 56)) & 0xff];
+			crc = lookupTable8[(data[i] ^ crc) & 0xff] ^
+					lookupTable7[(data[i + 1] ^ (crc >> 8)) & 0xff] ^
+					lookupTable6[(data[i + 2] ^ (crc >> 16)) & 0xff] ^
+					lookupTable5[(data[i + 3] ^ (crc >> 24)) & 0xff] ^
+					lookupTable4[(data[i + 4] ^ (crc >> 32)) & 0xff] ^
+					lookupTable3[(data[i + 5] ^ (crc >> 40)) & 0xff] ^
+					lookupTable2[(data[i + 6] ^ (crc >> 48)) & 0xff] ^
+					lookupTable[(data[i + 7] ^ (crc >> 56)) & 0xff];
 			i += 8;
 		} while (i < n);
 
@@ -123,6 +125,8 @@ namespace
 	inline std::uint_fast64_t crc64Fast64Aligned8Impl(std::uint_fast64_t currentCrc,
 			const unsigned char * const data, const std::size_t n)
 	{
+		using namespace afc::crc64Reversed_impl;
+
 		assert(afc::PLATFORM_BYTE_ORDER == afc::endianness::LE);
 		assert(sizeof(std::uint_fast64_t) == 8 && CHAR_BIT == 8);
 		assert((static_cast<std::uintptr_t>(data) & ~std::uintptr_t(0x07)) == static_cast<std::uintptr_t>(data));
@@ -136,14 +140,14 @@ namespace
 			// Reading the data chunk as an uint64 value to xor it with crc at once.
 			std::uint_fast64_t chunk = *reinterpret_cast<const std::uint_fast64_t *>(data + i);
 			chunk ^= crc;
-			crc = afc::crc64_impl::lookupTable8[chunk & 0xff] ^
-					afc::crc64_impl::lookupTable7[(chunk >> 8) & 0xff] ^
-					afc::crc64_impl::lookupTable6[(chunk >> 16) & 0xff] ^
-					afc::crc64_impl::lookupTable5[(chunk >> 24) & 0xff] ^
-					afc::crc64_impl::lookupTable4[(chunk >> 32) & 0xff] ^
-					afc::crc64_impl::lookupTable3[(chunk >> 40) & 0xff] ^
-					afc::crc64_impl::lookupTable2[(chunk >> 48) & 0xff] ^
-					afc::crc64_impl::lookupTable[(chunk >> 56) & 0xff];
+			crc = lookupTable8[chunk & 0xff] ^
+					lookupTable7[(chunk >> 8) & 0xff] ^
+					lookupTable6[(chunk >> 16) & 0xff] ^
+					lookupTable5[(chunk >> 24) & 0xff] ^
+					lookupTable4[(chunk >> 32) & 0xff] ^
+					lookupTable3[(chunk >> 40) & 0xff] ^
+					lookupTable2[(chunk >> 48) & 0xff] ^
+					lookupTable[(chunk >> 56) & 0xff];
 			i += 8;
 		} while (i < n);
 
@@ -152,7 +156,7 @@ namespace
 }
 
 // CRC64 value for each 00 00 00 00 00 00 00 xx.
-const std::uint_fast64_t afc::crc64_impl::lookupTable[0x100] = {
+const std::uint_fast64_t afc::crc64Reversed_impl::lookupTable[0x100] = {
 		tableVal(0x00), tableVal(0x01), tableVal(0x02), tableVal(0x03),
 		tableVal(0x04), tableVal(0x05), tableVal(0x06), tableVal(0x07),
 		tableVal(0x08), tableVal(0x09), tableVal(0x0a), tableVal(0x0b),
@@ -220,7 +224,7 @@ const std::uint_fast64_t afc::crc64_impl::lookupTable[0x100] = {
 };
 
 // CRC64 value for each 00 00 00 00 00 00 00 00 xx.
-const std::uint_fast64_t afc::crc64_impl::lookupTable2[0x100] = {
+const std::uint_fast64_t afc::crc64Reversed_impl::lookupTable2[0x100] = {
 		tableVal2(0x00), tableVal2(0x01), tableVal2(0x02), tableVal2(0x03),
 		tableVal2(0x04), tableVal2(0x05), tableVal2(0x06), tableVal2(0x07),
 		tableVal2(0x08), tableVal2(0x09), tableVal2(0x0a), tableVal2(0x0b),
@@ -288,7 +292,7 @@ const std::uint_fast64_t afc::crc64_impl::lookupTable2[0x100] = {
 };
 
 // CRC64 value for each 00 00 00 00 00 00 00 00 00 xx.
-const std::uint_fast64_t afc::crc64_impl::lookupTable3[0x100] = {
+const std::uint_fast64_t afc::crc64Reversed_impl::lookupTable3[0x100] = {
 		tableVal3(0x00), tableVal3(0x01), tableVal3(0x02), tableVal3(0x03),
 		tableVal3(0x04), tableVal3(0x05), tableVal3(0x06), tableVal3(0x07),
 		tableVal3(0x08), tableVal3(0x09), tableVal3(0x0a), tableVal3(0x0b),
@@ -356,7 +360,7 @@ const std::uint_fast64_t afc::crc64_impl::lookupTable3[0x100] = {
 };
 
 // CRC64 value for each 00 00 00 00 00 00 00 00 00 00 xx.
-const std::uint_fast64_t afc::crc64_impl::lookupTable4[0x100] = {
+const std::uint_fast64_t afc::crc64Reversed_impl::lookupTable4[0x100] = {
 		tableVal4(0x00), tableVal4(0x01), tableVal4(0x02), tableVal4(0x03),
 		tableVal4(0x04), tableVal4(0x05), tableVal4(0x06), tableVal4(0x07),
 		tableVal4(0x08), tableVal4(0x09), tableVal4(0x0a), tableVal4(0x0b),
@@ -424,7 +428,7 @@ const std::uint_fast64_t afc::crc64_impl::lookupTable4[0x100] = {
 };
 
 // CRC64 value for each 00 00 00 00 00 00 00 00 00 00 00 xx.
-const std::uint_fast64_t afc::crc64_impl::lookupTable5[0x100] = {
+const std::uint_fast64_t afc::crc64Reversed_impl::lookupTable5[0x100] = {
 		tableVal5(0x00), tableVal5(0x01), tableVal5(0x02), tableVal5(0x03),
 		tableVal5(0x04), tableVal5(0x05), tableVal5(0x06), tableVal5(0x07),
 		tableVal5(0x08), tableVal5(0x09), tableVal5(0x0a), tableVal5(0x0b),
@@ -492,7 +496,7 @@ const std::uint_fast64_t afc::crc64_impl::lookupTable5[0x100] = {
 };
 
 // CRC64 value for each 00 00 00 00 00 00 00 00 00 00 00 00 xx.
-const std::uint_fast64_t afc::crc64_impl::lookupTable6[0x100] = {
+const std::uint_fast64_t afc::crc64Reversed_impl::lookupTable6[0x100] = {
 		tableVal6(0x00), tableVal6(0x01), tableVal6(0x02), tableVal6(0x03),
 		tableVal6(0x04), tableVal6(0x05), tableVal6(0x06), tableVal6(0x07),
 		tableVal6(0x08), tableVal6(0x09), tableVal6(0x0a), tableVal6(0x0b),
@@ -560,7 +564,7 @@ const std::uint_fast64_t afc::crc64_impl::lookupTable6[0x100] = {
 };
 
 // CRC64 value for each 00 00 00 00 00 00 00 00 00 00 00 00 00 xx.
-const std::uint_fast64_t afc::crc64_impl::lookupTable7[0x100] = {
+const std::uint_fast64_t afc::crc64Reversed_impl::lookupTable7[0x100] = {
 		tableVal7(0x00), tableVal7(0x01), tableVal7(0x02), tableVal7(0x03),
 		tableVal7(0x04), tableVal7(0x05), tableVal7(0x06), tableVal7(0x07),
 		tableVal7(0x08), tableVal7(0x09), tableVal7(0x0a), tableVal7(0x0b),
@@ -628,7 +632,7 @@ const std::uint_fast64_t afc::crc64_impl::lookupTable7[0x100] = {
 };
 
 // CRC64 value for each 00 00 00 00 00 00 00 00 00 00 00 00 00 00 xx.
-const std::uint_fast64_t afc::crc64_impl::lookupTable8[0x100] = {
+const std::uint_fast64_t afc::crc64Reversed_impl::lookupTable8[0x100] = {
 		tableVal8(0x00), tableVal8(0x01), tableVal8(0x02), tableVal8(0x03),
 		tableVal8(0x04), tableVal8(0x05), tableVal8(0x06), tableVal8(0x07),
 		tableVal8(0x08), tableVal8(0x09), tableVal8(0x0a), tableVal8(0x0b),
@@ -695,7 +699,7 @@ const std::uint_fast64_t afc::crc64_impl::lookupTable8[0x100] = {
 		tableVal8(0xfc), tableVal8(0xfd), tableVal8(0xfe), tableVal8(0xff)
 };
 
-std::uint_fast64_t afc::crc64Update(const std::uint_fast64_t currentCrc,
+std::uint_fast64_t afc::crc64ReversedUpdate(const std::uint_fast64_t currentCrc,
 		const unsigned char * const data, const std::size_t n)
 {
 	assert(currentCrc == (currentCrc & 0xffffffffffffffff));
@@ -711,13 +715,13 @@ std::uint_fast64_t afc::crc64Update(const std::uint_fast64_t currentCrc,
 
 	// The rest of the data is calculated using the slow version of CRC64.
 	for (std::size_t i = fastN; i < n; ++i) {
-		crc = (crc >> 8) ^ afc::crc64_impl::lookupTable[(data[i] ^ crc) & 0xff];
+		crc = (crc >> 8) ^ afc::crc64Reversed_impl::lookupTable[(data[i] ^ crc) & 0xff];
 	}
 
 	return crc;
 }
 
-std::uint_fast64_t afc::crc64Update_Aligned8Impl(const std::uint_fast64_t currentCrc,
+std::uint_fast64_t afc::crc64ReversedUpdate_Aligned8Impl(const std::uint_fast64_t currentCrc,
 		const unsigned char * const data, const std::size_t n)
 {
 	assert(currentCrc == (currentCrc & 0xffffffffffffffff));
@@ -733,15 +737,17 @@ std::uint_fast64_t afc::crc64Update_Aligned8Impl(const std::uint_fast64_t curren
 
 	// The rest of the data is calculated using the slow version of CRC64.
 	for (std::size_t i = fastN; i < n; ++i) {
-		crc = (crc >> 8) ^ afc::crc64_impl::lookupTable[(data[i] ^ crc) & 0xff];
+		crc = (crc >> 8) ^ afc::crc64Reversed_impl::lookupTable[(data[i] ^ crc) & 0xff];
 	}
 
 	return crc;
 }
 
-std::uint_fast64_t afc::crc64Update_Fast32(const std::uint_fast64_t currentCrc,
+std::uint_fast64_t afc::crc64ReversedUpdate_Fast32(const std::uint_fast64_t currentCrc,
 		const unsigned char * const data, const std::size_t n)
 {
+	using namespace afc::crc64Reversed_impl;
+
 	assert(currentCrc == (currentCrc & 0xffffffffffffffff));
 	assert(n % 4 == 0);
 
@@ -749,16 +755,16 @@ std::uint_fast64_t afc::crc64Update_Fast32(const std::uint_fast64_t currentCrc,
 
 	for (std::size_t i = 0; i < n; i += 4) {
 		crc = (crc >> 32) ^
-				afc::crc64_impl::lookupTable4[(data[i] ^ crc) & 0xff] ^
-				afc::crc64_impl::lookupTable3[(data[i + 1] ^ (crc >> 8)) & 0xff] ^
-				afc::crc64_impl::lookupTable2[(data[i + 2] ^ (crc >> 16)) & 0xff] ^
-				afc::crc64_impl::lookupTable[(data[i + 3] ^ (crc >> 24)) & 0xff];
+				lookupTable4[(data[i] ^ crc) & 0xff] ^
+				lookupTable3[(data[i + 1] ^ (crc >> 8)) & 0xff] ^
+				lookupTable2[(data[i + 2] ^ (crc >> 16)) & 0xff] ^
+				lookupTable[(data[i + 3] ^ (crc >> 24)) & 0xff];
 	}
 
 	return crc;
 }
 
-std::uint_fast64_t afc::crc64Update_Fast64(const std::uint_fast64_t currentCrc,
+std::uint_fast64_t afc::crc64ReversedUpdate_Fast64(const std::uint_fast64_t currentCrc,
 		const unsigned char * const data, const std::size_t n)
 {
 	if (likely(n > 0)) {

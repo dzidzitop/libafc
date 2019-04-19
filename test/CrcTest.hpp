@@ -24,20 +24,20 @@ namespace afc
 	class CrcTest : public CppUnit::TestFixture
 	{
 		CPPUNIT_TEST_SUITE(CrcTest);
-		CPPUNIT_TEST(testCrc64);
-		CPPUNIT_TEST(testCrc64Update);
-		CPPUNIT_TEST(testCrc64_Iterator);
-		CPPUNIT_TEST(testCrc64Update_Iterator);
-		CPPUNIT_TEST(testCrc64_Aligned8);
-		CPPUNIT_TEST(testCrc64Update_Aligned8);
+		CPPUNIT_TEST(testCrc64Reversed);
+		CPPUNIT_TEST(testCrc64ReversedUpdate);
+		CPPUNIT_TEST(testCrc64Reversed_Iterator);
+		CPPUNIT_TEST(testCrc64ReversedUpdate_Iterator);
+		CPPUNIT_TEST(testCrc64Reversed_Aligned8);
+		CPPUNIT_TEST(testCrc64ReversedUpdate_Aligned8);
 		CPPUNIT_TEST_SUITE_END();
 	public:
-		void testCrc64();
-		void testCrc64Update();
-		void testCrc64_Iterator();
-		void testCrc64Update_Iterator();
-		void testCrc64_Aligned8();
-		void testCrc64Update_Aligned8();
+		void testCrc64Reversed();
+		void testCrc64ReversedUpdate();
+		void testCrc64Reversed_Iterator();
+		void testCrc64ReversedUpdate_Iterator();
+		void testCrc64Reversed_Aligned8();
+		void testCrc64ReversedUpdate_Aligned8();
 	};
 }
 
